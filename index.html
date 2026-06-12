@@ -627,6 +627,36 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 .hero-stat .hs-val{font-size:1.3rem;font-weight:800;color:#4a9eff;}
 .hero-stat .hs-label{font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
 
+/* Maybe flag overlay */
+#maybe-flag-overlay{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;justify-content:center;
+  pointer-events:none;
+  transform:translateY(-110%);
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+#maybe-flag-overlay.show{ transform:translateY(0); }
+#maybe-flag-overlay.hide{ transform:translateY(-110%); transition:transform .5s ease-in; }
+#maybe-flag-inner{
+  display:flex;align-items:center;gap:14px;
+  background:linear-gradient(135deg,#b45309,#d97706,#fbbf24);
+  color:#1a0e00;
+  padding:14px 32px 14px 24px;
+  border-radius:0 0 18px 18px;
+  box-shadow:0 8px 40px rgba(251,191,36,.45),0 2px 12px rgba(0,0,0,.4);
+  font-family:inherit;
+  min-width:320px;
+  max-width:90vw;
+}
+#maybe-flag-icon{ font-size:1.6rem; line-height:1; }
+#maybe-flag-text{ font-size:1.05rem;font-weight:900;letter-spacing:.04em;line-height:1.1; }
+#maybe-flag-sub{ font-size:.75rem;font-weight:600;opacity:.75;margin-left:2px;display:block; }
+
+/* resp-btn active states */
+.resp-btn.resp-active[data-val="yes"]{ background:rgba(52,211,153,.25)!important;border-color:#34d399!important;box-shadow:0 0 12px rgba(52,211,153,.35); }
+.resp-btn.resp-active[data-val="maybe"]{ background:rgba(251,191,36,.25)!important;border-color:#fbbf24!important;box-shadow:0 0 12px rgba(251,191,36,.35); }
+.resp-btn.resp-active[data-val="no"]{ background:rgba(248,113,113,.25)!important;border-color:#f87171!important;box-shadow:0 0 12px rgba(248,113,113,.35); }
+
 /* Partnership card */
 .partnership-card{
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
@@ -1756,6 +1786,59 @@ function savePartnershipEdit(){
   p.notes=document.getElementById('p-edit-notes').value;
   if(p.assignedTo){ const m=getMember(p.assignedTo); if(m) m.partnershipId=id; }
   saveDB();closeModal('p-modal');render();
+}
+
+/* ── Maybe Flag overlay ── */
+function showMaybeFlag(){
+  const existing = document.getElementById('maybe-flag-overlay');
+  if(existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'maybe-flag-overlay';
+  el.innerHTML = `<div id="maybe-flag-inner"><span id="maybe-flag-icon">&#9873;</span><span id="maybe-flag-text">Flagged for Callback</span><span id="maybe-flag-sub">Ethan or Mrs. Fude will follow up with a call</span></div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.classList.add('show'); },10);
+  setTimeout(()=>{ el.classList.remove('show'); el.classList.add('hide'); setTimeout(()=>el.remove(),600); },2800);
+}
+
+/* ── Response modal logic ── */
+let _currentRespId = null;
+let _currentRespVal = null;
+
+function openResponseModal(id){
+  _currentRespId = id;
+  _currentRespVal = null;
+  const p = DB.partnerships.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('resp-id').value = id;
+  document.getElementById('resp-company-name').textContent = p.company + (p.contact ? ' — ' + p.contact : '');
+  document.getElementById('resp-comments').value = p.comments||'';
+  document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('resp-active'));
+  if(p.response){
+    _currentRespVal = p.response;
+    const active = document.querySelector(`.resp-btn[data-val="${p.response}"]`);
+    if(active) active.classList.add('resp-active');
+  }
+  openModal('response-modal');
+}
+
+function selectResp(val){
+  _currentRespVal = val;
+  document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('resp-active'));
+  const btn = document.querySelector(`.resp-btn[data-val="${val}"]`);
+  if(btn) btn.classList.add('resp-active');
+  if(val==='maybe') showMaybeFlag();
+}
+
+function saveResponse(){
+  if(!_currentRespId||!_currentRespVal){ alert('Please select a response.'); return; }
+  const comments = document.getElementById('resp-comments').value.trim();
+  if(_currentRespVal==='maybe'&&!comments){ alert('Please add a comment explaining what the company said.'); return; }
+  const p = DB.partnerships.find(x=>x.id===_currentRespId);
+  if(!p) return;
+  p.response = _currentRespVal;
+  p.comments = comments;
+  p.visitDate = new Date().toISOString().split('T')[0];
+  saveDB(); closeModal('response-modal'); render();
 }
 
 function renderPartnerships(){
