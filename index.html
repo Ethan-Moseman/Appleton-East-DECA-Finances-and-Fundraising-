@@ -197,11 +197,8 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 .topbar .logo{display:flex;align-items:center;gap:10px;}
 .topbar .emblem{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--navy),var(--red));
-  border:2px solid rgba(255,255,255,.2);
+  width:42px;height:42px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:12px;
 }
 .topbar h1{font-size:.95rem;font-weight:700;line-height:1.1;}
 .topbar h1 em{color:#ef4444;font-style:normal;}
@@ -517,7 +514,26 @@ tbody tr:hover td{background:var(--off-white);}
   <!-- Top Bar -->
   <div class="topbar">
     <div class="logo">
-      <div class="emblem">AE</div>
+      <div class="emblem">
+        <svg viewBox="0 0 200 200" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" rx="16" fill="#0057B8"/>
+          <!-- Outer diamond -->
+          <polygon points="100,18 182,100 100,182 18,100" fill="none" stroke="white" stroke-width="9" stroke-linejoin="round"/>
+          <!-- 3D cube lines from corners to center -->
+          <line x1="100" y1="18"  x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="18"  y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="182" y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="100" y1="182" x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <!-- Cover center square with blue to create open-box illusion -->
+          <rect x="68" y="68" width="64" height="64" fill="#0057B8"/>
+          <!-- Redraw inner lines on top -->
+          <line x1="100" y1="18"  x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="18"  y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="182" y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+          <line x1="100" y1="100" x2="100" y2="182" stroke="white" stroke-width="6"/>
+          <circle cx="100" cy="100" r="4.5" fill="white"/>
+        </svg>
+      </div>
       <div>
         <div class="topbar" style="padding:0;height:auto;background:none;box-shadow:none;">
           <h1 style="font-size:.95rem;">Appleton East <em>DECA</em></h1>
