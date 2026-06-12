@@ -1795,7 +1795,7 @@ function showMaybeFlag(){
   if(existing) existing.remove();
   const el = document.createElement('div');
   el.id = 'maybe-flag-overlay';
-  el.innerHTML = `<div id="maybe-flag-inner"><span id="maybe-flag-icon">&#9873;</span><span id="maybe-flag-text">Flagged for Callback</span><span id="maybe-flag-sub">Ethan or Mrs. Fude will follow up with a call</span></div>`;
+  el.innerHTML = `<div id="maybe-flag-inner"><span id="maybe-flag-icon">&#9873;</span><span id="maybe-flag-text">Flagged for Callback</span><span id="maybe-flag-sub">Ethan will follow up with a call</span></div>`;
   document.body.appendChild(el);
   setTimeout(()=>{ el.classList.add('show'); },10);
   setTimeout(()=>{ el.classList.remove('show'); el.classList.add('hide'); setTimeout(()=>el.remove(),600); },2800);
@@ -2191,7 +2191,7 @@ function renderMyPartnership(){
       </div>`;
     }).join('') +
     `<div style="padding:14px 16px;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.12);border-radius:10px;font-size:.83rem;color:rgba(255,255,255,.45);margin-top:4px;">
-      If a company says <strong style="color:#fbbf24;">Maybe</strong>, add a comment explaining what they said so Ethan or Mrs. Fude can follow up with a call.
+      If a company says <strong style="color:#fbbf24;">Maybe</strong>, add a comment explaining what they said so Ethan can follow up with a call.
     </div>`;
 }
 
