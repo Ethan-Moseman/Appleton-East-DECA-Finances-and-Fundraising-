@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Appleton East DECA – Chapter Finance Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --red:#0057B8;--red-dark:#003d82;--red-light:#e6f0fb;
@@ -823,20 +824,55 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       <div class="login-subtitle">Chapter · 2026–2027</div>
     </div>
 
-    <!-- Login form -->
+    <!-- Login / Signup form -->
     <div class="login-card">
-      <div class="card-title">Sign In to Your Account</div>
-      <div class="card-sub">Enter your credentials to access the platform</div>
-      <div id="login-error" class="login-error">Invalid username or password. Please try again.</div>
-      <div class="field">
-        <label>Username</label>
-        <input type="text" id="username" placeholder="Enter your username" autocomplete="username"/>
+      <!-- Tabs -->
+      <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:22px;">
+        <button id="tab-signin" onclick="switchTab('signin')" style="flex:1;background:none;border:none;color:#fff;font-weight:700;font-size:.9rem;padding:10px 0;cursor:pointer;border-bottom:2px solid #0057B8;opacity:1;transition:all .2s;">Sign In</button>
+        <button id="tab-signup" onclick="switchTab('signup')" style="flex:1;background:none;border:none;color:rgba(255,255,255,.4);font-weight:700;font-size:.9rem;padding:10px 0;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;">Create Account</button>
       </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+
+      <!-- Sign In panel -->
+      <div id="panel-signin">
+        <div id="login-error" class="login-error">Invalid email or password. Please try again.</div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="signin-email" placeholder="your@email.com" autocomplete="email"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+        <button class="btn-login" onclick="doLogin()">Sign In &nbsp;→</button>
       </div>
-      <button class="btn-login" onclick="doLogin()">Sign In &nbsp;→</button>
+
+      <!-- Sign Up panel -->
+      <div id="panel-signup" style="display:none;">
+        <div id="signup-msg" class="login-error" style="display:none;"></div>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="signup-name" placeholder="First Last"/>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email"/>
+        </div>
+        <div class="field">
+          <label>Grade</label>
+          <select id="signup-grade" style="padding:12px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:.95rem;width:100%;">
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12" selected>Grade 12</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Min. 6 characters" autocomplete="new-password"/>
+        </div>
+        <button class="btn-login" onclick="doSignup()">Create Account &nbsp;→</button>
+        <p style="font-size:.78rem;color:rgba(255,255,255,.35);margin-top:12px;text-align:center;">Your account will appear in the admin dashboard for company and dues assignment.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1422,34 +1458,107 @@ function seedDB(){
   saveDB();
 }
 
-//  AUTH 
-function getUser(username, password){
-  if(SEED_USERS[username] && SEED_USERS[username].password === password) return {username, ...SEED_USERS[username]};
-  const m = DB.members.find(m => m.username === username && m.password === password);
-  if(m) return {username, role:'member', name:m.name, initials:m.name.split(' ').map(n=>n[0]).join(''), memberId:m.id};
-  return null;
+//  SUPABASE 
+const SUPA_URL = 'https://cttkxjpiswzukqwhknne.supabase.co';
+const SUPA_KEY = 'sb_publishable_1OO4fgWFLRuah50nUhYejw__X-ilU6F';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Admin emails — only these can clear dues
+const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'mrsfude@appleton.k12.wi.us'];
+
+function switchTab(tab){
+  document.getElementById('panel-signin').style.display = tab==='signin'?'':'none';
+  document.getElementById('panel-signup').style.display = tab==='signup'?'':'none';
+  document.getElementById('tab-signin').style.color = tab==='signin'?'#fff':'rgba(255,255,255,.4)';
+  document.getElementById('tab-signin').style.borderBottomColor = tab==='signin'?'#0057B8':'transparent';
+  document.getElementById('tab-signin').style.opacity = tab==='signin'?'1':'.5';
+  document.getElementById('tab-signup').style.color = tab==='signup'?'#fff':'rgba(255,255,255,.4)';
+  document.getElementById('tab-signup').style.borderBottomColor = tab==='signup'?'#0057B8':'transparent';
+  document.getElementById('tab-signup').style.opacity = tab==='signup'?'1':'.5';
 }
 
-function doLogin(){
-  const u = document.getElementById('username').value.trim();
-  const p = document.getElementById('password').value;
-  const user = getUser(u, p);
-  if(!user){ document.getElementById('login-error').style.display='block'; return; }
-  currentUser = user;
-  document.getElementById('login-error').style.display='none';
-  sessionStorage.setItem('deca_session', JSON.stringify(user));
+async function doLogin(){
+  const email = document.getElementById('signin-email').value.trim();
+  const pass  = document.getElementById('signin-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display='none';
+
+  // Check admin hardcoded first (keep working even if Supabase is down)
+  if(email==='ethan' || email==='ethanmoseman770@gmail.com'){
+    if(pass==='deca2025'){
+      currentUser={name:'Ethan Moseman',email:'ethanmoseman770@gmail.com',role:'admin',initials:'EM'};
+      launchApp(); return;
+    }
+  }
+  if(email==='mrsfude' || email.includes('fude')){
+    if(pass==='deca2025'){
+      currentUser={name:'Mrs. Fude',email:'mrsfude@appleton.k12.wi.us',role:'admin',initials:'MF'};
+      launchApp(); return;
+    }
+  }
+
+  const {data, error} = await supa.auth.signInWithPassword({email, password:pass});
+  if(error){ errEl.style.display='block'; errEl.textContent='Invalid email or password.'; return; }
+
+  // Fetch member profile
+  const {data:profile} = await supa.from('members').select('*').eq('id',data.user.id).single();
+  const isAdmin = ADMIN_EMAILS.includes(data.user.email);
+  currentUser = {
+    id: data.user.id,
+    email: data.user.email,
+    name: profile?.name || data.user.email,
+    role: isAdmin ? 'admin' : (profile?.role || 'member'),
+    initials: (profile?.name||'?').split(' ').map(n=>n[0]).join(''),
+    memberId: data.user.id,
+    supabase: true,
+  };
+  errEl.style.display='none';
   launchApp();
 }
 
-function doLogout(){
-  sessionStorage.removeItem('deca_session');
+async function doSignup(){
+  const name  = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const grade = document.getElementById('signup-grade').value;
+  const pass  = document.getElementById('signup-password').value;
+  const msgEl = document.getElementById('signup-msg');
+  msgEl.style.display='none';
+
+  if(!name||!email||!pass){ msgEl.style.display='block'; msgEl.style.color='#f87171'; msgEl.textContent='Please fill in all fields.'; return; }
+  if(pass.length<6){ msgEl.style.display='block'; msgEl.style.color='#f87171'; msgEl.textContent='Password must be at least 6 characters.'; return; }
+
+  const {data, error} = await supa.auth.signUp({email, password:pass, options:{data:{name,grade}}});
+  if(error){ msgEl.style.display='block'; msgEl.style.color='#f87171'; msgEl.textContent=error.message; return; }
+
+  // Insert member profile row
+  if(data.user){
+    await supa.from('members').insert({
+      id: data.user.id,
+      name, email, grade,
+      dues: 20,
+      dues_status: 'unpaid',
+      date_paid: '',
+      role: 'member',
+      partnership_id: '',
+    });
+    // Also add to local DB for immediate display
+    DB.members.push({id:data.user.id, name, email, grade, dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:'', username:email});
+    saveDB();
+  }
+
+  msgEl.style.display='block'; msgEl.style.color='#34d399';
+  msgEl.textContent='Account created! Check your email to confirm, then sign in.';
+}
+
+async function doLogout(){
+  await supa.auth.signOut();
   currentUser = null;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
-  document.getElementById('password').value='';
+  document.getElementById('signin-password').value='';
 }
 
-document.addEventListener('keydown', e => { if(e.key==='Enter' && document.getElementById('login-screen').style.display!=='none') doLogin(); });
+document.addEventListener('keydown', e => { if(e.key==='Enter' && document.getElementById('login-screen').style.display!=='none'){ const panel=document.getElementById('panel-signup'); if(panel&&panel.style.display!=='none') doSignup(); else doLogin(); } });
 
 //  APP LAUNCH 
 function launchApp(){
@@ -1466,6 +1575,7 @@ function launchApp(){
 
   buildSidebar();
   applyTheme();
+  if(currentUser?.role === 'admin') syncMembersFromSupabase();
   showSection(currentUser.role === 'admin' ? 's-dashboard' : 's-my-home');
   render();
 }
@@ -1712,10 +1822,15 @@ function deleteMember(id){
   saveDB();render();
 }
 
-function toggleDues(id){
+async function toggleDues(id){
+  if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const m=getMember(id); if(!m)return;
   m.duesStatus=m.duesStatus==='paid'?'unpaid':'paid';
   m.datePaid=m.duesStatus==='paid'?new Date().toISOString().split('T')[0]:'';
+  // Sync to Supabase if member is a real user
+  if(m.id && m.id.length > 10){
+    await supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id);
+  }
   saveDB();render();
 }
 
@@ -2295,11 +2410,17 @@ function updateBulkCount(){
   const el=document.getElementById('bulk-count');
   if(el) el.textContent=n>0?`${n} selected`:'';
 }
-function bulkMarkPaid(){
+async function bulkMarkPaid(){
+  if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const ids=[...document.querySelectorAll('.member-cb:checked')].map(c=>c.dataset.mid);
   if(!ids.length){alert('Select at least one member.');return;}
   const today=new Date().toISOString().split('T')[0];
   ids.forEach(id=>{ const m=getMember(id); if(m){m.duesStatus='paid';m.datePaid=today;} });
+  // Sync real users to Supabase
+  const realIds=ids.filter(id=>id&&id.length>10);
+  if(realIds.length){
+    await supa.from('members').update({dues_status:'paid',date_paid:today}).in('id',realIds);
+  }
   saveDB();render();
 }
 
@@ -2417,15 +2538,54 @@ function applyTheme(){
   }
 }
 
+// Sync real members from Supabase into local DB (admin only)
+async function syncMembersFromSupabase(){
+  try{
+    const {data} = await supa.from('members').select('*').order('created_at');
+    if(!data||!data.length) return;
+    // Merge: keep local seed members, add/update real Supabase members
+    data.forEach(row=>{
+      const existing = DB.members.find(m=>m.id===row.id);
+      const mapped = {
+        id:row.id, name:row.name, email:row.email||'', grade:row.grade||'12',
+        dues:row.dues||20, duesStatus:row.dues_status||'unpaid',
+        datePaid:row.date_paid||'', partnershipId:row.partnership_id||'',
+        username:row.email, role:row.role||'member'
+      };
+      if(existing){ Object.assign(existing, mapped); }
+      else { DB.members.push(mapped); }
+    });
+    saveDB(); render();
+  }catch(e){ console.log('Supabase sync error:', e); }
+}
+
 loadDB();
 
 document.addEventListener('DOMContentLoaded', ()=>{
   const today = new Date().toISOString().split('T')[0];
   ['tx-date','fr-date','p-next-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
-  try{
-    const sess = sessionStorage.getItem('deca_session');
-    if(sess){ currentUser=JSON.parse(sess); launchApp(); }
-  }catch(e){}
+  // Restore Supabase session
+  supa.auth.getSession().then(({data:{session}})=>{
+    if(session){
+      const isAdmin = ADMIN_EMAILS.includes(session.user.email);
+      supa.from('members').select('*').eq('id',session.user.id).single().then(({data:profile})=>{
+        currentUser = {
+          id:session.user.id, email:session.user.email,
+          name:profile?.name||session.user.email,
+          role: isAdmin?'admin':(profile?.role||'member'),
+          initials:(profile?.name||'?').split(' ').map(n=>n[0]).join(''),
+          memberId:session.user.id, supabase:true,
+        };
+        launchApp();
+      });
+    }
+  }).catch(()=>{
+    // Fallback to session storage for hardcoded admin accounts
+    try{
+      const sess = sessionStorage.getItem('deca_session');
+      if(sess){ currentUser=JSON.parse(sess); launchApp(); }
+    }catch(e){}
+  });
 });
 </script>
 </body>
