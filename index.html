@@ -1,986 +1,1453 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Appleton East DECA – Finances & Fundraising</title>
-  <style>
-    :root {
-      --blue: #003087;
-      --gold: #FFB81C;
-      --gold-dark: #e0a010;
-      --light-blue: #e8eef8;
-      --white: #ffffff;
-      --gray: #f4f5f7;
-      --border: #dde2ec;
-      --text: #1a1a2e;
-      --muted: #6b7280;
-      --red: #dc2626;
-      --green: #16a34a;
-      --radius: 10px;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gray); color: var(--text); min-height: 100vh; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Appleton East DECA – Chapter Finance Platform</title>
+<style>
+:root{
+  --red:#BF0A30;--red-dark:#8B0722;--red-light:#f8e7ea;
+  --navy:#002868;--navy-dark:#001540;--navy-light:#e8edf8;
+  --white:#fff;--off-white:#f7f8fc;
+  --gray:#64748b;--gray-light:#e2e8f0;--gray-bg:#f1f5f9;
+  --green:#16a34a;--green-light:#dcfce7;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --dark:#0f172a;--dark2:#1e293b;--dark3:#334155;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-bg);color:var(--dark);}
 
-    /* Header */
-    header {
-      background: var(--blue);
-      color: var(--white);
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      height: 64px;
-      box-shadow: 0 2px 12px rgba(0,0,48,0.2);
-    }
-    .logo {
-      width: 42px; height: 42px;
-      background: var(--gold);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 16px; color: var(--blue);
-      flex-shrink: 0;
-    }
-    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; }
-    header h1 span { color: var(--gold); }
-    .header-balance {
-      margin-left: auto;
-      text-align: right;
-    }
-    .header-balance .label { font-size: 0.7rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; }
-    .header-balance .amount { font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+/* ── LOGIN ─────────────────────────────────────────────── */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 50%,var(--red-dark) 100%);
+}
+.login-card{
+  background:rgba(255,255,255,.97);border-radius:20px;
+  padding:48px 40px;width:100%;max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.3);
+}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.login-logo .emblem{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--navy),var(--red));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:900;font-size:17px;letter-spacing:-1px;
+  flex-shrink:0;
+}
+.login-logo .org{font-size:1.1rem;font-weight:800;color:var(--navy);line-height:1.2;}
+.login-logo .org span{color:var(--red);}
+.login-tagline{font-size:.8rem;color:var(--gray);margin-bottom:32px;padding-left:64px;margin-top:-4px;}
+.login-card h2{font-size:1.25rem;font-weight:700;margin-bottom:6px;color:var(--dark);}
+.login-card p{font-size:.85rem;color:var(--gray);margin-bottom:28px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.77rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:5px;}
+.field input{
+  width:100%;padding:11px 14px;border:1.5px solid var(--gray-light);
+  border-radius:var(--radius-sm);font-size:.95rem;background:#fff;
+  transition:border-color .15s;
+}
+.field input:focus{outline:none;border-color:var(--navy);}
+.btn-login{
+  width:100%;padding:13px;border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,var(--navy),var(--red));
+  color:#fff;font-size:1rem;font-weight:700;cursor:pointer;
+  transition:opacity .15s,transform .1s;margin-top:4px;
+}
+.btn-login:hover{opacity:.9;}
+.btn-login:active{transform:scale(.98);}
+.login-error{
+  background:#fee2e2;color:var(--red);border-radius:var(--radius-sm);
+  padding:10px 14px;font-size:.85rem;margin-bottom:16px;display:none;
+}
+.demo-hint{margin-top:20px;padding:14px;background:var(--gray-bg);border-radius:var(--radius-sm);font-size:.78rem;color:var(--gray);}
+.demo-hint strong{color:var(--dark);}
 
-    /* Nav */
-    nav {
-      background: var(--white);
-      border-bottom: 2px solid var(--border);
-      display: flex;
-      overflow-x: auto;
-      padding: 0 16px;
-    }
-    nav button {
-      background: none; border: none; cursor: pointer;
-      padding: 14px 20px;
-      font-size: 0.88rem; font-weight: 600;
-      color: var(--muted);
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      white-space: nowrap;
-      transition: color 0.2s, border-color 0.2s;
-    }
-    nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
-    nav button:hover:not(.active) { color: var(--text); }
+/* ── APP SHELL ─────────────────────────────────────────── */
+#app{display:none;height:100vh;flex-direction:column;}
+#app.visible{display:flex;}
 
-    /* Main layout */
-    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+/* Top Bar */
+.topbar{
+  background:var(--navy-dark);color:#fff;
+  padding:0 24px;height:60px;display:flex;align-items:center;gap:16px;
+  flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:50;
+}
+.topbar .logo{display:flex;align-items:center;gap:10px;}
+.topbar .emblem{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--navy),var(--red));
+  border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;
+}
+.topbar h1{font-size:.95rem;font-weight:700;line-height:1.1;}
+.topbar h1 em{color:#ef4444;font-style:normal;}
+.topbar .sub{font-size:.68rem;opacity:.6;font-weight:400;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-pill{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);border-radius:30px;
+  padding:5px 14px 5px 5px;cursor:pointer;
+}
+.user-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--red),#ff6b6b);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#fff;
+}
+.user-pill .name{font-size:.82rem;font-weight:600;}
+.user-pill .role-badge{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;
+  padding:2px 7px;border-radius:10px;
+  background:rgba(255,255,255,.15);
+}
+.user-pill .role-badge.admin{background:rgba(191,10,48,.4);}
+.btn-logout{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:#fff;padding:6px 14px;border-radius:6px;font-size:.8rem;
+  cursor:pointer;font-weight:600;transition:background .15s;
+}
+.btn-logout:hover{background:rgba(255,255,255,.2);}
 
-    /* Section */
-    section { display: none; }
-    section.active { display: block; }
+/* Layout */
+.app-body{display:flex;flex:1;overflow:hidden;}
 
-    /* Cards */
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--blue); }
+/* Sidebar */
+.sidebar{
+  width:230px;background:var(--dark2);color:#fff;
+  display:flex;flex-direction:column;flex-shrink:0;
+  overflow-y:auto;border-right:1px solid rgba(255,255,255,.05);
+}
+.sidebar-section{padding:20px 12px 8px;}
+.sidebar-section-label{
+  font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(255,255,255,.35);font-weight:600;padding:0 8px;margin-bottom:6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--radius-sm);
+  cursor:pointer;font-size:.87rem;font-weight:500;color:rgba(255,255,255,.7);
+  transition:background .15s,color .15s;margin-bottom:2px;
+  border:none;background:none;width:100%;text-align:left;
+}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center;}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-item.active{background:linear-gradient(90deg,rgba(191,10,48,.35),rgba(191,10,48,.1));color:#fff;border-left:3px solid var(--red);}
+.sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,.07);}
+.sidebar-footer .version{font-size:.7rem;color:rgba(255,255,255,.25);}
 
-    /* Summary row */
-    .summary-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .stat-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 20px;
-      border-left: 4px solid var(--blue);
-    }
-    .stat-card.green { border-left-color: var(--green); }
-    .stat-card.red { border-left-color: var(--red); }
-    .stat-card.gold { border-left-color: var(--gold); }
-    .stat-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px; }
-    .stat-card .value { font-size: 1.5rem; font-weight: 700; }
-    .stat-card.green .value { color: var(--green); }
-    .stat-card.red .value { color: var(--red); }
-    .stat-card.gold .value { color: var(--gold-dark); }
+/* Main content */
+.main-content{flex:1;overflow-y:auto;padding:28px 28px;}
 
-    /* Forms */
-    .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
-    label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    input, select, textarea {
-      padding: 8px 11px;
-      border: 1.5px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      background: var(--white);
-      color: var(--text);
-      transition: border-color 0.15s;
-    }
-    input:focus, select:focus { outline: none; border-color: var(--blue); }
+/* ── COMPONENTS ────────────────────────────────────────── */
+.page-header{margin-bottom:24px;}
+.page-header h2{font-size:1.4rem;font-weight:800;color:var(--dark);}
+.page-header p{font-size:.88rem;color:var(--gray);margin-top:3px;}
 
-    /* Buttons */
-    .btn {
-      padding: 9px 18px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-weight: 600;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--blue); color: var(--white); }
-    .btn-primary:hover { background: #002070; }
-    .btn-gold { background: var(--gold); color: var(--blue); }
-    .btn-gold:hover { background: var(--gold-dark); }
-    .btn-danger { background: #fee2e2; color: var(--red); }
-    .btn-danger:hover { background: #fca5a5; }
-    .btn-sm { padding: 5px 11px; font-size: 0.8rem; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:24px;}
+.stat{
+  background:#fff;border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);border-top:3px solid var(--gray-light);
+}
+.stat.blue{border-top-color:var(--navy);}
+.stat.red{border-top-color:var(--red);}
+.stat.green{border-top-color:var(--green);}
+.stat.amber{border-top-color:var(--amber);}
+.stat .s-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin-bottom:6px;font-weight:600;}
+.stat .s-val{font-size:1.6rem;font-weight:800;line-height:1;}
+.stat.blue .s-val{color:var(--navy);}
+.stat.red .s-val{color:var(--red);}
+.stat.green .s-val{color:var(--green);}
+.stat.amber .s-val{color:var(--amber);}
+.stat .s-sub{font-size:.75rem;color:var(--gray);margin-top:4px;}
 
-    /* Table */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    th {
-      background: var(--light-blue);
-      color: var(--blue);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 2px solid var(--border);
-    }
-    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--gray); }
-    .badge {
-      display: inline-block;
-      padding: 2px 9px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .badge-green { background: #dcfce7; color: var(--green); }
-    .badge-red { background: #fee2e2; color: var(--red); }
-    .badge-blue { background: var(--light-blue); color: var(--blue); }
-    .badge-gold { background: #fef3c7; color: #92400e; }
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;}
+.card-header{
+  padding:16px 20px;border-bottom:1px solid var(--gray-light);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-header h3{font-size:.95rem;font-weight:700;color:var(--dark);}
+.card-body{padding:20px;}
 
-    /* Progress bar */
-    .progress-bar { background: var(--border); border-radius: 20px; height: 10px; overflow: hidden; margin-top: 6px; }
-    .progress-fill { height: 100%; background: var(--gold); border-radius: 20px; transition: width 0.5s; }
-    .progress-fill.over { background: var(--green); }
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;}
 
-    /* Fundraiser cards */
-    .fundraiser-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .fundraiser-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      border-top: 4px solid var(--gold);
-    }
-    .fundraiser-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    .fundraiser-card .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
-    .fundraiser-card .amounts { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 6px; }
+/* Table */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.86rem;}
+th{
+  background:var(--gray-bg);color:var(--gray);
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;
+  padding:10px 14px;text-align:left;border-bottom:1px solid var(--gray-light);
+  font-weight:700;
+}
+td{padding:11px 14px;border-bottom:1px solid var(--gray-light);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--off-white);}
 
-    /* Budget bars */
-    .budget-item { margin-bottom: 18px; }
-    .budget-label { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 4px; }
-    .budget-label strong { font-weight: 600; }
-    .budget-bar { background: var(--border); border-radius: 20px; height: 14px; overflow: hidden; }
-    .budget-fill { height: 100%; border-radius: 20px; background: var(--blue); transition: width 0.5s; }
-    .budget-fill.warn { background: var(--gold); }
-    .budget-fill.over { background: var(--red); }
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;gap:4px;}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-blue{background:var(--navy-light);color:var(--navy);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-gray{background:var(--gray-light);color:var(--gray);}
 
-    /* Empty state */
-    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
+/* Progress */
+.progress{background:var(--gray-light);border-radius:20px;height:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;background:var(--navy);transition:width .6s;}
+.progress-fill.red{background:var(--red);}
+.progress-fill.green{background:var(--green);}
+.progress-fill.amber{background:var(--amber);}
 
-    /* Action row */
-    .action-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-    .action-row h2 { font-size: 1rem; font-weight: 700; color: var(--blue); }
+/* Buttons */
+.btn{padding:8px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:.84rem;font-weight:600;transition:all .15s;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-dark);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:var(--red-dark);}
+.btn-ghost{background:transparent;border:1.5px solid var(--gray-light);color:var(--dark);}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy);}
+.btn-sm{padding:5px 12px;font-size:.78rem;}
+.btn-xs{padding:3px 9px;font-size:.73rem;}
 
-    /* Dues search */
-    #dues-search { max-width: 260px; }
+/* Forms */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px;}
+.fg label{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);}
+.fg input,.fg select,.fg textarea{
+  padding:9px 12px;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);
+  font-size:.9rem;background:#fff;color:var(--dark);transition:border-color .15s;
+}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--navy);}
 
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: center; justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 24px;
-      width: 100%; max-width: 460px;
-      box-shadow: 0 8px 32px rgba(0,0,48,0.18);
-    }
-    .modal h3 { font-size: 1rem; font-weight: 700; color: var(--blue); margin-bottom: 16px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+/* Alert */
+.alert{border-radius:var(--radius-sm);padding:12px 16px;font-size:.85rem;margin-bottom:16px;}
+.alert-red{background:var(--red-light);color:var(--red-dark);border-left:4px solid var(--red);}
+.alert-green{background:var(--green-light);color:#14532d;border-left:4px solid var(--green);}
+.alert-blue{background:var(--navy-light);color:var(--navy-dark);border-left:4px solid var(--navy);}
+.alert-amber{background:var(--amber-light);color:#92400e;border-left:4px solid var(--amber);}
 
-    @media (max-width: 600px) {
-      header h1 { font-size: 0.95rem; }
-      .header-balance .amount { font-size: 1.1rem; }
-      nav button { padding: 12px 14px; font-size: 0.82rem; }
-    }
-  </style>
+/* Member card (personal view) */
+.member-hero{
+  background:linear-gradient(135deg,var(--navy-dark),var(--navy),var(--red-dark));
+  border-radius:var(--radius);padding:28px;color:#fff;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.member-hero::after{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+.member-hero h2{font-size:1.5rem;font-weight:800;}
+.member-hero p{opacity:.75;font-size:.88rem;margin-top:4px;}
+.hero-stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap;}
+.hero-stat .hs-val{font-size:1.3rem;font-weight:800;}
+.hero-stat .hs-label{font-size:.73rem;opacity:.65;text-transform:uppercase;letter-spacing:.05em;}
+
+/* Partnership card */
+.partnership-card{
+  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px;border-left:4px solid var(--navy);
+}
+.partnership-card.active{border-left-color:var(--green);}
+.partnership-card.needs-attention{border-left-color:var(--red);}
+.partnership-card.pending{border-left-color:var(--amber);}
+.partnership-card h4{font-size:1rem;font-weight:700;margin-bottom:4px;}
+.partnership-card .company-meta{font-size:.8rem;color:var(--gray);margin-bottom:12px;}
+.partnership-detail{font-size:.82rem;color:var(--dark3);margin-bottom:6px;}
+.partnership-detail strong{color:var(--dark);}
+
+/* Section pages */
+.section{display:none;}
+.section.active{display:block;}
+
+/* Divider */
+.divider{height:1px;background:var(--gray-light);margin:20px 0;}
+
+/* Dues card */
+.dues-card{
+  border-radius:var(--radius);padding:24px;
+  display:flex;align-items:center;gap:20px;
+}
+.dues-card.paid{background:var(--green-light);border:2px solid #86efac;}
+.dues-card.unpaid{background:var(--red-light);border:2px solid #fca5a5;}
+.dues-icon{font-size:2.5rem;}
+.dues-card h3{font-size:1.1rem;font-weight:700;}
+.dues-card p{font-size:.85rem;margin-top:4px;opacity:.8;}
+
+/* Modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:200;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:#fff;border-radius:var(--radius);
+  padding:28px;width:100%;max-width:520px;
+  box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;
+}
+.modal h3{font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--gray-light);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-light);}
+
+/* Empty */
+.empty-state{text-align:center;padding:48px 20px;color:var(--gray);}
+.empty-state .icon{font-size:2.5rem;margin-bottom:12px;}
+.empty-state p{font-size:.9rem;}
+
+/* Activity feed */
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-light);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--navy);margin-top:5px;flex-shrink:0;}
+.activity-dot.red{background:var(--red);}
+.activity-dot.green{background:var(--green);}
+.activity-dot.amber{background:var(--amber);}
+.activity-text{font-size:.85rem;line-height:1.5;}
+.activity-text .meta{font-size:.75rem;color:var(--gray);margin-top:2px;}
+
+/* Announcement */
+.announcement{
+  background:linear-gradient(90deg,var(--navy-dark),var(--navy));
+  color:#fff;border-radius:var(--radius);padding:16px 20px;
+  margin-bottom:16px;display:flex;align-items:center;gap:14px;
+}
+.announcement .ann-icon{font-size:1.4rem;}
+.announcement h4{font-size:.9rem;font-weight:700;}
+.announcement p{font-size:.8rem;opacity:.75;margin-top:2px;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main-content{padding:16px;}
+}
+</style>
 </head>
 <body>
 
-<header>
-  <div class="logo">AE</div>
-  <div>
-    <h1>Appleton East <span>DECA</span></h1>
-    <div style="font-size:0.72rem;opacity:0.7;">Finances &amp; Fundraising</div>
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="emblem">AE</div>
+      <div class="org">Appleton East <span>DECA</span></div>
+    </div>
+    <p class="login-tagline">Chapter Finance Platform</p>
+    <h2>Sign In</h2>
+    <p>Access your chapter finance dashboard</p>
+    <div id="login-error" class="login-error">Invalid username or password. Try again.</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="demo-hint">
+      <strong>Demo Accounts</strong><br/>
+      <strong>Admins:</strong> <code>ethan</code> / <code>deca2025</code> &nbsp;|&nbsp; <code>mrsfude</code> / <code>deca2025</code><br/>
+      <strong>Member:</strong> <code>alexj</code> / <code>member123</code> &nbsp;(or any member username)
+    </div>
   </div>
-  <div class="header-balance">
-    <div class="label">Account Balance</div>
-    <div class="amount" id="header-balance">$0.00</div>
-  </div>
-</header>
+</div>
 
-<nav>
-  <button class="active" onclick="showTab('dashboard')">Dashboard</button>
-  <button onclick="showTab('transactions')">Transactions</button>
-  <button onclick="showTab('fundraisers')">Fundraisers</button>
-  <button onclick="showTab('dues')">Member Dues</button>
-  <button onclick="showTab('budget')">Budget</button>
-</nav>
-
-<main>
-
-  <!-- DASHBOARD -->
-  <section id="tab-dashboard" class="active">
-    <div class="summary-row">
-      <div class="stat-card green">
-        <div class="label">Total Income</div>
-        <div class="value" id="dash-income">$0.00</div>
-      </div>
-      <div class="stat-card red">
-        <div class="label">Total Expenses</div>
-        <div class="value" id="dash-expenses">$0.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Net Balance</div>
-        <div class="value" id="dash-balance">$0.00</div>
-      </div>
-      <div class="stat-card gold">
-        <div class="label">Dues Collected</div>
-        <div class="value" id="dash-dues">$0.00</div>
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+<div id="app">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="emblem">AE</div>
+      <div>
+        <div class="topbar" style="padding:0;height:auto;background:none;box-shadow:none;">
+          <h1 style="font-size:.95rem;">Appleton East <em>DECA</em></h1>
+        </div>
+        <div class="sub">Chapter Finance Platform</div>
       </div>
     </div>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="top-avatar">?</div>
+        <div>
+          <div class="name" id="top-name">–</div>
+          <div class="role-badge" id="top-role">–</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
-      <div class="card">
-        <h2>Recent Transactions</h2>
-        <div class="table-wrap">
-          <table id="dash-recent-table">
-            <thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
-            <tbody></tbody>
+  <!-- Body -->
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <!-- nav items injected by JS -->
+    </div>
+
+    <!-- Main -->
+    <div class="main-content" id="main-content">
+      <!-- sections injected below, shown/hidden by JS -->
+
+      <!-- ── DASHBOARD (admin) ── -->
+      <div class="section" id="s-dashboard">
+        <div class="page-header">
+          <h2 id="dash-welcome">Dashboard</h2>
+          <p>Real-time financial overview for Appleton East DECA</p>
+        </div>
+        <div class="stats-row" id="admin-stats"></div>
+        <div class="grid2">
+          <div>
+            <div class="card">
+              <div class="card-header"><h3>📋 Recent Transactions</h3><span id="dash-balance-chip" class="badge badge-blue"></span></div>
+              <div class="card-body" style="padding:0;">
+                <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody id="dash-tx-body"></tbody></table></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>📣 Chapter Announcements</h3></div>
+              <div class="card-body" id="dash-announcements"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><h3>💰 Dues Collection Status</h3></div>
+              <div class="card-body">
+                <div id="dues-progress-wrap"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>🤝 Partnership Overview</h3></div>
+              <div class="card-body" id="dash-partnerships-summary"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TRANSACTIONS (admin) ── -->
+      <div class="section" id="s-transactions">
+        <div class="page-header">
+          <h2>Transaction Ledger</h2>
+          <p>Every dollar. Every transaction. Captured and categorized.</p>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Add Transaction</h3></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="fg"><label>Date</label><input type="date" id="tx-date"/></div>
+              <div class="fg" style="flex:2;min-width:200px;"><label>Description</label><input type="text" id="tx-desc" placeholder="e.g. State conference registration"/></div>
+              <div class="fg"><label>Category</label>
+                <select id="tx-cat">
+                  <option>Income – Dues</option><option>Income – Fundraiser</option><option>Income – Sponsorship</option><option>Income – Other</option>
+                  <option>Conferences</option><option>Supplies</option><option>Food</option><option>Events</option><option>Marketing</option><option>Other Expense</option>
+                </select>
+              </div>
+              <div class="fg"><label>Type</label><select id="tx-type"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+              <div class="fg"><label>Amount ($)</label><input type="number" id="tx-amount" min="0" step="0.01" placeholder="0.00"/></div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+              <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Full Ledger</h3>
+            <select onchange="renderTransactions()" id="tx-filter" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--gray-light);">
+              <option value="">All</option><option value="income">Income</option><option value="expense">Expense</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+            <tbody id="tx-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MEMBERS (admin) ── -->
+      <div class="section" id="s-members">
+        <div class="page-header"><h2>Member Management</h2><p>Track every member's status, dues, and assignments.</p></div>
+        <div class="card">
+          <div class="card-header"><h3>Add Member</h3></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="fg"><label>Full Name</label><input type="text" id="m-name" placeholder="First Last"/></div>
+              <div class="fg"><label>Username</label><input type="text" id="m-user" placeholder="e.g. jsmith"/></div>
+              <div class="fg"><label>Password</label><input type="text" id="m-pass" placeholder="member123"/></div>
+              <div class="fg"><label>Grade</label><select id="m-grade"><option>9</option><option>10</option><option>11</option><option selected>12</option></select></div>
+              <div class="fg"><label>Dues ($)</label><input type="number" id="m-dues" value="20" min="0" step="0.01"/></div>
+              <div class="fg"><label>Dues Status</label><select id="m-dues-status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></div>
+            </div>
+            <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>All Members</h3>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="m-search" placeholder="Search…" oninput="renderMembers()" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--gray-light);"/>
+              <select id="m-filter" onchange="renderMembers()" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--gray-light);">
+                <option value="">All</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Name</th><th>Grade</th><th>Username</th><th>Dues</th><th>Status</th><th>Date Paid</th><th>Partnership</th><th>Actions</th></tr></thead>
+            <tbody id="m-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FUNDRAISERS (admin) ── -->
+      <div class="section" id="s-fundraisers">
+        <div class="page-header"><h2>Fundraising & Revenue Growth</h2><p>Track every fundraiser from plan to payoff.</p></div>
+        <div class="card">
+          <div class="card-header"><h3>New Fundraiser</h3></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="fg" style="flex:2"><label>Fundraiser Name</label><input type="text" id="fr-name" placeholder="e.g. Spirit Wear Sale"/></div>
+              <div class="fg"><label>Date</label><input type="date" id="fr-date"/></div>
+              <div class="fg"><label>Goal ($)</label><input type="number" id="fr-goal" min="0" step="0.01" placeholder="500"/></div>
+              <div class="fg"><label>Raised ($)</label><input type="number" id="fr-raised" min="0" step="0.01" value="0"/></div>
+              <div class="fg"><label>Status</label><select id="fr-status"><option value="planned">Planned</option><option value="active">Active</option><option value="completed">Completed</option></select></div>
+            </div>
+            <div class="fg" style="max-width:500px"><label>Notes</label><input type="text" id="fr-notes" placeholder="Any notes…"/></div>
+            <div style="margin-top:14px;"><button class="btn btn-primary" onclick="addFundraiser()">Add Fundraiser</button></div>
+          </div>
+        </div>
+        <div id="fr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+      </div>
+
+      <!-- ── PARTNERSHIPS (admin) ── -->
+      <div class="section" id="s-partnerships">
+        <div class="page-header"><h2>Company Partnerships</h2><p>Manage sponsor relationships and assign members to companies.</p></div>
+        <div class="card">
+          <div class="card-header"><h3>Add Partnership</h3></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip"/></div>
+              <div class="fg"><label>Contact</label><input type="text" id="p-contact" placeholder="Contact person"/></div>
+              <div class="fg"><label>Value ($)</label><input type="number" id="p-value" min="0" step="0.01" placeholder="500"/></div>
+              <div class="fg"><label>Status</label><select id="p-status"><option value="active">Active</option><option value="pending">Pending</option><option value="needs-attention">Needs Attention</option><option value="completed">Completed</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="fg" style="flex:2"><label>Description / What they provide</label><input type="text" id="p-desc" placeholder="e.g. Cash sponsorship for state conference"/></div>
+              <div class="fg"><label>Assigned Member</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
+              <div class="fg"><label>Next Action Date</label><input type="date" id="p-next-date"/></div>
+            </div>
+            <button class="btn btn-primary" onclick="addPartnership()">Add Partnership</button>
+          </div>
+        </div>
+        <div class="tbl-wrap card">
+          <table style="margin:0;">
+            <thead><tr><th>Company</th><th>Contact</th><th>Value</th><th>Status</th><th>Assigned To</th><th>Next Action</th><th>Actions</th></tr></thead>
+            <tbody id="p-tbody"></tbody>
           </table>
         </div>
       </div>
-      <div class="card">
-        <h2>Active Fundraisers</h2>
-        <div id="dash-fundraisers"></div>
-      </div>
-    </div>
-  </section>
 
-  <!-- TRANSACTIONS -->
-  <section id="tab-transactions">
-    <div class="card">
-      <h2>Add Transaction</h2>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="tx-date" />
+      <!-- ── BUDGET (admin) ── -->
+      <div class="section" id="s-budget">
+        <div class="page-header"><h2>Live Budget Tracker</h2><p>Set projected spending targets. The platform watches every transaction in real time.</p></div>
+        <div class="card">
+          <div class="card-header"><h3>Set Budget Target</h3></div>
+          <div class="card-body">
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg"><label>Category</label>
+                <select id="bud-cat"><option>Conferences</option><option>Supplies</option><option>Food</option><option>Events</option><option>Marketing</option><option>Other Expense</option></select>
+              </div>
+              <div class="fg"><label>Annual Budget ($)</label><input type="number" id="bud-amount" min="0" step="0.01" placeholder="500"/></div>
+              <div><button class="btn btn-primary" onclick="setBudget()">Set Budget</button></div>
+            </div>
+          </div>
         </div>
-        <div class="form-group" style="flex:2;min-width:180px;">
-          <label>Description</label>
-          <input type="text" id="tx-desc" placeholder="e.g. Conference registration fee" />
+        <div class="card">
+          <div class="card-header"><h3>Budget vs. Actuals</h3></div>
+          <div class="card-body" id="budget-bars"></div>
         </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="tx-cat">
-            <option value="Income – Dues">Income – Dues</option>
-            <option value="Income – Fundraiser">Income – Fundraiser</option>
-            <option value="Income – Other">Income – Other</option>
-            <option value="Conferences">Conferences</option>
-            <option value="Supplies">Supplies</option>
-            <option value="Food">Food</option>
-            <option value="Events">Events</option>
-            <option value="Other Expense">Other Expense</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Type</label>
-          <select id="tx-type">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Amount ($)</label>
-          <input type="number" id="tx-amount" min="0" step="0.01" placeholder="0.00" />
+        <div class="card">
+          <div class="card-header"><h3>Summary Table</h3></div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Category</th><th>Budgeted</th><th>Actual Spend</th><th>Remaining</th><th>Used</th></tr></thead>
+            <tbody id="bud-tbody"></tbody></table>
+          </div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="action-row">
-        <h2>Transaction History</h2>
-        <div style="display:flex;gap:8px;">
-          <select id="tx-filter" onchange="renderTransactions()" style="font-size:0.85rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);">
-            <option value="">All Types</option>
-            <option value="income">Income Only</option>
-            <option value="expense">Expense Only</option>
-          </select>
-          <button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button>
+      <!-- ── REPORTS (admin) ── -->
+      <div class="section" id="s-reports">
+        <div class="page-header"><h2>Financial Record</h2><p>A permanent financial record this chapter has never had. Every report. Every dollar. Stored forever.</p></div>
+        <div class="stats-row" id="report-stats"></div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><h3>Income Breakdown by Category</h3></div>
+            <div class="card-body" id="report-income"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Expense Breakdown by Category</h3></div>
+            <div class="card-body" id="report-expense"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Full Activity Log</h3><button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button></div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Running Balance</th></tr></thead>
+            <tbody id="report-tbody"></tbody></table>
+          </div>
         </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
-          <tbody id="tx-tbody"></tbody>
-        </table>
+
+      <!-- ── MEMBER HOME (member only) ── -->
+      <div class="section" id="s-my-home">
+        <div id="member-hero-area"></div>
+        <div class="grid2" id="member-grid"></div>
       </div>
-      <div id="tx-empty" class="empty" style="display:none;">No transactions yet. Add one above!</div>
-    </div>
-  </section>
 
-  <!-- FUNDRAISERS -->
-  <section id="tab-fundraisers">
-    <div class="card">
-      <h2>Add Fundraiser</h2>
-      <div class="form-row">
-        <div class="form-group" style="flex:2;min-width:180px;">
-          <label>Fundraiser Name</label>
-          <input type="text" id="fr-name" placeholder="e.g. Car Wash, Bake Sale" />
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="fr-date" />
-        </div>
-        <div class="form-group">
-          <label>Goal ($)</label>
-          <input type="number" id="fr-goal" min="0" step="0.01" placeholder="500.00" />
-        </div>
-        <div class="form-group">
-          <label>Raised So Far ($)</label>
-          <input type="number" id="fr-raised" min="0" step="0.01" placeholder="0.00" value="0" />
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="fr-status">
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="planned">Planned</option>
-          </select>
-        </div>
+      <!-- ── MY DUES (member only) ── -->
+      <div class="section" id="s-my-dues">
+        <div class="page-header"><h2>My Dues</h2><p>Your personal dues record for this chapter year.</p></div>
+        <div id="my-dues-detail"></div>
       </div>
-      <button class="btn btn-primary" onclick="addFundraiser()">Add Fundraiser</button>
-    </div>
 
-    <div class="fundraiser-grid" id="fr-grid"></div>
-    <div id="fr-empty" class="empty card" style="display:none;">No fundraisers yet. Add one above!</div>
-  </section>
-
-  <!-- DUES -->
-  <section id="tab-dues">
-    <div class="card">
-      <h2>Add Member</h2>
-      <div class="form-row">
-        <div class="form-group" style="flex:2;min-width:180px;">
-          <label>Member Name</label>
-          <input type="text" id="dues-name" placeholder="First Last" />
-        </div>
-        <div class="form-group">
-          <label>Grade</label>
-          <select id="dues-grade">
-            <option>9</option><option>10</option><option>11</option><option selected>12</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Dues Amount ($)</label>
-          <input type="number" id="dues-amount" min="0" step="0.01" placeholder="20.00" />
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="dues-status">
-            <option value="unpaid">Unpaid</option>
-            <option value="paid">Paid</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Date Paid</label>
-          <input type="date" id="dues-date" />
-        </div>
+      <!-- ── MY PARTNERSHIP (member only) ── -->
+      <div class="section" id="s-my-partnership">
+        <div class="page-header"><h2>My Company Partnership</h2><p>You've been assigned to manage the following company relationship.</p></div>
+        <div id="my-partnership-detail"></div>
       </div>
-      <button class="btn btn-primary" onclick="addMember()">Add Member</button>
-    </div>
 
-    <div class="card">
-      <div class="action-row">
-        <h2>Member List</h2>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="text" id="dues-search" placeholder="Search members..." oninput="renderDues()" style="font-size:0.85rem;" />
-          <select id="dues-filter" onchange="renderDues()" style="font-size:0.85rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);">
-            <option value="">All</option>
-            <option value="paid">Paid</option>
-            <option value="unpaid">Unpaid</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:flex;gap:16px;margin-bottom:14px;font-size:0.85rem;flex-wrap:wrap;">
-        <span>Total Members: <strong id="dues-total">0</strong></span>
-        <span style="color:var(--green);">Paid: <strong id="dues-paid-count">0</strong></span>
-        <span style="color:var(--red);">Unpaid: <strong id="dues-unpaid-count">0</strong></span>
-        <span style="color:var(--blue);">Collected: <strong id="dues-collected">$0.00</strong></span>
-        <span style="color:var(--muted);">Outstanding: <strong id="dues-outstanding">$0.00</strong></span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Grade</th><th>Amount</th><th>Status</th><th>Date Paid</th><th></th></tr></thead>
-          <tbody id="dues-tbody"></tbody>
-        </table>
-      </div>
-      <div id="dues-empty" class="empty" style="display:none;">No members added yet.</div>
-    </div>
-  </section>
+    </div><!-- /main-content -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
 
-  <!-- BUDGET -->
-  <section id="tab-budget">
-    <div class="card">
-      <h2>Set Budget by Category</h2>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Category</label>
-          <select id="bud-cat">
-            <option>Conferences</option>
-            <option>Supplies</option>
-            <option>Food</option>
-            <option>Events</option>
-            <option>Other Expense</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Budget ($)</label>
-          <input type="number" id="bud-amount" min="0" step="0.01" placeholder="500.00" />
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
-    </div>
-
-    <div class="card" id="budget-display">
-      <h2>Budget vs. Actuals</h2>
-      <div id="budget-bars"></div>
-      <div id="budget-empty" class="empty" style="display:none;">No budgets set yet. Add one above!</div>
-    </div>
-
-    <div class="card">
-      <h2>Income vs. Expense Summary</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Category</th><th>Budget</th><th>Actual Spend</th><th>Remaining</th><th>% Used</th></tr></thead>
-          <tbody id="budget-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<!-- Edit Fundraiser Modal -->
-<div class="modal-overlay" id="fr-modal">
+<!-- Edit Member Modal -->
+<div class="modal-overlay" id="m-modal">
   <div class="modal">
-    <h3>Edit Fundraiser</h3>
-    <input type="hidden" id="fr-edit-id" />
+    <h3>Edit Member</h3>
+    <input type="hidden" id="m-edit-id"/>
     <div class="form-row">
-      <div class="form-group" style="flex:2">
-        <label>Name</label>
-        <input type="text" id="fr-edit-name" />
-      </div>
-      <div class="form-group">
-        <label>Date</label>
-        <input type="date" id="fr-edit-date" />
-      </div>
+      <div class="fg"><label>Full Name</label><input type="text" id="m-edit-name"/></div>
+      <div class="fg"><label>Username</label><input type="text" id="m-edit-user"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Goal ($)</label>
-        <input type="number" id="fr-edit-goal" min="0" step="0.01" />
-      </div>
-      <div class="form-group">
-        <label>Raised ($)</label>
-        <input type="number" id="fr-edit-raised" min="0" step="0.01" />
-      </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select id="fr-edit-status">
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
-          <option value="planned">Planned</option>
-        </select>
-      </div>
+      <div class="fg"><label>Grade</label><select id="m-edit-grade"><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
+      <div class="fg"><label>Dues Amount ($)</label><input type="number" id="m-edit-dues-amt" min="0" step="0.01"/></div>
+      <div class="fg"><label>Dues Status</label><select id="m-edit-dues"><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Date Paid</label><input type="date" id="m-edit-date-paid"/></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeFrModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveFrEdit()">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal('m-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMemberEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Partnership Modal -->
+<div class="modal-overlay" id="p-modal">
+  <div class="modal">
+    <h3>Edit Partnership</h3>
+    <input type="hidden" id="p-edit-id"/>
+    <div class="form-row">
+      <div class="fg" style="flex:2"><label>Company</label><input type="text" id="p-edit-company"/></div>
+      <div class="fg"><label>Contact</label><input type="text" id="p-edit-contact"/></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Value ($)</label><input type="number" id="p-edit-value" min="0" step="0.01"/></div>
+      <div class="fg"><label>Status</label>
+        <select id="p-edit-status"><option value="active">Active</option><option value="pending">Pending</option><option value="needs-attention">Needs Attention</option><option value="completed">Completed</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg" style="flex:2"><label>Description</label><input type="text" id="p-edit-desc"/></div>
+      <div class="fg"><label>Assigned Member</label><select id="p-edit-member"><option value="">— Unassigned —</option></select></div>
+      <div class="fg"><label>Next Action</label><input type="date" id="p-edit-next"/></div>
+    </div>
+    <div class="fg"><label>Progress Notes</label><textarea id="p-edit-notes" rows="3" style="padding:9px 12px;border:1.5px solid var(--gray-light);border-radius:8px;font-size:.9rem;resize:vertical;width:100%;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('p-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePartnershipEdit()">Save Changes</button>
     </div>
   </div>
 </div>
 
 <script>
-// ─── Data ────────────────────────────────────────────────────────────────────
-let data = {
-  transactions: [],
-  fundraisers: [],
-  members: [],
-  budgets: {}
+// ══ DATA STORE ════════════════════════════════════════════════════════════════
+const SEED_USERS = {
+  ethan:   { password:'deca2025', role:'admin', name:'Ethan Moseman',  initials:'EM' },
+  mrsfude: { password:'deca2025', role:'admin', name:'Mrs. Fude',      initials:'MF' },
 };
 
-function load() {
-  try {
-    const saved = localStorage.getItem('deca_data');
-    if (saved) data = JSON.parse(saved);
-  } catch(e) {}
-  // Seed sample data if empty
-  if (!data.transactions.length && !data.fundraisers.length && !data.members.length) seedData();
+let DB = {
+  members:[],
+  transactions:[],
+  fundraisers:[],
+  partnerships:[],
+  budgets:{},
+  announcements:[],
+};
+
+let currentUser = null;
+
+function loadDB(){
+  try{ const s=localStorage.getItem('deca_db_v3'); if(s) DB=JSON.parse(s); }catch(e){}
+  if(!DB.members.length) seedDB();
 }
+function saveDB(){ localStorage.setItem('deca_db_v3', JSON.stringify(DB)); }
 
-function save() {
-  localStorage.setItem('deca_data', JSON.stringify(data));
-}
+function seedDB(){
+  const ago = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
+  const today = new Date().toISOString().split('T')[0];
 
-function seedData() {
-  const today = new Date();
-  const fmt = d => d.toISOString().split('T')[0];
-  const ago = n => { const d = new Date(today); d.setDate(d.getDate()-n); return fmt(d); };
-
-  data.transactions = [
-    { id: uid(), date: ago(30), desc: 'Member Dues – Fall Collection', cat: 'Income – Dues', type: 'income', amount: 320 },
-    { id: uid(), date: ago(25), desc: 'Car Wash Fundraiser Proceeds', cat: 'Income – Fundraiser', type: 'income', amount: 485 },
-    { id: uid(), date: ago(20), desc: 'State Conference Registration', cat: 'Conferences', type: 'expense', amount: 210 },
-    { id: uid(), date: ago(18), desc: 'Supplies – Name Tags & Folders', cat: 'Supplies', type: 'expense', amount: 47.50 },
-    { id: uid(), date: ago(10), desc: 'Bake Sale Proceeds', cat: 'Income – Fundraiser', type: 'income', amount: 175 },
-    { id: uid(), date: ago(7),  desc: 'Pizza for Chapter Meeting', cat: 'Food', type: 'expense', amount: 62 },
-    { id: uid(), date: ago(2),  desc: 'Additional Dues Collected', cat: 'Income – Dues', type: 'income', amount: 80 },
+  DB.members = [
+    {id:'m1',name:'Alex Johnson',username:'alexj',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(28),partnershipId:'p1'},
+    {id:'m2',name:'Mia Rodriguez',username:'miar',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(25),partnershipId:'p2'},
+    {id:'m3',name:'Ethan Carter',username:'ethanc',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(22),partnershipId:'p3'},
+    {id:'m4',name:'Sophia Lee',username:'sophial',password:'member123',grade:'10',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:'p4'},
+    {id:'m5',name:'Noah Williams',username:'noahw',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(18),partnershipId:''},
+    {id:'m6',name:'Olivia Brown',username:'oliviab',password:'member123',grade:'9',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:''},
+    {id:'m7',name:'Liam Davis',username:'liamd',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(15),partnershipId:'p5'},
+    {id:'m8',name:'Emma Miller',username:'emmam',password:'member123',grade:'10',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:''},
+    {id:'m9',name:'James Wilson',username:'jamesw',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(10),partnershipId:''},
+    {id:'m10',name:'Ava Thomas',username:'avat',password:'member123',grade:'9',dues:20,duesStatus:'paid',datePaid:ago(8),partnershipId:''},
   ];
 
-  data.fundraisers = [
-    { id: uid(), name: 'Car Wash', date: ago(25), goal: 500, raised: 485, status: 'completed' },
-    { id: uid(), name: 'Bake Sale', date: ago(10), goal: 200, raised: 175, status: 'completed' },
-    { id: uid(), name: 'Spirit Wear Sale', date: fmt(new Date(today.getFullYear(), today.getMonth()+1, 15)), goal: 750, raised: 0, status: 'planned' },
-    { id: uid(), name: 'Restaurant Night', date: fmt(new Date(today.getFullYear(), today.getMonth(), today.getDate()+14)), goal: 300, raised: 120, status: 'active' },
+  DB.transactions = [
+    {id:'t1',date:ago(32),desc:'Member Dues – Fall Collection (Batch 1)',cat:'Income – Dues',type:'income',amount:160},
+    {id:'t2',date:ago(28),desc:'Car Wash Fundraiser Proceeds',cat:'Income – Fundraiser',type:'income',amount:485},
+    {id:'t3',date:ago(25),desc:'Kwik Trip Sponsorship Deposit',cat:'Income – Sponsorship',type:'income',amount:500},
+    {id:'t4',date:ago(22),desc:'State Conference Registration Fees',cat:'Conferences',type:'expense',amount:210},
+    {id:'t5',date:ago(20),desc:'Name Tags, Lanyards & Folders',cat:'Supplies',type:'expense',amount:47.50},
+    {id:'t6',date:ago(18),desc:'Member Dues – Fall Collection (Batch 2)',cat:'Income – Dues',type:'income',amount:100},
+    {id:'t7',date:ago(14),desc:'Bake Sale Proceeds',cat:'Income – Fundraiser',type:'income',amount:175},
+    {id:'t8',date:ago(12),desc:'Pizza – Chapter Meeting',cat:'Food',type:'expense',amount:62},
+    {id:'t9',date:ago(8),desc:'Fox Valley Bank Sponsorship',cat:'Income – Sponsorship',type:'income',amount:750},
+    {id:'t10',date:ago(5),desc:'Marketing Flyers (Printing)',cat:'Marketing',type:'expense',amount:38},
+    {id:'t11',date:ago(3),desc:'Member Dues – Late Collection',cat:'Income – Dues',type:'income',amount:60},
+    {id:'t12',date:ago(1),desc:'Scholarship Application Supplies',cat:'Supplies',type:'expense',amount:24},
   ];
 
-  data.members = [
-    { id: uid(), name: 'Alex Johnson', grade: '12', amount: 20, status: 'paid', datePaid: ago(28) },
-    { id: uid(), name: 'Mia Rodriguez', grade: '11', amount: 20, status: 'paid', datePaid: ago(27) },
-    { id: uid(), name: 'Ethan Carter', grade: '12', amount: 20, status: 'paid', datePaid: ago(26) },
-    { id: uid(), name: 'Sophia Lee', grade: '10', amount: 20, status: 'unpaid', datePaid: '' },
-    { id: uid(), name: 'Noah Williams', grade: '11', amount: 20, status: 'paid', datePaid: ago(20) },
-    { id: uid(), name: 'Olivia Brown', grade: '9', amount: 20, status: 'unpaid', datePaid: '' },
-    { id: uid(), name: 'Liam Davis', grade: '12', amount: 20, status: 'paid', datePaid: ago(15) },
-    { id: uid(), name: 'Emma Miller', grade: '10', amount: 20, status: 'unpaid', datePaid: '' },
+  DB.fundraisers = [
+    {id:'f1',name:'Car Wash',date:ago(28),goal:500,raised:485,status:'completed',notes:'Great turnout! Near goal.'},
+    {id:'f2',name:'Bake Sale',date:ago(14),goal:200,raised:175,status:'completed',notes:'Sold out by noon.'},
+    {id:'f3',name:'Spirit Wear Sale',date: (() => { const d=new Date(); d.setDate(d.getDate()+20); return d.toISOString().split('T')[0]; })(),goal:800,raised:0,status:'planned',notes:'Orders open Nov 1.'},
+    {id:'f4',name:'Restaurant Night – Culver\'s',date: (() => { const d=new Date(); d.setDate(d.getDate()+10); return d.toISOString().split('T')[0]; })(),goal:300,raised:120,status:'active',notes:'25% of sales donated.'},
+    {id:'f5',name:'Silent Auction',date: (() => { const d=new Date(); d.setDate(d.getDate()+45); return d.toISOString().split('T')[0]; })(),goal:1200,raised:0,status:'planned',notes:'Tied to annual banquet.'},
   ];
 
-  data.budgets = {
-    'Conferences': 400,
-    'Supplies': 150,
-    'Food': 100,
-    'Events': 200,
-    'Other Expense': 100
-  };
+  DB.partnerships = [
+    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,status:'active',desc:'Cash sponsorship — state conference costs',assignedTo:'m1',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+14); return d.toISOString().split('T')[0]; })(),notes:'Follow-up thank-you letter due. Alex to deliver in person.'},
+    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:750,status:'active',desc:'Annual chapter sponsor – supports all events',assignedTo:'m2',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+7); return d.toISOString().split('T')[0]; })(),notes:'Mia presented chapter overview. Very interested in DECA competitive events.'},
+    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:300,status:'pending',desc:'In-store fundraiser night + supply donation',assignedTo:'m3',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(),notes:'Awaiting final approval from district manager.'},
+    {id:'p4',company:'Culver\'s Appleton',contact:'Owner (Lisa)',value:200,status:'active',desc:'Restaurant night – 25% donated to chapter',assignedTo:'m4',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+10); return d.toISOString().split('T')[0]; })(),notes:'Event confirmed. Sophia coordinating social media promotion.'},
+    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:1000,status:'needs-attention',desc:'Annual education grant – application pending',assignedTo:'m7',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(),notes:'URGENT: Grant application deadline in 2 days. Liam needs to submit final essay.'},
+  ];
 
-  save();
+  DB.budgets = { Conferences:500, Supplies:200, Food:150, Events:300, Marketing:100, 'Other Expense':100 };
+
+  DB.announcements = [
+    {id:'a1',title:'State Conference Registration Deadline',body:'All members competing at State must have dues paid and registration submitted by Nov 15.', date:ago(2), urgent:true},
+    {id:'a2',title:'Restaurant Night – Culver\'s',body:'Join us at Culver\'s on the 22nd! Mention DECA and 25% of your bill supports the chapter.', date:ago(5), urgent:false},
+    {id:'a3',title:'Spirit Wear Orders Open Soon',body:'We\'re planning a spirit wear sale. Send design ideas to Mrs. Fude by end of next week.', date:ago(8), urgent:false},
+  ];
+
+  saveDB();
 }
 
-function uid() { return Math.random().toString(36).slice(2,10); }
-function fmt$(n) { return '$' + (+n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+// ══ AUTH ══════════════════════════════════════════════════════════════════════
+function getUser(username, password){
+  if(SEED_USERS[username] && SEED_USERS[username].password === password) return {username, ...SEED_USERS[username]};
+  const m = DB.members.find(m => m.username === username && m.password === password);
+  if(m) return {username, role:'member', name:m.name, initials:m.name.split(' ').map(n=>n[0]).join(''), memberId:m.id};
+  return null;
+}
 
-// ─── Navigation ──────────────────────────────────────────────────────────────
-function showTab(name) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+function doLogin(){
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const user = getUser(u, p);
+  if(!user){ document.getElementById('login-error').style.display='block'; return; }
+  currentUser = user;
+  document.getElementById('login-error').style.display='none';
+  sessionStorage.setItem('deca_session', JSON.stringify(user));
+  launchApp();
+}
+
+function doLogout(){
+  sessionStorage.removeItem('deca_session');
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('password').value='';
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Enter' && document.getElementById('login-screen').style.display!=='none') doLogin(); });
+
+// ══ APP LAUNCH ════════════════════════════════════════════════════════════════
+function launchApp(){
+  document.getElementById('login-screen').style.display='none';
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+
+  // Top bar
+  document.getElementById('top-name').textContent = currentUser.name;
+  document.getElementById('top-avatar').textContent = currentUser.initials || currentUser.name[0];
+  const roleEl = document.getElementById('top-role');
+  roleEl.textContent = currentUser.role === 'admin' ? 'Admin' : 'Member';
+  if(currentUser.role === 'admin') roleEl.classList.add('admin');
+
+  buildSidebar();
+  showSection(currentUser.role === 'admin' ? 's-dashboard' : 's-my-home');
   render();
 }
 
-// ─── Render All ──────────────────────────────────────────────────────────────
-function render() {
-  renderHeader();
-  renderDashboard();
-  renderTransactions();
-  renderFundraisers();
-  renderDues();
-  renderBudget();
+function buildSidebar(){
+  const sidebar = document.getElementById('sidebar');
+  const isAdmin = currentUser.role === 'admin';
+  const items = isAdmin ? [
+    {section:'main', items:[
+      {id:'s-dashboard',icon:'📊',label:'Dashboard'},
+      {id:'s-transactions',icon:'💳',label:'Transactions'},
+      {id:'s-members',icon:'👥',label:'Members'},
+      {id:'s-fundraisers',icon:'🎯',label:'Fundraisers'},
+      {id:'s-partnerships',icon:'🤝',label:'Partnerships'},
+      {id:'s-budget',icon:'📈',label:'Budget Tracker'},
+      {id:'s-reports',icon:'📁',label:'Financial Record'},
+    ]}
+  ] : [
+    {section:'my account', items:[
+      {id:'s-my-home',icon:'🏠',label:'My Dashboard'},
+      {id:'s-my-dues',icon:'💰',label:'My Dues'},
+      {id:'s-my-partnership',icon:'🤝',label:'My Partnership'},
+    ]}
+  ];
+
+  sidebar.innerHTML = items.map(group => `
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">${group.section}</div>
+      ${group.items.map(i => `
+        <button class="nav-item" id="nav-${i.id}" onclick="showSection('${i.id}')">
+          <span class="icon">${i.icon}</span>${i.label}
+        </button>`).join('')}
+    </div>`).join('') +
+    `<div class="sidebar-footer"><div class="version">AE DECA Finance Platform v2.0</div></div>`;
 }
 
-// ─── Header ──────────────────────────────────────────────────────────────────
-function renderHeader() {
-  const bal = getBalance();
-  document.getElementById('header-balance').textContent = fmt$(bal);
-}
-
-function getBalance() {
-  return data.transactions.reduce((sum, t) => sum + (t.type === 'income' ? +t.amount : -t.amount), 0);
-}
-
-// ─── Dashboard ───────────────────────────────────────────────────────────────
-function renderDashboard() {
-  const income = data.transactions.filter(t => t.type === 'income').reduce((s,t) => s + +t.amount, 0);
-  const expenses = data.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + +t.amount, 0);
-  const dues = data.members.filter(m => m.status === 'paid').reduce((s,m) => s + +m.amount, 0);
-
-  document.getElementById('dash-income').textContent = fmt$(income);
-  document.getElementById('dash-expenses').textContent = fmt$(expenses);
-  document.getElementById('dash-balance').textContent = fmt$(income - expenses);
-  document.getElementById('dash-dues').textContent = fmt$(dues);
-
-  // Recent transactions (last 5)
-  const recent = [...data.transactions].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
-  const tbody = document.querySelector('#dash-recent-table tbody');
-  tbody.innerHTML = recent.map(t => `
-    <tr>
-      <td>${t.date}</td>
-      <td>${t.desc}</td>
-      <td style="color:${t.type==='income'?'var(--green)':'var(--red)'};font-weight:600;">
-        ${t.type==='income'?'+':'-'}${fmt$(t.amount)}
-      </td>
-    </tr>`).join('') || '<tr><td colspan="3" class="empty">No transactions</td></tr>';
-
-  // Active fundraisers
-  const active = data.fundraisers.filter(f => f.status !== 'completed');
-  document.getElementById('dash-fundraisers').innerHTML = active.length ? active.map(f => {
-    const pct = Math.min(100, f.goal > 0 ? (f.raised / f.goal * 100) : 0);
-    return `<div style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px;">
-        <strong>${f.name}</strong>
-        <span>${fmt$(f.raised)} / ${fmt$(f.goal)}</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill${pct>=100?' over':''}" style="width:${pct}%"></div></div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">${pct.toFixed(0)}% of goal</div>
-    </div>`;
-  }).join('') : '<div class="empty" style="padding:20px;">No active fundraisers</div>';
-}
-
-// ─── Transactions ────────────────────────────────────────────────────────────
-function addTransaction() {
-  const date = document.getElementById('tx-date').value;
-  const desc = document.getElementById('tx-desc').value.trim();
-  const cat  = document.getElementById('tx-cat').value;
-  const type = document.getElementById('tx-type').value;
-  const amount = parseFloat(document.getElementById('tx-amount').value);
-
-  if (!date || !desc || isNaN(amount) || amount <= 0) { alert('Please fill in all fields with valid values.'); return; }
-
-  data.transactions.push({ id: uid(), date, desc, cat, type, amount });
-  save();
-  document.getElementById('tx-desc').value = '';
-  document.getElementById('tx-amount').value = '';
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  const nav = document.getElementById('nav-'+id);
+  if(nav) nav.classList.add('active');
   render();
 }
 
-function deleteTransaction(id) {
-  if (!confirm('Delete this transaction?')) return;
-  data.transactions = data.transactions.filter(t => t.id !== id);
-  save(); render();
+// ══ UTILITIES ═════════════════════════════════════════════════════════════════
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmt$ = n => '$' + (+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtPct = (a,b) => b>0 ? Math.min(100,(a/b*100)).toFixed(0)+'%' : '0%';
+
+function getBalance(){
+  return DB.transactions.reduce((s,t) => s+(t.type==='income'?+t.amount:-+t.amount),0);
 }
 
-function renderTransactions() {
-  const filter = document.getElementById('tx-filter')?.value || '';
-  let txs = [...data.transactions].sort((a,b) => b.date.localeCompare(a.date));
-  if (filter) txs = txs.filter(t => t.type === filter);
+function getMember(id){ return DB.members.find(m => m.id===id); }
+function getPartnership(id){ return DB.partnerships.find(p => p.id===id); }
 
-  // Running balance (based on all transactions sorted ascending)
-  const sorted = [...data.transactions].sort((a,b) => a.date.localeCompare(b.date));
-  const balMap = {};
-  let bal = 0;
-  for (const t of sorted) { bal += t.type === 'income' ? +t.amount : -+t.amount; balMap[t.id] = bal; }
+function statusBadge(s){
+  const map = { active:'badge-green', pending:'badge-amber', completed:'badge-blue', 'needs-attention':'badge-red', paid:'badge-green', unpaid:'badge-red', planned:'badge-gray' };
+  const labels = { active:'Active', pending:'Pending', completed:'Completed', 'needs-attention':'⚠ Needs Attention', paid:'✓ Paid', unpaid:'Unpaid', planned:'Planned' };
+  return `<span class="badge ${map[s]||'badge-gray'}">${labels[s]||s}</span>`;
+}
 
-  const tbody = document.getElementById('tx-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = txs.map(t => `
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══ RENDER ════════════════════════════════════════════════════════════════════
+function render(){
+  if(currentUser?.role === 'admin'){
+    renderDashboard();
+    renderTransactions();
+    renderMembers();
+    renderFundraisers();
+    renderPartnerships();
+    renderBudget();
+    renderReports();
+  } else {
+    renderMemberHome();
+    renderMyDues();
+    renderMyPartnership();
+  }
+}
+
+// ── Admin Dashboard ───────────────────────────────────────────────────────────
+function renderDashboard(){
+  document.getElementById('dash-welcome').textContent = `Welcome back, ${currentUser.name.split(' ')[0]} 👋`;
+
+  const income = DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0);
+  const expense = DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0);
+  const paidMembers = DB.members.filter(m=>m.duesStatus==='paid').length;
+  const totalPartnerValue = DB.partnerships.filter(p=>p.status==='active').reduce((s,p)=>s+ +p.value,0);
+
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat blue"><div class="s-label">Account Balance</div><div class="s-val">${fmt$(income-expense)}</div><div class="s-sub">Net of all transactions</div></div>
+    <div class="stat green"><div class="s-label">Total Income</div><div class="s-val">${fmt$(income)}</div><div class="s-sub">All sources</div></div>
+    <div class="stat red"><div class="s-label">Total Expenses</div><div class="s-val">${fmt$(expense)}</div><div class="s-sub">All categories</div></div>
+    <div class="stat amber"><div class="s-label">Dues Collected</div><div class="s-val">${paidMembers}/${DB.members.length}</div><div class="s-sub">${fmt$(DB.members.filter(m=>m.duesStatus==='paid').reduce((s,m)=>s+ +m.dues,0))} collected</div></div>
+    <div class="stat blue"><div class="s-label">Active Partnerships</div><div class="s-val">${fmt$(totalPartnerValue)}</div><div class="s-sub">${DB.partnerships.filter(p=>p.status==='active').length} active companies</div></div>`;
+
+  // Balance chip
+  document.getElementById('dash-balance-chip').textContent = `Balance: ${fmt$(income-expense)}`;
+
+  // Recent transactions
+  const recent = [...DB.transactions].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  document.getElementById('dash-tx-body').innerHTML = recent.map(t=>`
     <tr>
-      <td>${t.date}</td>
+      <td style="color:var(--gray);font-size:.8rem;">${t.date}</td>
       <td>${t.desc}</td>
-      <td><span class="badge badge-blue">${t.cat}</span></td>
-      <td><span class="badge ${t.type==='income'?'badge-green':'badge-red'}">${t.type==='income'?'Income':'Expense'}</span></td>
-      <td style="font-weight:600;color:${t.type==='income'?'var(--green)':'var(--red)'};">
-        ${t.type==='income'?'+':'-'}${fmt$(t.amount)}
-      </td>
-      <td style="font-weight:600;">${fmt$(balMap[t.id])}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteTransaction('${t.id}')">Delete</button></td>
+      <td>${statusBadge(t.type==='income'?'active':'needs-attention').replace('Active','Income').replace('⚠ Needs Attention','Expense')}</td>
+      <td style="font-weight:700;color:${t.type==='income'?'var(--green)':'var(--red)'};">${t.type==='income'?'+':'-'}${fmt$(t.amount)}</td>
     </tr>`).join('');
 
-  const empty = document.getElementById('tx-empty');
-  if (empty) { empty.style.display = txs.length ? 'none' : 'block'; if(tbody) tbody.style.display = txs.length ? '' : 'none'; }
-}
+  // Dues progress
+  const paid = DB.members.filter(m=>m.duesStatus==='paid').length;
+  const total = DB.members.length;
+  const pct = total>0 ? (paid/total*100) : 0;
+  document.getElementById('dues-progress-wrap').innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:8px;">
+      <span><strong>${paid}</strong> of <strong>${total}</strong> members paid</span>
+      <span style="font-weight:700;color:var(--navy);">${pct.toFixed(0)}%</span>
+    </div>
+    <div class="progress"><div class="progress-fill green" style="width:${pct}%"></div></div>
+    <div style="margin-top:14px;">
+      ${DB.members.filter(m=>m.duesStatus==='unpaid').map(m=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gray-light);font-size:.84rem;">
+          <span>⚠ ${m.name} <span style="color:var(--gray);font-size:.75rem;">Gr.${m.grade}</span></span>
+          <span class="badge badge-red">Unpaid – ${fmt$(m.dues)}</span>
+        </div>`).join('')}
+    </div>`;
 
-function exportCSV() {
-  const txs = [...data.transactions].sort((a,b) => a.date.localeCompare(b.date));
-  let bal = 0;
-  const rows = [['Date','Description','Category','Type','Amount','Balance']];
-  for (const t of txs) {
-    bal += t.type === 'income' ? +t.amount : -+t.amount;
-    rows.push([t.date, `"${t.desc}"`, t.cat, t.type, (+t.amount).toFixed(2), bal.toFixed(2)]);
-  }
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv,' + encodeURIComponent(csv);
-  a.download = 'deca-transactions.csv';
-  a.click();
-}
-
-// ─── Fundraisers ─────────────────────────────────────────────────────────────
-function addFundraiser() {
-  const name   = document.getElementById('fr-name').value.trim();
-  const date   = document.getElementById('fr-date').value;
-  const goal   = parseFloat(document.getElementById('fr-goal').value);
-  const raised = parseFloat(document.getElementById('fr-raised').value) || 0;
-  const status = document.getElementById('fr-status').value;
-
-  if (!name || !date || isNaN(goal) || goal <= 0) { alert('Please fill in all required fields.'); return; }
-
-  data.fundraisers.push({ id: uid(), name, date, goal, raised, status });
-  save();
-  document.getElementById('fr-name').value = '';
-  document.getElementById('fr-goal').value = '';
-  document.getElementById('fr-raised').value = '0';
-  render();
-}
-
-function deleteFundraiser(id) {
-  if (!confirm('Delete this fundraiser?')) return;
-  data.fundraisers = data.fundraisers.filter(f => f.id !== id);
-  save(); render();
-}
-
-function openFrModal(id) {
-  const f = data.fundraisers.find(f => f.id === id);
-  if (!f) return;
-  document.getElementById('fr-edit-id').value = f.id;
-  document.getElementById('fr-edit-name').value = f.name;
-  document.getElementById('fr-edit-date').value = f.date;
-  document.getElementById('fr-edit-goal').value = f.goal;
-  document.getElementById('fr-edit-raised').value = f.raised;
-  document.getElementById('fr-edit-status').value = f.status;
-  document.getElementById('fr-modal').classList.add('open');
-}
-
-function closeFrModal() { document.getElementById('fr-modal').classList.remove('open'); }
-
-function saveFrEdit() {
-  const id = document.getElementById('fr-edit-id').value;
-  const f = data.fundraisers.find(f => f.id === id);
-  if (!f) return;
-  f.name   = document.getElementById('fr-edit-name').value.trim();
-  f.date   = document.getElementById('fr-edit-date').value;
-  f.goal   = parseFloat(document.getElementById('fr-edit-goal').value);
-  f.raised = parseFloat(document.getElementById('fr-edit-raised').value) || 0;
-  f.status = document.getElementById('fr-edit-status').value;
-  save(); closeFrModal(); render();
-}
-
-function renderFundraisers() {
-  const grid = document.getElementById('fr-grid');
-  const empty = document.getElementById('fr-empty');
-  if (!grid) return;
-  if (!data.fundraisers.length) { grid.innerHTML = ''; if(empty) empty.style.display='block'; return; }
-  if(empty) empty.style.display='none';
-
-  const statusLabel = { active: 'Active', completed: 'Completed', planned: 'Planned' };
-  const statusBadge = { active: 'badge-green', completed: 'badge-blue', planned: 'badge-gold' };
-
-  grid.innerHTML = data.fundraisers.map(f => {
-    const pct = Math.min(100, f.goal > 0 ? (f.raised / f.goal * 100) : 0);
-    return `
-    <div class="fundraiser-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <h3>${f.name}</h3>
-        <span class="badge ${statusBadge[f.status]}">${statusLabel[f.status]}</span>
+  // Partnerships summary
+  const plist = DB.partnerships.slice(0,4);
+  document.getElementById('dash-partnerships-summary').innerHTML = plist.map(p=>{
+    const member = p.assignedTo ? getMember(p.assignedTo) : null;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-light);">
+      <div>
+        <div style="font-weight:600;font-size:.88rem;">${p.company}</div>
+        <div style="font-size:.75rem;color:var(--gray);">${member ? member.name : 'Unassigned'} · ${fmt$(p.value)}</div>
       </div>
-      <div class="meta">📅 ${f.date}</div>
-      <div class="progress-bar"><div class="progress-fill${pct>=100?' over':''}" style="width:${pct}%"></div></div>
-      <div class="amounts">
-        <span style="color:var(--muted);">Raised: <strong style="color:var(--green)">${fmt$(f.raised)}</strong></span>
-        <span>Goal: <strong>${fmt$(f.goal)}</strong></span>
-        <span>${pct.toFixed(0)}%</span>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="btn btn-outline btn-sm" onclick="openFrModal('${f.id}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteFundraiser('${f.id}')">Delete</button>
-      </div>
+      ${statusBadge(p.status)}
     </div>`;
   }).join('');
+
+  // Announcements
+  document.getElementById('dash-announcements').innerHTML = DB.announcements.map(a=>`
+    <div class="announcement" style="${a.urgent?'':'background:linear-gradient(90deg,var(--dark2),var(--dark3));'}">
+      <div class="ann-icon">${a.urgent?'🚨':'📣'}</div>
+      <div><h4>${a.title}</h4><p>${a.body}</p></div>
+    </div>`).join('');
 }
 
-// ─── Member Dues ─────────────────────────────────────────────────────────────
-function addMember() {
-  const name   = document.getElementById('dues-name').value.trim();
-  const grade  = document.getElementById('dues-grade').value;
-  const amount = parseFloat(document.getElementById('dues-amount').value);
-  const status = document.getElementById('dues-status').value;
-  const datePaid = document.getElementById('dues-date').value;
-
-  if (!name || isNaN(amount) || amount <= 0) { alert('Please enter a name and valid amount.'); return; }
-
-  data.members.push({ id: uid(), name, grade, amount, status, datePaid: status === 'paid' ? datePaid : '' });
-  save();
-  document.getElementById('dues-name').value = '';
-  document.getElementById('dues-amount').value = '';
-  document.getElementById('dues-date').value = '';
+// ── Transactions ──────────────────────────────────────────────────────────────
+function addTransaction(){
+  const date=document.getElementById('tx-date').value;
+  const desc=document.getElementById('tx-desc').value.trim();
+  const cat=document.getElementById('tx-cat').value;
+  const type=document.getElementById('tx-type').value;
+  const amount=parseFloat(document.getElementById('tx-amount').value);
+  if(!date||!desc||isNaN(amount)||amount<=0){alert('Fill in all fields.');return;}
+  DB.transactions.push({id:uid(),date,desc,cat,type,amount});
+  saveDB();
+  document.getElementById('tx-desc').value='';
+  document.getElementById('tx-amount').value='';
   render();
 }
 
-function toggleDuesStatus(id) {
-  const m = data.members.find(m => m.id === id);
-  if (!m) return;
-  m.status = m.status === 'paid' ? 'unpaid' : 'paid';
-  if (m.status === 'paid') m.datePaid = new Date().toISOString().split('T')[0];
-  else m.datePaid = '';
-  save(); render();
+function deleteTransaction(id){
+  if(!confirm('Delete this transaction?'))return;
+  DB.transactions=DB.transactions.filter(t=>t.id!==id);
+  saveDB();render();
 }
 
-function deleteMember(id) {
-  if (!confirm('Remove this member?')) return;
-  data.members = data.members.filter(m => m.id !== id);
-  save(); render();
-}
-
-function renderDues() {
-  const search = (document.getElementById('dues-search')?.value || '').toLowerCase();
-  const filter = document.getElementById('dues-filter')?.value || '';
-  let members = data.members.filter(m => m.name.toLowerCase().includes(search));
-  if (filter) members = members.filter(m => m.status === filter);
-
-  const paidCount   = data.members.filter(m => m.status === 'paid').length;
-  const unpaidCount = data.members.filter(m => m.status === 'unpaid').length;
-  const collected   = data.members.filter(m => m.status === 'paid').reduce((s,m) => s + +m.amount, 0);
-  const outstanding = data.members.filter(m => m.status === 'unpaid').reduce((s,m) => s + +m.amount, 0);
-
-  const el = id => document.getElementById(id);
-  if(el('dues-total')) el('dues-total').textContent = data.members.length;
-  if(el('dues-paid-count')) el('dues-paid-count').textContent = paidCount;
-  if(el('dues-unpaid-count')) el('dues-unpaid-count').textContent = unpaidCount;
-  if(el('dues-collected')) el('dues-collected').textContent = fmt$(collected);
-  if(el('dues-outstanding')) el('dues-outstanding').textContent = fmt$(outstanding);
-
-  const tbody = document.getElementById('dues-tbody');
-  const empty = document.getElementById('dues-empty');
-  if (!tbody) return;
-
-  const sorted = [...members].sort((a,b) => a.name.localeCompare(b.name));
-  tbody.innerHTML = sorted.map(m => `
+function renderTransactions(){
+  const filter=document.getElementById('tx-filter')?.value||'';
+  const sorted=[...DB.transactions].sort((a,b)=>a.date.localeCompare(b.date));
+  let bal=0; const balMap={};
+  for(const t of sorted){ bal+=t.type==='income'?+t.amount:-+t.amount; balMap[t.id]=bal; }
+  let txs=[...sorted].reverse();
+  if(filter) txs=txs.filter(t=>t.type===filter);
+  document.getElementById('tx-tbody').innerHTML = txs.map(t=>`
     <tr>
+      <td style="color:var(--gray);font-size:.8rem;">${t.date}</td>
+      <td>${t.desc}</td>
+      <td><span class="badge badge-gray" style="font-size:.72rem;">${t.cat}</span></td>
+      <td>${t.type==='income'?'<span class="badge badge-green">Income</span>':'<span class="badge badge-red">Expense</span>'}</td>
+      <td style="font-weight:700;color:${t.type==='income'?'var(--green)':'var(--red)'};">${t.type==='income'?'+':'-'}${fmt$(t.amount)}</td>
+      <td style="font-weight:600;">${fmt$(balMap[t.id])}</td>
+      <td><button class="btn btn-ghost btn-xs" style="color:var(--red);border-color:#fca5a5;" onclick="deleteTransaction('${t.id}')">Delete</button></td>
+    </tr>`).join('');
+}
+
+function exportCSV(){
+  const txs=[...DB.transactions].sort((a,b)=>a.date.localeCompare(b.date));
+  let bal=0; const rows=[['Date','Description','Category','Type','Amount','Balance']];
+  for(const t of txs){ bal+=t.type==='income'?+t.amount:-+t.amount; rows.push([t.date,`"${t.desc}"`,t.cat,t.type,(+t.amount).toFixed(2),bal.toFixed(2)]); }
+  const a=document.createElement('a');
+  a.href='data:text/csv,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download='deca-ledger.csv'; a.click();
+}
+
+// ── Members ───────────────────────────────────────────────────────────────────
+function addMember(){
+  const name=document.getElementById('m-name').value.trim();
+  const username=document.getElementById('m-user').value.trim();
+  const password=document.getElementById('m-pass').value.trim()||'member123';
+  const grade=document.getElementById('m-grade').value;
+  const dues=parseFloat(document.getElementById('m-dues').value)||20;
+  const duesStatus=document.getElementById('m-dues-status').value;
+  if(!name||!username){alert('Name and username required.');return;}
+  DB.members.push({id:uid(),name,username,password,grade,dues,duesStatus,datePaid:duesStatus==='paid'?new Date().toISOString().split('T')[0]:'',partnershipId:''});
+  saveDB();
+  document.getElementById('m-name').value=''; document.getElementById('m-user').value=''; document.getElementById('m-pass').value='';
+  render();
+}
+
+function deleteMember(id){
+  if(!confirm('Remove this member?'))return;
+  DB.members=DB.members.filter(m=>m.id!==id);
+  DB.partnerships.forEach(p=>{if(p.assignedTo===id) p.assignedTo='';});
+  saveDB();render();
+}
+
+function toggleDues(id){
+  const m=getMember(id); if(!m)return;
+  m.duesStatus=m.duesStatus==='paid'?'unpaid':'paid';
+  m.datePaid=m.duesStatus==='paid'?new Date().toISOString().split('T')[0]:'';
+  saveDB();render();
+}
+
+function openMemberEdit(id){
+  const m=getMember(id); if(!m)return;
+  document.getElementById('m-edit-id').value=m.id;
+  document.getElementById('m-edit-name').value=m.name;
+  document.getElementById('m-edit-user').value=m.username;
+  document.getElementById('m-edit-grade').value=m.grade;
+  document.getElementById('m-edit-dues-amt').value=m.dues;
+  document.getElementById('m-edit-dues').value=m.duesStatus;
+  document.getElementById('m-edit-date-paid').value=m.datePaid||'';
+  document.getElementById('m-modal').classList.add('open');
+}
+
+function saveMemberEdit(){
+  const id=document.getElementById('m-edit-id').value;
+  const m=getMember(id); if(!m)return;
+  m.name=document.getElementById('m-edit-name').value.trim();
+  m.username=document.getElementById('m-edit-user').value.trim();
+  m.grade=document.getElementById('m-edit-grade').value;
+  m.dues=parseFloat(document.getElementById('m-edit-dues-amt').value)||m.dues;
+  m.duesStatus=document.getElementById('m-edit-dues').value;
+  m.datePaid=document.getElementById('m-edit-date-paid').value;
+  saveDB();closeModal('m-modal');render();
+}
+
+function renderMembers(){
+  const search=(document.getElementById('m-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('m-filter')?.value||'';
+  let members=[...DB.members].filter(m=>m.name.toLowerCase().includes(search)||(m.username||'').toLowerCase().includes(search));
+  if(filter) members=members.filter(m=>m.duesStatus===filter);
+
+  document.getElementById('m-tbody').innerHTML = members.map(m=>{
+    const p=m.partnershipId?getPartnership(m.partnershipId):null;
+    return `<tr>
       <td><strong>${m.name}</strong></td>
       <td>Grade ${m.grade}</td>
-      <td>${fmt$(m.amount)}</td>
-      <td>
-        <span class="badge ${m.status==='paid'?'badge-green':'badge-red'}">${m.status==='paid'?'Paid':'Unpaid'}</span>
+      <td><code style="font-size:.78rem;background:var(--gray-bg);padding:2px 7px;border-radius:4px;">${m.username}</code></td>
+      <td>${fmt$(m.dues)}</td>
+      <td>${statusBadge(m.duesStatus)}</td>
+      <td style="color:var(--gray);font-size:.82rem;">${m.datePaid||'—'}</td>
+      <td>${p?`<span style="font-size:.82rem;">${p.company}</span>`:'<span style="color:var(--gray);font-size:.8rem;">None</span>'}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-xs" onclick="toggleDues('${m.id}')">${m.duesStatus==='paid'?'Mark Unpaid':'Mark Paid'}</button>
+        <button class="btn btn-ghost btn-xs" onclick="openMemberEdit('${m.id}')">Edit</button>
+        <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMember('${m.id}')">Remove</button>
       </td>
-      <td>${m.datePaid || '—'}</td>
-      <td style="display:flex;gap:6px;">
-        <button class="btn btn-sm ${m.status==='paid'?'btn-outline':'btn-gold'}" onclick="toggleDuesStatus('${m.id}')">
-          ${m.status==='paid'?'Mark Unpaid':'Mark Paid'}
-        </button>
-        <button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}')">✕</button>
-      </td>
-    </tr>`).join('');
-
-  if(empty) empty.style.display = sorted.length ? 'none' : 'block';
+    </tr>`;}).join('');
 }
 
-// ─── Budget ───────────────────────────────────────────────────────────────────
-function setBudget() {
-  const cat    = document.getElementById('bud-cat').value;
-  const amount = parseFloat(document.getElementById('bud-amount').value);
-  if (isNaN(amount) || amount <= 0) { alert('Enter a valid budget amount.'); return; }
-  data.budgets[cat] = amount;
-  save();
-  document.getElementById('bud-amount').value = '';
+// ── Fundraisers ───────────────────────────────────────────────────────────────
+function addFundraiser(){
+  const name=document.getElementById('fr-name').value.trim();
+  const date=document.getElementById('fr-date').value;
+  const goal=parseFloat(document.getElementById('fr-goal').value);
+  const raised=parseFloat(document.getElementById('fr-raised').value)||0;
+  const status=document.getElementById('fr-status').value;
+  const notes=document.getElementById('fr-notes').value;
+  if(!name||!date||isNaN(goal)){alert('Fill required fields.');return;}
+  DB.fundraisers.push({id:uid(),name,date,goal,raised,status,notes});
+  saveDB();
+  document.getElementById('fr-name').value=''; document.getElementById('fr-goal').value=''; document.getElementById('fr-raised').value='0'; document.getElementById('fr-notes').value='';
   render();
 }
 
-function renderBudget() {
-  const bars  = document.getElementById('budget-bars');
-  const tbody = document.getElementById('budget-tbody');
-  const empty = document.getElementById('budget-empty');
-  if (!bars || !tbody) return;
+function deleteFundraiser(id){
+  if(!confirm('Delete this fundraiser?'))return;
+  DB.fundraisers=DB.fundraisers.filter(f=>f.id!==id);
+  saveDB();render();
+}
 
-  // Spend by category (expenses only)
-  const spend = {};
-  for (const t of data.transactions) {
-    if (t.type === 'expense') spend[t.cat] = (spend[t.cat] || 0) + +t.amount;
-  }
+function renderFundraisers(){
+  const grid=document.getElementById('fr-grid'); if(!grid)return;
+  const statusColor={active:'var(--green)',completed:'var(--navy)',planned:'var(--amber)','needs-attention':'var(--red)'};
+  grid.innerHTML = DB.fundraisers.map(f=>{
+    const pct=f.goal>0?Math.min(100,f.raised/f.goal*100):0;
+    const fillClass=pct>=100?'green':f.status==='active'?'':f.status==='completed'?'green':'amber';
+    return `<div class="card" style="border-top:3px solid ${statusColor[f.status]||'var(--navy)'};">
+      <div class="card-header">
+        <h3>${f.name}</h3>
+        ${statusBadge(f.status)}
+      </div>
+      <div class="card-body">
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:12px;">📅 ${f.date}</div>
+        <div class="progress" style="margin-bottom:8px;"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:10px;">
+          <span>Raised: <strong style="color:var(--green);">${fmt$(f.raised)}</strong></span>
+          <span>Goal: <strong>${fmt$(f.goal)}</strong></span>
+          <span>${pct.toFixed(0)}%</span>
+        </div>
+        ${f.notes?`<div style="font-size:.8rem;color:var(--gray);background:var(--gray-bg);padding:8px 10px;border-radius:6px;margin-bottom:12px;">${f.notes}</div>`:''}
+        <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteFundraiser('${f.id}')">Remove</button>
+      </div>
+    </div>`;}).join('');
+}
 
-  const cats = Object.keys(data.budgets);
-  if (!cats.length) { bars.innerHTML = ''; if(empty) empty.style.display='block'; tbody.innerHTML=''; return; }
-  if(empty) empty.style.display='none';
+// ── Partnerships ──────────────────────────────────────────────────────────────
+function populateMemberDropdowns(){
+  const opts = `<option value="">— Unassigned —</option>` + DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  ['p-member','p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
 
-  bars.innerHTML = cats.map(cat => {
-    const budget = data.budgets[cat];
-    const actual = spend[cat] || 0;
-    const pct = budget > 0 ? (actual / budget * 100) : 0;
-    const fillClass = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
-    return `
-    <div class="budget-item">
-      <div class="budget-label">
+function addPartnership(){
+  const company=document.getElementById('p-company').value.trim();
+  const contact=document.getElementById('p-contact').value.trim();
+  const value=parseFloat(document.getElementById('p-value').value)||0;
+  const status=document.getElementById('p-status').value;
+  const desc=document.getElementById('p-desc').value.trim();
+  const assignedTo=document.getElementById('p-member').value;
+  const nextDate=document.getElementById('p-next-date').value;
+  if(!company){alert('Company name required.');return;}
+  const newP={id:uid(),company,contact,value,status,desc,assignedTo,nextDate,notes:''};
+  DB.partnerships.push(newP);
+  if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=newP.id; }
+  saveDB();
+  document.getElementById('p-company').value=''; document.getElementById('p-contact').value=''; document.getElementById('p-value').value=''; document.getElementById('p-desc').value='';
+  render();
+}
+
+function deletePartnership(id){
+  if(!confirm('Delete this partnership?'))return;
+  DB.members.forEach(m=>{ if(m.partnershipId===id) m.partnershipId=''; });
+  DB.partnerships=DB.partnerships.filter(p=>p.id!==id);
+  saveDB();render();
+}
+
+function openPartnershipEdit(id){
+  const p=getPartnership(id); if(!p)return;
+  populateMemberDropdowns();
+  document.getElementById('p-edit-id').value=p.id;
+  document.getElementById('p-edit-company').value=p.company;
+  document.getElementById('p-edit-contact').value=p.contact;
+  document.getElementById('p-edit-value').value=p.value;
+  document.getElementById('p-edit-status').value=p.status;
+  document.getElementById('p-edit-desc').value=p.desc;
+  document.getElementById('p-edit-member').value=p.assignedTo||'';
+  document.getElementById('p-edit-next').value=p.nextDate||'';
+  document.getElementById('p-edit-notes').value=p.notes||'';
+  document.getElementById('p-modal').classList.add('open');
+}
+
+function savePartnershipEdit(){
+  const id=document.getElementById('p-edit-id').value;
+  const p=getPartnership(id); if(!p)return;
+  // Remove old assignment
+  DB.members.forEach(m=>{ if(m.partnershipId===id) m.partnershipId=''; });
+  p.company=document.getElementById('p-edit-company').value.trim();
+  p.contact=document.getElementById('p-edit-contact').value.trim();
+  p.value=parseFloat(document.getElementById('p-edit-value').value)||0;
+  p.status=document.getElementById('p-edit-status').value;
+  p.desc=document.getElementById('p-edit-desc').value.trim();
+  p.assignedTo=document.getElementById('p-edit-member').value;
+  p.nextDate=document.getElementById('p-edit-next').value;
+  p.notes=document.getElementById('p-edit-notes').value;
+  if(p.assignedTo){ const m=getMember(p.assignedTo); if(m) m.partnershipId=id; }
+  saveDB();closeModal('p-modal');render();
+}
+
+function renderPartnerships(){
+  populateMemberDropdowns();
+  const statusColors={'active':'var(--green)','pending':'var(--amber)','needs-attention':'var(--red)','completed':'var(--navy)'};
+  document.getElementById('p-tbody').innerHTML = DB.partnerships.map(p=>{
+    const member=p.assignedTo?getMember(p.assignedTo):null;
+    return `<tr>
+      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc}</div></td>
+      <td style="font-size:.83rem;">${p.contact||'—'}</td>
+      <td style="font-weight:700;color:var(--navy);">${fmt$(p.value)}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td style="font-size:.83rem;">${member?member.name:'<span style="color:var(--gray);">Unassigned</span>'}</td>
+      <td style="font-size:.8rem;color:${p.nextDate&&new Date(p.nextDate)<new Date()?'var(--red)':'var(--gray)'};">${p.nextDate||'—'}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-xs" onclick="openPartnershipEdit('${p.id}')">Edit</button>
+        <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deletePartnership('${p.id}')">Delete</button>
+      </td>
+    </tr>`;}).join('');
+}
+
+// ── Budget ────────────────────────────────────────────────────────────────────
+function setBudget(){
+  const cat=document.getElementById('bud-cat').value;
+  const amount=parseFloat(document.getElementById('bud-amount').value);
+  if(isNaN(amount)||amount<=0){alert('Enter valid amount.');return;}
+  DB.budgets[cat]=amount; saveDB();
+  document.getElementById('bud-amount').value=''; render();
+}
+
+function renderBudget(){
+  const bars=document.getElementById('budget-bars');
+  const tbody=document.getElementById('bud-tbody');
+  if(!bars||!tbody)return;
+  const spend={};
+  DB.transactions.filter(t=>t.type==='expense').forEach(t=>{ spend[t.cat]=(spend[t.cat]||0)+ +t.amount; });
+  const cats=Object.keys(DB.budgets);
+  if(!cats.length){ bars.innerHTML='<div class="empty-state"><div class="icon">📊</div><p>No budgets set yet. Add one above!</p></div>'; tbody.innerHTML=''; return; }
+  bars.innerHTML = cats.map(cat=>{
+    const budget=DB.budgets[cat], actual=spend[cat]||0, pct=budget>0?(actual/budget*100):0;
+    const fillClass=pct>=100?'red':pct>=80?'amber':'';
+    return `<div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;font-size:.87rem;margin-bottom:6px;">
         <strong>${cat}</strong>
-        <span style="color:${pct>=100?'var(--red)':pct>=80?'var(--gold-dark)':'var(--green)'};">
+        <span style="color:${pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)'};">
           ${fmt$(actual)} / ${fmt$(budget)} (${pct.toFixed(0)}%)
         </span>
       </div>
-      <div class="budget-bar"><div class="budget-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
-    </div>`;
-  }).join('');
-
-  tbody.innerHTML = cats.map(cat => {
-    const budget = data.budgets[cat];
-    const actual = spend[cat] || 0;
-    const remaining = budget - actual;
-    const pct = budget > 0 ? (actual / budget * 100) : 0;
+      <div class="progress"><div class="progress-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
+      ${pct>=100?'<div style="font-size:.75rem;color:var(--red);margin-top:3px;">⚠ Over budget by '+fmt$(actual-budget)+'</div>':pct>=80?'<div style="font-size:.75rem;color:var(--amber);margin-top:3px;">⚠ Approaching budget limit</div>':''}
+    </div>`;}).join('');
+  tbody.innerHTML = cats.map(cat=>{
+    const budget=DB.budgets[cat], actual=spend[cat]||0, remaining=budget-actual, pct=budget>0?(actual/budget*100):0;
     return `<tr>
       <td><strong>${cat}</strong></td>
       <td>${fmt$(budget)}</td>
-      <td style="color:${actual>budget?'var(--red)':'var(--text)'};">${fmt$(actual)}</td>
+      <td style="color:${actual>budget?'var(--red)':'var(--dark)'};">${fmt$(actual)}</td>
       <td style="color:${remaining<0?'var(--red)':'var(--green)'};">${fmt$(remaining)}</td>
-      <td>
-        <span class="badge ${pct>=100?'badge-red':pct>=80?'badge-gold':'badge-green'}">${pct.toFixed(0)}%</span>
-      </td>
-    </tr>`;
-  }).join('');
+      <td>${statusBadge(pct>=100?'needs-attention':pct>=80?'pending':'active').replace('⚠ Needs Attention','Over Budget').replace('Pending','Near Limit').replace('Active','On Track')}</td>
+    </tr>`;}).join('');
 }
 
-// ─── Init ────────────────────────────────────────────────────────────────────
-// Set today's date as default
-document.addEventListener('DOMContentLoaded', () => {
+// ── Reports ───────────────────────────────────────────────────────────────────
+function renderReports(){
+  const income=DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0);
+  const expense=DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0);
+  const totalFR=DB.fundraisers.reduce((s,f)=>s+ +f.raised,0);
+  const totalPartners=DB.partnerships.filter(p=>p.status==='active').reduce((s,p)=>s+ +p.value,0);
+  document.getElementById('report-stats').innerHTML=`
+    <div class="stat green"><div class="s-label">Total Income</div><div class="s-val">${fmt$(income)}</div></div>
+    <div class="stat red"><div class="s-label">Total Expenses</div><div class="s-val">${fmt$(expense)}</div></div>
+    <div class="stat blue"><div class="s-label">Net Balance</div><div class="s-val">${fmt$(income-expense)}</div></div>
+    <div class="stat amber"><div class="s-label">Fundraising Total</div><div class="s-val">${fmt$(totalFR)}</div></div>
+    <div class="stat blue"><div class="s-label">Partnership Value</div><div class="s-val">${fmt$(totalPartners)}</div></div>`;
+
+  const catIncome={}, catExpense={};
+  DB.transactions.forEach(t=>{ if(t.type==='income') catIncome[t.cat]=(catIncome[t.cat]||0)+ +t.amount; else catExpense[t.cat]=(catExpense[t.cat]||0)+ +t.amount; });
+
+  const barBlock = (obj, total, colorClass) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;"><span>${cat}</span><strong>${fmt$(amt)}</strong></div>
+      <div class="progress"><div class="progress-fill ${colorClass}" style="width:${total>0?(amt/total*100):0}%"></div></div>
+    </div>`).join('');
+
+  document.getElementById('report-income').innerHTML = barBlock(catIncome, income, 'green') || '<p style="color:var(--gray);font-size:.85rem;">No income recorded.</p>';
+  document.getElementById('report-expense').innerHTML = barBlock(catExpense, expense, 'red') || '<p style="color:var(--gray);font-size:.85rem;">No expenses recorded.</p>';
+
+  const sorted=[...DB.transactions].sort((a,b)=>a.date.localeCompare(b.date));
+  let bal=0;
+  document.getElementById('report-tbody').innerHTML = sorted.map(t=>{ bal+=t.type==='income'?+t.amount:-+t.amount; return `
+    <tr>
+      <td style="color:var(--gray);font-size:.8rem;">${t.date}</td>
+      <td>${t.desc}</td>
+      <td><span class="badge badge-gray" style="font-size:.7rem;">${t.cat}</span></td>
+      <td>${t.type==='income'?'<span class="badge badge-green">Income</span>':'<span class="badge badge-red">Expense</span>'}</td>
+      <td style="font-weight:700;color:${t.type==='income'?'var(--green)':'var(--red)'};">${t.type==='income'?'+':'-'}${fmt$(t.amount)}</td>
+      <td style="font-weight:600;">${fmt$(bal)}</td>
+    </tr>`; }).join('');
+}
+
+// ── Member Home ───────────────────────────────────────────────────────────────
+function renderMemberHome(){
+  const memberData = DB.members.find(m=>m.id===currentUser.memberId);
+  if(!memberData) return;
+  const partner = memberData.partnershipId ? getPartnership(memberData.partnershipId) : null;
+  const balance = getBalance();
+
+  document.getElementById('member-hero-area').innerHTML = `
+    <div class="member-hero">
+      <h2>Welcome back, ${memberData.name.split(' ')[0]}! 👋</h2>
+      <p>Appleton East DECA · Grade ${memberData.grade} · ${new Date().getFullYear()}-${new Date().getFullYear()+1} Chapter Year</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hs-val">${memberData.duesStatus==='paid'?'✓ Paid':'⚠ Unpaid'}</div>
+          <div class="hs-label">Dues Status</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-val">${fmt$(memberData.dues)}</div>
+          <div class="hs-label">Dues Amount</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-val">${partner ? partner.company : 'None yet'}</div>
+          <div class="hs-label">Company Partnership</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Announcements + upcoming
+  const anns = DB.announcements.map(a=>`
+    <div class="announcement" style="${a.urgent?'':'background:linear-gradient(90deg,var(--dark2),var(--dark3));'}">
+      <div class="ann-icon">${a.urgent?'🚨':'📣'}</div>
+      <div><h4>${a.title}</h4><p>${a.body}</p></div>
+    </div>`).join('');
+
+  const activeFR = DB.fundraisers.filter(f=>f.status!=='completed');
+  const frCards = activeFR.map(f=>{
+    const pct=f.goal>0?Math.min(100,f.raised/f.goal*100):0;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:.87rem;margin-bottom:5px;">
+        <strong>${f.name}</strong>
+        <span>${statusBadge(f.status)}</span>
+      </div>
+      <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:.78rem;color:var(--gray);margin-top:3px;">${fmt$(f.raised)} raised of ${fmt$(f.goal)} goal</div>
+    </div>`;}).join('') || '<p style="color:var(--gray);font-size:.85rem;">No active fundraisers right now.</p>';
+
+  document.getElementById('member-grid').innerHTML = `
+    <div>
+      <div class="card">
+        <div class="card-header"><h3>📣 Chapter Announcements</h3></div>
+        <div class="card-body">${anns||'<p style="color:var(--gray);">No announcements.</p>'}</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-header"><h3>🎯 Active Fundraisers</h3></div>
+        <div class="card-body">${frCards}</div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header"><h3>📊 Chapter Balance</h3></div>
+        <div class="card-body">
+          <div style="text-align:center;padding:16px 0;">
+            <div style="font-size:2rem;font-weight:800;color:var(--navy);">${fmt$(balance)}</div>
+            <div style="font-size:.82rem;color:var(--gray);margin-top:4px;">Current chapter account balance</div>
+          </div>
+          <div style="display:flex;justify-content:space-around;margin-top:12px;">
+            <div style="text-align:center;">
+              <div style="font-size:1.1rem;font-weight:700;color:var(--green);">${fmt$(DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0))}</div>
+              <div style="font-size:.75rem;color:var(--gray);">Total Income</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1.1rem;font-weight:700;color:var(--red);">${fmt$(DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0))}</div>
+              <div style="font-size:.75rem;color:var(--gray);">Total Expenses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderMyDues(){
+  const m = DB.members.find(m=>m.id===currentUser.memberId);
+  if(!m){ document.getElementById('my-dues-detail').innerHTML='<p>Member not found.</p>'; return; }
+
+  const paid = m.duesStatus === 'paid';
+  document.getElementById('my-dues-detail').innerHTML = `
+    <div class="dues-card ${paid?'paid':'unpaid'}">
+      <div class="dues-icon">${paid?'✅':'⏰'}</div>
+      <div>
+        <h3>${paid?'Your dues are paid!':'Dues payment pending'}</h3>
+        <p>${paid?`You paid ${fmt$(m.dues)} on ${m.datePaid}. You're all set!`:`You owe ${fmt$(m.dues)} in chapter dues. Please pay as soon as possible.`}</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><h3>Dues Details</h3></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+          <div><div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Member Name</div><strong>${m.name}</strong></div>
+          <div><div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Grade</div><strong>${m.grade}</strong></div>
+          <div><div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Amount Due</div><strong>${fmt$(m.dues)}</strong></div>
+          <div><div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Status</div>${statusBadge(m.duesStatus)}</div>
+          <div><div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Date Paid</div><strong>${m.datePaid||'Not yet paid'}</strong></div>
+        </div>
+        ${!paid?`<div class="alert alert-amber" style="margin-top:20px;">Please pay your dues to Mrs. Fude or Ethan Moseman as soon as possible. Dues must be paid to compete at conferences.</div>`:''}
+      </div>
+    </div>`;
+}
+
+function renderMyPartnership(){
+  const m = DB.members.find(m=>m.id===currentUser.memberId);
+  if(!m||!m.partnershipId){
+    document.getElementById('my-partnership-detail').innerHTML = `
+      <div class="empty-state"><div class="icon">🤝</div><p>You haven't been assigned a company partnership yet.<br/>Check back soon or contact Mrs. Fude or Ethan.</p></div>`;
+    return;
+  }
+  const p = getPartnership(m.partnershipId);
+  if(!p){ document.getElementById('my-partnership-detail').innerHTML='<p>Partnership not found.</p>'; return; }
+  const statusColor={'active':'var(--green)','pending':'var(--amber)','needs-attention':'var(--red)','completed':'var(--navy)'};
+
+  document.getElementById('my-partnership-detail').innerHTML = `
+    <div class="partnership-card ${p.status}" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <h4 style="font-size:1.3rem;">${p.company}</h4>
+        ${statusBadge(p.status)}
+      </div>
+      <div class="company-meta">Contact: <strong>${p.contact||'Not specified'}</strong> · Partnership Value: <strong style="color:var(--navy);">${fmt$(p.value)}</strong></div>
+      <div class="partnership-detail"><strong>What they provide:</strong> ${p.desc}</div>
+      ${p.nextDate?`<div class="partnership-detail"><strong>Next action due:</strong> <span style="color:${new Date(p.nextDate)<new Date()?'var(--red)':'var(--amber)'};">${p.nextDate}</span></div>`:''}
+    </div>
+    ${p.notes?`
+    <div class="card">
+      <div class="card-header"><h3>📝 Progress Notes</h3></div>
+      <div class="card-body">
+        <p style="font-size:.88rem;line-height:1.6;">${p.notes}</p>
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="card-header"><h3>Your Responsibilities</h3></div>
+      <div class="card-body">
+        <div class="alert alert-blue">You are the chapter representative for <strong>${p.company}</strong>. Keep the contact updated, send thank-you notes, and report any changes to Mrs. Fude or Ethan.</div>
+        <ul style="margin-left:20px;font-size:.87rem;line-height:2;color:var(--dark3);">
+          <li>Maintain regular communication with <strong>${p.contact||'your contact'}</strong></li>
+          <li>Report any partnership updates to chapter leadership</li>
+          <li>Ensure any agreed deliverables are completed on time</li>
+          <li>Send thank-you letters after events or donations received</li>
+        </ul>
+      </div>
+    </div>`;
+}
+
+// ══ INIT ══════════════════════════════════════════════════════════════════════
+loadDB();
+
+// Set today as default date
+document.addEventListener('DOMContentLoaded', ()=>{
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('tx-date').value = today;
-  document.getElementById('fr-date').value = today;
-  document.getElementById('dues-date').value = today;
-  load();
-  render();
+  ['tx-date','fr-date','p-next-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
+
+  // Check for saved session
+  try{
+    const sess = sessionStorage.getItem('deca_session');
+    if(sess){ currentUser=JSON.parse(sess); launchApp(); }
+  }catch(e){}
 });
 </script>
 </body>
