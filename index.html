@@ -121,26 +121,34 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
   100%{opacity:1;transform:scale(1);}
 }
 
-/* "APPLETON EAST" */
-.intro-sub-text{
-  font-size:.85rem;font-weight:800;letter-spacing:.35em;
-  text-transform:uppercase;color:rgba(255,255,255,.55);
-  opacity:0;transform:translateY(6px);
-  animation:slideUp .5s 1.1s ease forwards;
-  margin-top:18px;
+/* Typewriter line */
+.intro-typed-wrap{
+  display:flex;align-items:center;justify-content:center;
+  margin-top:22px;min-height:3.6rem;
 }
+.intro-typed-line{
+  font-size:2.6rem;font-weight:900;letter-spacing:.1em;
+  color:#fff;line-height:1;text-align:center;
+  text-shadow:0 0 30px rgba(74,158,255,.9),0 0 60px rgba(0,120,255,.5),0 0 100px rgba(0,60,180,.3);
+  /* each letter glows as it appears */
+}
+.intro-typed-line .letter{
+  display:inline-block;
+  opacity:0;transform:translateY(8px) scale(1.3);
+  transition:opacity .12s ease, transform .2s cubic-bezier(.16,1,.3,1), text-shadow .3s ease;
+}
+.intro-typed-line .letter.shown{
+  opacity:1;transform:translateY(0) scale(1);
+}
+.intro-typed-line .letter.glow{
+  text-shadow:0 0 20px #fff, 0 0 40px #4a9eff, 0 0 80px rgba(0,120,255,.8);
+}
+.intro-typed-line .space{ display:inline-block;width:.5em; }
 
-/* "DECA" */
-.intro-main-text{
-  font-size:4.5rem;font-weight:900;letter-spacing:.12em;
-  color:#fff;line-height:1;
-  text-shadow:0 0 60px rgba(0,120,255,.5),0 0 120px rgba(0,60,180,.3);
-  clip-path:inset(0 100% 0 0);
-  animation:textWipe .6s 1.25s cubic-bezier(.76,0,.24,1) forwards;
-}
-@keyframes textWipe{
-  0%{clip-path:inset(0 100% 0 0);}
-  100%{clip-path:inset(0 0% 0 0);}
+.intro-typed-cursor{
+  font-size:2.6rem;font-weight:100;color:#4a9eff;
+  margin-left:2px;line-height:1;
+  animation:blink .6s step-end infinite;
 }
 
 /* Divider line */
@@ -636,11 +644,12 @@ tbody tr:hover td{background:var(--off-white);}
       <circle cx="100" cy="100" r="4.5" fill="white"/>
     </svg>
 
-    <div class="intro-sub-text">Appleton East</div>
-    <div class="intro-main-text">DECA</div>
+    <div class="intro-typed-wrap">
+      <div class="intro-typed-line" id="intro-typed"></div><span class="intro-typed-cursor" id="intro-tcursor">|</span>
+    </div>
     <div class="intro-line"></div>
-    <div class="intro-finance-text">Finance</div>
-    <div class="intro-platform-text">Chapter Platform &nbsp;·&nbsp; 2026–2027</div>
+    <div class="intro-finance-text" id="intro-finance-el" style="opacity:0;">Finance</div>
+    <div class="intro-platform-text" id="intro-platform-el" style="opacity:0;">Chapter Platform &nbsp;·&nbsp; 2026–2027</div>
   </div>
 </div>
 
@@ -1018,24 +1027,74 @@ tbody tr:hover td{background:var(--off-white);}
   const intro = document.getElementById('intro-screen');
   if(!intro) return;
 
-  // Hide login + app during intro
-  document.getElementById('login-screen').style.opacity = '0';
-  document.getElementById('login-screen').style.pointerEvents = 'none';
+  // Hide login during intro
+  const ls = document.getElementById('login-screen');
+  ls.style.opacity = '0';
+  ls.style.pointerEvents = 'none';
 
-  // Open cinematic bars after a beat
-  setTimeout(() => intro.classList.add('open-bars'), 100);
+  // Open cinematic bars
+  setTimeout(() => intro.classList.add('open-bars'), 80);
 
-  // Fade out intro at 3.2s, show login
+  // Build typewriter for "Appleton East DECA"
+  const text = 'Appleton East DECA';
+  const container = document.getElementById('intro-typed');
+  const cursor = document.getElementById('intro-tcursor');
+
+  // Pre-build letter spans
+  [...text].forEach(ch => {
+    if(ch === ' '){
+      const sp = document.createElement('span');
+      sp.className = 'space';
+      container.appendChild(sp);
+    } else {
+      const sp = document.createElement('span');
+      sp.className = 'letter';
+      sp.textContent = ch;
+      container.appendChild(sp);
+    }
+  });
+
+  const letters = container.querySelectorAll('.letter');
+  let i = 0;
+
+  // Start typing after logo zooms in (~700ms)
+  function typeNext(){
+    if(i >= letters.length){
+      // All typed — flash glow then settle
+      letters.forEach((l,idx) => {
+        setTimeout(() => l.classList.add('glow'), idx * 30);
+      });
+      setTimeout(() => {
+        letters.forEach(l => l.classList.remove('glow'));
+        cursor.style.display = 'none';
+        // Show Finance + Platform
+        const fe = document.getElementById('intro-finance-el');
+        const pe = document.getElementById('intro-platform-el');
+        if(fe){ fe.style.transition='opacity .5s ease'; fe.style.opacity='1'; }
+        setTimeout(()=>{ if(pe){ pe.style.transition='opacity .5s ease'; pe.style.opacity='1'; } }, 300);
+      }, letters.length * 30 + 300);
+      return;
+    }
+    letters[i].classList.add('shown');
+    i++;
+    // Vary speed: slower for spaces, fast burst for "DECA"
+    const delay = i > text.indexOf('D') + 1 ? 70 : 85;
+    setTimeout(typeNext, delay);
+  }
+
+  setTimeout(typeNext, 900);
+
+  // Fade out intro and reveal login at ~4.2s
+  const totalDuration = 900 + (text.length * 85) + 1400;
   setTimeout(() => {
     intro.classList.add('fade-out');
     setTimeout(() => {
       intro.style.display = 'none';
-      const ls = document.getElementById('login-screen');
-      ls.style.transition = 'opacity .6s ease';
+      ls.style.transition = 'opacity .7s ease';
       ls.style.opacity = '1';
       ls.style.pointerEvents = '';
     }, 800);
-  }, 3200);
+  }, totalDuration);
 })();
 
 // ══ PARTICLES + TYPEWRITER ════════════════════════════════════════════════════
