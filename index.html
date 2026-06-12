@@ -22,6 +22,171 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-bg);color:var(--dark);}
 
+/* ── INTRO SCREEN ──────────────────────────────────────── */
+#intro-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* Cinematic bars top/bottom */
+.intro-bar-top,.intro-bar-bottom{
+  position:absolute;left:0;right:0;height:80px;
+  background:#000;z-index:5;transition:height 1s cubic-bezier(.76,0,.24,1);
+}
+.intro-bar-top{top:0;}
+.intro-bar-bottom{bottom:0;}
+#intro-screen.open-bars .intro-bar-top,
+#intro-screen.open-bars .intro-bar-bottom{height:0;}
+
+/* Background video-style gradient that shifts */
+.intro-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 120% 80% at 50% 50%, #001a4a 0%, #000510 60%, #000 100%);
+  animation:introBgPulse 3s ease-in-out infinite alternate;
+}
+@keyframes introBgPulse{
+  0%{opacity:.7;}100%{opacity:1;}
+}
+
+/* Lens flare streak */
+.intro-flare{
+  position:absolute;
+  top:50%;left:-20%;
+  width:140%;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0),rgba(100,180,255,.8),rgba(255,255,255,.4),transparent);
+  transform:translateY(-50%) rotate(-8deg);
+  opacity:0;
+  animation:flareSwipe 1s .8s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes flareSwipe{
+  0%{opacity:0;left:-20%;}
+  40%{opacity:1;}
+  100%{opacity:0;left:110%;}
+}
+
+/* Glow burst */
+.intro-burst{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,87,184,.35) 0%, transparent 70%);
+  opacity:0;
+  animation:burstIn .6s .5s ease forwards;
+}
+@keyframes burstIn{
+  0%{opacity:0;transform:scale(.5);}
+  100%{opacity:1;transform:scale(1);}
+}
+
+/* Grid lines (like video overlays) */
+.intro-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,87,184,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,87,184,.06) 1px,transparent 1px);
+  background-size:80px 80px;
+  opacity:0;
+  animation:fadeIn .8s .3s ease forwards;
+}
+
+/* Scan line sweeping down */
+.intro-scan{
+  position:absolute;left:0;right:0;
+  height:2px;top:0%;
+  background:linear-gradient(90deg,transparent,rgba(100,180,255,.6),transparent);
+  animation:scanDown 1.2s .2s linear forwards;
+  opacity:.7;
+}
+@keyframes scanDown{
+  0%{top:-2%;opacity:.7;}
+  100%{top:102%;opacity:0;}
+}
+
+/* Logo container */
+.intro-logo-wrap{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+}
+
+.intro-logo-svg{
+  width:130px;height:130px;
+  opacity:0;
+  transform:scale(1.6);
+  animation:logoZoom .7s .6s cubic-bezier(.16,1,.3,1) forwards;
+  filter:drop-shadow(0 0 40px rgba(0,120,255,.7)) drop-shadow(0 0 80px rgba(0,60,180,.4));
+}
+@keyframes logoZoom{
+  0%{opacity:0;transform:scale(1.6);}
+  100%{opacity:1;transform:scale(1);}
+}
+
+/* "APPLETON EAST" */
+.intro-sub-text{
+  font-size:.85rem;font-weight:800;letter-spacing:.35em;
+  text-transform:uppercase;color:rgba(255,255,255,.55);
+  opacity:0;transform:translateY(6px);
+  animation:slideUp .5s 1.1s ease forwards;
+  margin-top:18px;
+}
+
+/* "DECA" */
+.intro-main-text{
+  font-size:4.5rem;font-weight:900;letter-spacing:.12em;
+  color:#fff;line-height:1;
+  text-shadow:0 0 60px rgba(0,120,255,.5),0 0 120px rgba(0,60,180,.3);
+  clip-path:inset(0 100% 0 0);
+  animation:textWipe .6s 1.25s cubic-bezier(.76,0,.24,1) forwards;
+}
+@keyframes textWipe{
+  0%{clip-path:inset(0 100% 0 0);}
+  100%{clip-path:inset(0 0% 0 0);}
+}
+
+/* Divider line */
+.intro-line{
+  width:0;height:2px;
+  background:linear-gradient(90deg,transparent,#0057B8,rgba(100,180,255,.8),#0057B8,transparent);
+  margin:8px 0;
+  animation:lineGrow .5s 1.5s ease forwards;
+  box-shadow:0 0 12px rgba(0,120,255,.6);
+}
+@keyframes lineGrow{0%{width:0;}100%{width:200px;}}
+
+/* "FINANCE" */
+.intro-finance-text{
+  font-size:2rem;font-weight:900;letter-spacing:.4em;
+  color:#4a9eff;text-transform:uppercase;
+  opacity:0;
+  text-shadow:0 0 30px rgba(74,158,255,.6);
+  animation:financeIn .6s 1.7s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes financeIn{
+  0%{opacity:0;transform:scale(1.3);letter-spacing:.6em;}
+  100%{opacity:1;transform:scale(1);letter-spacing:.4em;}
+}
+
+/* "PLATFORM" subtitle */
+.intro-platform-text{
+  font-size:.7rem;font-weight:600;letter-spacing:.5em;
+  color:rgba(255,255,255,.3);text-transform:uppercase;
+  opacity:0;
+  animation:fadeIn .5s 2.1s ease forwards;
+  margin-top:6px;
+}
+
+/* Fade out whole intro */
+#intro-screen.fade-out{
+  animation:introFadeOut .8s ease forwards;
+}
+@keyframes introFadeOut{
+  0%{opacity:1;}
+  100%{opacity:0;pointer-events:none;}
+}
+
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
 /* ── LOGIN ─────────────────────────────────────────────── */
 #login-screen{
   display:flex;align-items:center;justify-content:center;
@@ -444,6 +609,41 @@ tbody tr:hover td{background:var(--off-white);}
 </head>
 <body>
 
+<!-- ══ INTRO ══════════════════════════════════════════════════════════════ -->
+<div id="intro-screen">
+  <div class="intro-bar-top"></div>
+  <div class="intro-bar-bottom"></div>
+  <div class="intro-bg"></div>
+  <div class="intro-grid"></div>
+  <div class="intro-burst"></div>
+  <div class="intro-scan"></div>
+  <div class="intro-flare"></div>
+
+  <div class="intro-logo-wrap">
+    <!-- DECA Logo -->
+    <svg class="intro-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="20" fill="#0057B8"/>
+      <polygon points="100,18 182,100 100,182 18,100" fill="none" stroke="white" stroke-width="9" stroke-linejoin="round"/>
+      <line x1="100" y1="18"  x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="18"  y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="182" y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="100" y1="182" x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <rect x="68" y="68" width="64" height="64" fill="#0057B8"/>
+      <line x1="100" y1="18"  x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="18"  y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="182" y1="100" x2="100" y2="100" stroke="white" stroke-width="6"/>
+      <line x1="100" y1="100" x2="100" y2="182" stroke="white" stroke-width="6"/>
+      <circle cx="100" cy="100" r="4.5" fill="white"/>
+    </svg>
+
+    <div class="intro-sub-text">Appleton East</div>
+    <div class="intro-main-text">DECA</div>
+    <div class="intro-line"></div>
+    <div class="intro-finance-text">Finance</div>
+    <div class="intro-platform-text">Chapter Platform &nbsp;·&nbsp; 2025–2026</div>
+  </div>
+</div>
+
 <!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
 <div id="login-screen">
   <canvas id="particles"></canvas>
@@ -828,6 +1028,31 @@ tbody tr:hover td{background:var(--off-white);}
 </div>
 
 <script>
+// ══ INTRO ═════════════════════════════════════════════════════════════════════
+(function(){
+  const intro = document.getElementById('intro-screen');
+  if(!intro) return;
+
+  // Hide login + app during intro
+  document.getElementById('login-screen').style.opacity = '0';
+  document.getElementById('login-screen').style.pointerEvents = 'none';
+
+  // Open cinematic bars after a beat
+  setTimeout(() => intro.classList.add('open-bars'), 100);
+
+  // Fade out intro at 3.2s, show login
+  setTimeout(() => {
+    intro.classList.add('fade-out');
+    setTimeout(() => {
+      intro.style.display = 'none';
+      const ls = document.getElementById('login-screen');
+      ls.style.transition = 'opacity .6s ease';
+      ls.style.opacity = '1';
+      ls.style.pointerEvents = '';
+    }, 800);
+  }, 3200);
+})();
+
 // ══ PARTICLES + TYPEWRITER ════════════════════════════════════════════════════
 (function(){
   // Particles
