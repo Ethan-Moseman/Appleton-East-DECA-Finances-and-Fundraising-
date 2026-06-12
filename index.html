@@ -4,7 +4,88 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Appleton East DECA – Chapter Finance Platform</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Minimal Supabase client (inline, no CDN needed)
+const supabase = (()=>{
+  function createClient(url, key){
+    const headers = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
+    let _session = null;
+    const _storageKey = 'sb-session';
+
+    function _save(s){ _session=s; try{localStorage.setItem(_storageKey,JSON.stringify(s));}catch(e){} }
+    function _load(){ try{ const s=localStorage.getItem(_storageKey); if(s){_session=JSON.parse(s);} }catch(e){} }
+    _load();
+
+    const auth = {
+      async signInWithPassword({email,password}){
+        const r = await fetch(`${url}/auth/v1/token?grant_type=password`,{
+          method:'POST', headers:{...headers,'Content-Type':'application/json'},
+          body:JSON.stringify({email,password})
+        });
+        const data = await r.json();
+        if(!r.ok) return {data:null,error:data};
+        _save({access_token:data.access_token,refresh_token:data.refresh_token,user:data.user});
+        return {data:{user:data.user,session:_session},error:null};
+      },
+      async signUp({email,password,options}){
+        const r = await fetch(`${url}/auth/v1/signup`,{
+          method:'POST', headers:{...headers,'Content-Type':'application/json'},
+          body:JSON.stringify({email,password,data:options?.data||{}})
+        });
+        const data = await r.json();
+        if(!r.ok) return {data:null,error:data};
+        if(data.access_token) _save({access_token:data.access_token,refresh_token:data.refresh_token,user:data.user});
+        return {data:{user:data.user||data},error:null};
+      },
+      async signOut(){
+        const tok = _session?.access_token;
+        _session=null; try{localStorage.removeItem(_storageKey);}catch(e){}
+        if(tok) await fetch(`${url}/auth/v1/logout`,{method:'POST',headers:{...headers,'Authorization':'Bearer '+tok}}).catch(()=>{});
+        return {error:null};
+      },
+      async getSession(){
+        if(_session) return {data:{session:_session},error:null};
+        return {data:{session:null},error:null};
+      },
+      getUser(){ return _session?.user||null; }
+    };
+
+    function from(table){
+      let _url = `${url}/rest/v1/${table}`;
+      let _method = 'GET'; let _body = null;
+      let _filters = []; let _select = '*'; let _single = false;
+      const q = {
+        select(cols){ _select=cols; return q; },
+        eq(col,val){ _filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
+        in(col,vals){ _filters.push(`${col}=in.(${vals.map(v=>encodeURIComponent(v)).join(',')})`); return q; },
+        order(col){ _filters.push(`order=${col}`); return q; },
+        single(){ _single=true; return q; },
+        insert(data){ _method='POST'; _body=JSON.stringify(Array.isArray(data)?data:[data]); return q; },
+        update(data){ _method='PATCH'; _body=JSON.stringify(data); return q; },
+        async then(resolve,reject){
+          try{
+            const params=[`select=${_select}`,..._filters];
+            const fullUrl = _url + '?' + params.join('&');
+            const tok = _session?.access_token;
+            const h = {...headers};
+            if(tok) h['Authorization']='Bearer '+tok;
+            if(_single) h['Accept']='application/vnd.pgrst.object+json';
+            if(_method!=='GET') h['Prefer']='return=representation';
+            const r = await fetch(fullUrl,{method:_method,headers:h,body:_body});
+            const text = await r.text();
+            const data = text ? JSON.parse(text) : null;
+            if(!r.ok) resolve({data:null,error:data});
+            else resolve({data,error:null});
+          }catch(e){ resolve({data:null,error:e}); }
+        }
+      };
+      return q;
+    }
+    return {auth, from};
+  }
+  return {createClient};
+})();
+</script>
 <style>
 :root{
   --red:#0057B8;--red-dark:#003d82;--red-light:#e6f0fb;
