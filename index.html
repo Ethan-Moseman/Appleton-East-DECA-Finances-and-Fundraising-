@@ -6,16 +6,18 @@
 <title>Appleton East DECA – Chapter Finance Platform</title>
 <style>
 :root{
-  --red:#BF0A30;--red-dark:#8B0722;--red-light:#f8e7ea;
-  --navy:#002868;--navy-dark:#001540;--navy-light:#e8edf8;
-  --white:#fff;--off-white:#f7f8fc;
-  --gray:#64748b;--gray-light:#e2e8f0;--gray-bg:#f1f5f9;
+  --red:#0057B8;--red-dark:#003d82;--red-light:#e6f0fb;
+  --navy:#0057B8;--navy-dark:#002f6c;--navy-light:#ddeeff;
+  --white:#fff;--off-white:#f5f8ff;
+  --gray:#64748b;--gray-light:#dde6f0;--gray-bg:#f0f4fb;
   --green:#16a34a;--green-light:#dcfce7;
   --amber:#d97706;--amber-light:#fef3c7;
-  --dark:#0f172a;--dark2:#1e293b;--dark3:#334155;
+  --dark:#0a1628;--dark2:#0f1f3d;--dark3:#1e3a5f;
   --radius:12px;--radius-sm:8px;
-  --shadow:0 1px 3px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.15);
+  --shadow:0 1px 3px rgba(0,40,120,.08),0 4px 16px rgba(0,40,120,.07);
+  --shadow-lg:0 8px 32px rgba(0,40,120,.18);
+  /* accent used in login/sidebar */
+  --accent:#0057B8;--accent2:#003d82;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-bg);color:var(--dark);}
@@ -23,49 +25,165 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
 /* ── LOGIN ─────────────────────────────────────────────── */
 #login-screen{
   display:flex;align-items:center;justify-content:center;
-  min-height:100vh;
-  background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 50%,var(--red-dark) 100%);
+  min-height:100vh;position:relative;overflow:hidden;
+  background:#001a45;
 }
+
+/* Animated gradient orbs */
+#login-screen::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(0,87,184,.6) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 80% 60%, rgba(0,50,130,.4) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,10,40,.85) 0%, transparent 100%);
+  animation: bgPulse 8s ease-in-out infinite alternate;
+}
+@keyframes bgPulse{
+  0%{opacity:.8;transform:scale(1);}
+  100%{opacity:1;transform:scale(1.05);}
+}
+
+/* Particle canvas */
+#particles{position:absolute;inset:0;pointer-events:none;}
+
+/* Grid overlay */
+#login-screen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,40,104,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,40,104,.08) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+}
+
+.login-wrap{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;padding:24px 16px;
+}
+
+/* Logo block */
+.login-logo-block{
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:36px;
+  animation:logoIn .9s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes logoIn{
+  from{opacity:0;transform:translateY(-24px) scale(.92);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+.deca-logo-svg{
+  width:110px;height:110px;
+  filter:drop-shadow(0 0 32px rgba(0,80,200,.5)) drop-shadow(0 0 8px rgba(255,255,255,.15));
+  margin-bottom:20px;
+}
+
+.login-org-name{
+  font-size:1rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);
+  margin-bottom:4px;
+}
+
+/* Typewriter headline */
+.login-headline{
+  font-size:2.6rem;font-weight:900;color:#fff;
+  letter-spacing:.04em;text-align:center;
+  min-height:3.2rem;line-height:1.1;
+  text-shadow:0 0 60px rgba(0,100,255,.4);
+}
+.login-headline .typed-word{color:#fff;}
+.login-headline .cursor{
+  display:inline-block;width:3px;height:.85em;
+  background:#4a9eff;margin-left:3px;vertical-align:middle;
+  animation:blink .75s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+.login-subtitle{
+  font-size:.88rem;color:rgba(255,255,255,.4);
+  letter-spacing:.08em;margin-top:10px;text-transform:uppercase;
+  animation:fadeUp .8s .4s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* Login card */
 .login-card{
-  background:rgba(255,255,255,.97);border-radius:20px;
-  padding:48px 40px;width:100%;max-width:420px;
-  box-shadow:0 24px 64px rgba(0,0,0,.3);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-radius:20px;
+  padding:36px 40px 32px;width:100%;max-width:400px;
+  box-shadow:0 32px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);
+  animation:cardIn .8s .2s cubic-bezier(.16,1,.3,1) both;
 }
-.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.login-logo .emblem{
-  width:52px;height:52px;border-radius:50%;
-  background:linear-gradient(135deg,var(--navy),var(--red));
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:900;font-size:17px;letter-spacing:-1px;
-  flex-shrink:0;
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(32px);}
+  to{opacity:1;transform:translateY(0);}
 }
-.login-logo .org{font-size:1.1rem;font-weight:800;color:var(--navy);line-height:1.2;}
-.login-logo .org span{color:var(--red);}
-.login-tagline{font-size:.8rem;color:var(--gray);margin-bottom:32px;padding-left:64px;margin-top:-4px;}
-.login-card h2{font-size:1.25rem;font-weight:700;margin-bottom:6px;color:var(--dark);}
-.login-card p{font-size:.85rem;color:var(--gray);margin-bottom:28px;}
+
+.card-title{
+  font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;
+  letter-spacing:.02em;
+}
+.card-sub{font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:28px;}
+
 .field{margin-bottom:16px;}
-.field label{display:block;font-size:.77rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:5px;}
+.field label{
+  display:block;font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:rgba(255,255,255,.45);margin-bottom:6px;
+}
 .field input{
-  width:100%;padding:11px 14px;border:1.5px solid var(--gray-light);
-  border-radius:var(--radius-sm);font-size:.95rem;background:#fff;
-  transition:border-color .15s;
+  width:100%;padding:12px 16px;
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:10px;font-size:.95rem;
+  background:rgba(255,255,255,.06);
+  color:#fff;transition:border-color .2s,background .2s;
 }
-.field input:focus{outline:none;border-color:var(--navy);}
+.field input::placeholder{color:rgba(255,255,255,.2);}
+.field input:focus{
+  outline:none;
+  border-color:rgba(74,158,255,.6);
+  background:rgba(255,255,255,.09);
+}
+
 .btn-login{
-  width:100%;padding:13px;border:none;border-radius:var(--radius-sm);
-  background:linear-gradient(135deg,var(--navy),var(--red));
-  color:#fff;font-size:1rem;font-weight:700;cursor:pointer;
-  transition:opacity .15s,transform .1s;margin-top:4px;
+  width:100%;padding:14px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#0057B8,#003d82 50%,#001f5c);
+  color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;
+  letter-spacing:.04em;
+  box-shadow:0 4px 24px rgba(0,40,104,.5);
+  transition:transform .15s,box-shadow .15s,filter .15s;
+  margin-top:4px;position:relative;overflow:hidden;
 }
-.btn-login:hover{opacity:.9;}
+.btn-login::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+  pointer-events:none;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,40,104,.6);filter:brightness(1.08);}
 .btn-login:active{transform:scale(.98);}
+
 .login-error{
-  background:#fee2e2;color:var(--red);border-radius:var(--radius-sm);
-  padding:10px 14px;font-size:.85rem;margin-bottom:16px;display:none;
+  background:rgba(191,10,48,.15);color:#ff8fa3;
+  border:1px solid rgba(191,10,48,.3);
+  border-radius:8px;padding:10px 14px;font-size:.83rem;
+  margin-bottom:16px;display:none;
 }
-.demo-hint{margin-top:20px;padding:14px;background:var(--gray-bg);border-radius:var(--radius-sm);font-size:.78rem;color:var(--gray);}
-.demo-hint strong{color:var(--dark);}
+
+.demo-hint{
+  margin-top:20px;padding:14px 16px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;font-size:.75rem;
+  color:rgba(255,255,255,.35);line-height:1.8;
+}
+.demo-hint strong{color:rgba(255,255,255,.6);}
+.demo-hint code{
+  background:rgba(255,255,255,.08);padding:1px 6px;
+  border-radius:4px;font-size:.73rem;color:rgba(255,255,255,.5);
+}
 
 /* ── APP SHELL ─────────────────────────────────────────── */
 #app{display:none;height:100vh;flex-direction:column;}
@@ -106,7 +224,7 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
   padding:2px 7px;border-radius:10px;
   background:rgba(255,255,255,.15);
 }
-.user-pill .role-badge.admin{background:rgba(191,10,48,.4);}
+.user-pill .role-badge.admin{background:rgba(0,87,184,.5);}
 .btn-logout{
   background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
   color:#fff;padding:6px 14px;border-radius:6px;font-size:.8rem;
@@ -137,7 +255,7 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 .nav-item .icon{font-size:1rem;width:20px;text-align:center;}
 .nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
-.nav-item.active{background:linear-gradient(90deg,rgba(191,10,48,.35),rgba(191,10,48,.1));color:#fff;border-left:3px solid var(--red);}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,87,184,.45),rgba(0,87,184,.15));color:#fff;border-left:3px solid #4a9eff;}
 .sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,.07);}
 .sidebar-footer .version{font-size:.7rem;color:rgba(255,255,255,.25);}
 
@@ -331,28 +449,65 @@ tbody tr:hover td{background:var(--off-white);}
 
 <!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
 <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="emblem">AE</div>
-      <div class="org">Appleton East <span>DECA</span></div>
+  <canvas id="particles"></canvas>
+
+  <div class="login-wrap">
+    <!-- Logo + Typewriter -->
+    <div class="login-logo-block">
+      <!-- Appleton East DECA Logo recreated in SVG -->
+      <svg class="deca-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Blue square background -->
+        <rect width="200" height="200" rx="18" fill="#0057B8"/>
+        <!-- Diamond outline (outer) -->
+        <polygon points="100,22 178,100 100,178 22,100" fill="none" stroke="white" stroke-width="7" stroke-linejoin="round"/>
+        <!-- Inner cube lines - top face -->
+        <line x1="100" y1="22" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
+        <!-- Inner cube lines - left face -->
+        <line x1="22" y1="100" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
+        <!-- Inner cube lines - right face -->
+        <line x1="178" y1="100" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
+        <!-- Inner cube lines - bottom face -->
+        <line x1="100" y1="178" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
+        <!-- Inner diamond (rotated square cutout illusion) -->
+        <rect x="70" y="70" width="60" height="60" fill="#0057B8" stroke="none"/>
+        <!-- Re-draw center lines on top -->
+        <line x1="100" y1="22" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="22" y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="178" y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="100" y1="100" x2="100" y2="178" stroke="white" stroke-width="5"/>
+        <!-- Small center dot -->
+        <circle cx="100" cy="100" r="5" fill="white"/>
+        <!-- "APPLETON EAST" text -->
+        <text x="100" y="152" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">APPLETON EAST</text>
+        <!-- "DECA" text -->
+        <text x="100" y="175" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="22" font-weight="900" letter-spacing="3">DECA</text>
+      </svg>
+
+      <div class="login-org-name">Appleton East DECA</div>
+      <div class="login-headline">
+        <span class="typed-word" id="typed-text"></span><span class="cursor" id="typed-cursor"></span>
+      </div>
+      <div class="login-subtitle">Chapter · 2025–2026</div>
     </div>
-    <p class="login-tagline">Chapter Finance Platform</p>
-    <h2>Sign In</h2>
-    <p>Access your chapter finance dashboard</p>
-    <div id="login-error" class="login-error">Invalid username or password. Try again.</div>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="username" placeholder="Enter your username" autocomplete="username"/>
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
-    </div>
-    <button class="btn-login" onclick="doLogin()">Sign In →</button>
-    <div class="demo-hint">
-      <strong>Demo Accounts</strong><br/>
-      <strong>Admins:</strong> <code>ethan</code> / <code>deca2025</code> &nbsp;|&nbsp; <code>mrsfude</code> / <code>deca2025</code><br/>
-      <strong>Member:</strong> <code>alexj</code> / <code>member123</code> &nbsp;(or any member username)
+
+    <!-- Login form -->
+    <div class="login-card">
+      <div class="card-title">Sign In to Your Account</div>
+      <div class="card-sub">Enter your credentials to access the platform</div>
+      <div id="login-error" class="login-error">Invalid username or password. Please try again.</div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter your username" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In &nbsp;→</button>
+      <div class="demo-hint">
+        <strong>Admin:</strong> <code>ethan</code> / <code>deca2025</code> &nbsp;·&nbsp; <code>mrsfude</code> / <code>deca2025</code><br/>
+        <strong>Member:</strong> <code>alexj</code> / <code>member123</code>
+      </div>
     </div>
   </div>
 </div>
@@ -677,6 +832,75 @@ tbody tr:hover td{background:var(--off-white);}
 </div>
 
 <script>
+// ══ PARTICLES + TYPEWRITER ════════════════════════════════════════════════════
+(function(){
+  // Particles
+  const canvas = document.getElementById('particles');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle{
+    constructor(){this.reset(true);}
+    reset(init){
+      this.x = Math.random()*W;
+      this.y = init ? Math.random()*H : H+10;
+      this.r = Math.random()*1.5+.3;
+      this.speed = Math.random()*.3+.1;
+      this.opacity = Math.random()*.5+.1;
+      this.drift = (Math.random()-.5)*.3;
+    }
+    update(){
+      this.y -= this.speed;
+      this.x += this.drift;
+      if(this.y < -10) this.reset(false);
+    }
+    draw(){
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+      ctx.fill();
+    }
+  }
+
+  for(let i=0;i<120;i++) particles.push(new Particle());
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{p.update();p.draw();});
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Typewriter
+  const words = ['Finance', 'Platform'];
+  let wi=0, ci=0, deleting=false, phase=0;
+  const el = document.getElementById('typed-text');
+  if(!el) return;
+
+  function type(){
+    const full = words.join(' ');
+    if(phase===0){
+      // Type full string
+      if(ci <= full.length){
+        el.textContent = full.slice(0,ci);
+        ci++;
+        setTimeout(type, ci <= words[0].length ? 110 : 80);
+      } else {
+        phase=1;
+        setTimeout(type, 2000);
+      }
+    } else if(phase===1){
+      // Done — just leave it, blink cursor
+    }
+  }
+  setTimeout(type, 900);
+})();
+
 // ══ DATA STORE ════════════════════════════════════════════════════════════════
 const SEED_USERS = {
   ethan:   { password:'deca2025', role:'admin', name:'Ethan Moseman',  initials:'EM' },
