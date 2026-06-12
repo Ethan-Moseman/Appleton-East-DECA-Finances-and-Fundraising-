@@ -1074,7 +1074,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 <!-- Edit Partnership Modal -->
 <div class="modal-overlay" id="p-modal">
   <div class="modal">
-    <h3>Edit Partnership</h3>
+    <h3>Edit Company</h3>
     <input type="hidden" id="p-edit-id"/>
     <div class="form-row">
       <div class="fg" style="flex:2"><label>Company</label><input type="text" id="p-edit-company"/></div>
@@ -1082,19 +1082,38 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
     </div>
     <div class="form-row">
       <div class="fg"><label>Value ($)</label><input type="number" id="p-edit-value" min="0" step="0.01"/></div>
-      <div class="fg"><label>Status</label>
-        <select id="p-edit-status"><option value="active">Active</option><option value="pending">Pending</option><option value="needs-attention">Needs Attention</option><option value="completed">Completed</option></select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="fg" style="flex:2"><label>Description</label><input type="text" id="p-edit-desc"/></div>
       <div class="fg"><label>Assigned Member</label><select id="p-edit-member"><option value="">— Unassigned —</option></select></div>
-      <div class="fg"><label>Next Action</label><input type="date" id="p-edit-next"/></div>
+      <div class="fg"><label>Visit Deadline</label><input type="date" id="p-edit-next"/></div>
     </div>
-    <div class="fg"><label>Progress Notes</label><textarea id="p-edit-notes" rows="3" style="padding:9px 12px;border:1.5px solid var(--gray-light);border-radius:8px;font-size:.9rem;resize:vertical;width:100%;"></textarea></div>
+    <div class="fg"><label>What we're asking for</label><input type="text" id="p-edit-desc" style="padding:9px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;width:100%;background:rgba(255,255,255,.05);color:#fff;"/></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('p-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePartnershipEdit()">Save Changes</button>
+      <button class="btn btn-primary" onclick="savePartnershipEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Response Modal (student) -->
+<div class="modal-overlay" id="response-modal">
+  <div class="modal">
+    <h3>Log Company Response</h3>
+    <input type="hidden" id="resp-id"/>
+    <div style="font-size:.9rem;color:rgba(255,255,255,.6);margin-bottom:16px;" id="resp-company-name"></div>
+    <div class="fg" style="margin-bottom:16px;">
+      <label>Their Response</label>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button class="resp-btn" data-val="yes" onclick="selectResp('yes')" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:#34d399;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .15s;">Yes</button>
+        <button class="resp-btn" data-val="maybe" onclick="selectResp('maybe')" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08);color:#fbbf24;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .15s;">Maybe</button>
+        <button class="resp-btn" data-val="no" onclick="selectResp('no')" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:#f87171;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .15s;">No</button>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:4px;">
+      <label>Comments <span style="color:rgba(255,255,255,.3);text-transform:none;font-weight:400;">(required if Maybe)</span></label>
+      <textarea id="resp-comments" rows="3" placeholder="e.g. Spoke with manager, wants to see our proposal first..." style="padding:10px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;background:rgba(255,255,255,.05);color:#fff;width:100%;resize:vertical;margin-top:5px;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('response-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveResponse()">Submit Response</button>
     </div>
   </div>
 </div>
@@ -1291,11 +1310,11 @@ function seedDB(){
   ];
 
   DB.partnerships = [
-    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,status:'active',desc:'Cash sponsorship — state conference costs',assignedTo:'m1',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+14); return d.toISOString().split('T')[0]; })(),notes:'Follow-up thank-you letter due. Alex to deliver in person.'},
-    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:750,status:'active',desc:'Annual chapter sponsor – supports all events',assignedTo:'m2',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+7); return d.toISOString().split('T')[0]; })(),notes:'Mia presented chapter overview. Very interested in DECA competitive events.'},
-    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:300,status:'pending',desc:'In-store fundraiser night + supply donation',assignedTo:'m3',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(),notes:'Awaiting final approval from district manager.'},
-    {id:'p4',company:'Culver\'s Appleton',contact:'Owner (Lisa)',value:200,status:'active',desc:'Restaurant night – 25% donated to chapter',assignedTo:'m4',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+10); return d.toISOString().split('T')[0]; })(),notes:'Event confirmed. Sophia coordinating social media promotion.'},
-    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:1000,status:'needs-attention',desc:'Annual education grant – application pending',assignedTo:'m7',nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(),notes:'URGENT: Grant application deadline in 2 days. Liam needs to submit final essay.'},
+    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,desc:'Cash sponsorship — state conference costs',assignedTo:'m1',response:'yes',comments:'Very interested, wants logo on banner.',visitDate: (() => { const d=new Date(); d.setDate(d.getDate()+14); return d.toISOString().split('T')[0]; })(),notes:'Follow-up thank-you letter due. Alex to deliver in person.'},
+    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:750,desc:'Annual chapter sponsor – supports all events',assignedTo:'m1',response:'maybe',comments:'Wants to see budget proposal before committing. Call back next week.',visitDate:new Date().toISOString().split('T')[0], nextDate:'', callbackNotes:''},
+    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:300,desc:'In-store fundraiser night + supply donation',assignedTo:'m3',response:null,comments:'',visitDate:'', nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(), callbackNotes:''},
+    {id:'p4',company:"Culver's Appleton",contact:'Owner (Lisa)',value:200,desc:'Restaurant night – 25% donated to chapter',assignedTo:'m4',response:'yes',comments:'',visitDate:new Date().toISOString().split('T')[0], nextDate:'', callbackNotes:''},
+    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:1000,desc:'Annual education grant – application pending',assignedTo:'m7',response:'maybe',comments:'Dr. Patterson said they need our enrollment numbers first.',visitDate:new Date().toISOString().split('T')[0], nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(), callbackNotes:''},
   ];
 
   DB.budgets = { Conferences:500, Supplies:200, Food:150, Events:300, Marketing:100, 'Other Expense':100 };
@@ -2045,60 +2064,51 @@ function renderMyDues(){
 
 function renderMyPartnership(){
   const m = DB.members.find(m=>m.id===currentUser.memberId);
-  if(!m||!m.partnershipId){
-    document.getElementById('my-partnership-detail').innerHTML = `
-      <div class="empty-state"><div class="icon"></div><p>You haven't been assigned a company partnership yet.<br/>Check back soon or contact Mrs. Fude or Ethan.</p></div>`;
+  const detail = document.getElementById('my-partnership-detail');
+  if(!m||!detail) return;
+
+  // Get ALL companies assigned to this member
+  const assigned = DB.partnerships.filter(p=>p.assignedTo===m.id);
+
+  if(!assigned.length){
+    detail.innerHTML=`<div class="empty-state"><div class="icon" style="font-size:2rem;opacity:.3;margin-bottom:10px;">—</div><p>You haven't been assigned any companies yet.<br/>Check back or ask Ethan or Mrs. Fude.</p></div>`;
     return;
   }
-  const p = getPartnership(m.partnershipId);
-  if(!p){ document.getElementById('my-partnership-detail').innerHTML='<p>Partnership not found.</p>'; return; }
-  const statusColor={'active':'var(--green)','pending':'var(--amber)','needs-attention':'var(--red)','completed':'var(--navy)'};
 
-  document.getElementById('my-partnership-detail').innerHTML = `
-    <div class="partnership-card ${p.status}" style="margin-bottom:20px;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-        <h4 style="font-size:1.3rem;">${p.company}</h4>
-        ${statusBadge(p.status)}
-      </div>
-      <div class="company-meta">Contact: <strong>${p.contact||'Not specified'}</strong> · Partnership Value: <strong style="color:var(--navy);">${fmt$(p.value)}</strong></div>
-      <div class="partnership-detail"><strong>What they provide:</strong> ${p.desc}</div>
-      ${p.nextDate?`<div class="partnership-detail"><strong>Next action due:</strong> <span style="color:${new Date(p.nextDate)<new Date()?'var(--red)':'var(--amber)'};">${p.nextDate}</span></div>`:''}
-    </div>
-    ${p.notes?`
-    <div class="card">
-      <div class="card-header"><h3>Progress Notes</h3></div>
-      <div class="card-body">
-        <p style="font-size:.88rem;line-height:1.6;">${p.notes}</p>
-      </div>
-    </div>`:''}
-    <div class="card">
-      <div class="card-header"><h3>Your Responsibilities</h3></div>
-      <div class="card-body">
-        <div class="alert alert-blue">You are the chapter representative for <strong>${p.company}</strong>. Keep the contact updated, send thank-you notes, and report any changes to Mrs. Fude or Ethan.</div>
-        <ul style="margin-left:20px;font-size:.87rem;line-height:2;color:var(--dark3);">
-          <li>Maintain regular communication with <strong>${p.contact||'your contact'}</strong></li>
-          <li>Report any partnership updates to chapter leadership</li>
-          <li>Ensure any agreed deliverables are completed on time</li>
-          <li>Send thank-you letters after events or donations received</li>
-        </ul>
-      </div>
+  const respColor = r => r==='yes'?'#34d399':r==='maybe'?'#fbbf24':r==='no'?'#f87171':'rgba(255,255,255,.3)';
+  const respLabel = r => r==='yes'?'Said Yes':r==='maybe'?'Maybe — Follow Up':r==='no'?'Said No':'Not Visited Yet';
+
+  detail.innerHTML = `
+    <div class="alert alert-blue" style="margin-bottom:20px;">
+      You have <strong>${assigned.length}</strong> company assignment${assigned.length>1?'s':''}. Visit each one, drop off the letter, and log their response below.
+    </div>` +
+    assigned.map(p => {
+      const overdue = p.nextDate && !p.response && new Date(p.nextDate) < new Date();
+      return `
+      <div style="background:rgba(255,255,255,.04);border:1px solid ${p.response==='maybe'?'rgba(251,191,36,.25)':p.response==='yes'?'rgba(52,211,153,.2)':p.response==='no'?'rgba(248,113,113,.15)':'rgba(255,255,255,.08)'};border-left:3px solid ${respColor(p.response)};border-radius:12px;padding:22px;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:3px;">${p.company}</div>
+            <div style="font-size:.82rem;color:rgba(255,255,255,.4);">Contact: ${p.contact||'Not specified'}</div>
+            ${p.desc?`<div style="font-size:.83rem;color:rgba(255,255,255,.5);margin-top:4px;">${p.desc}</div>`:''}
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${respColor(p.response)};margin-bottom:4px;">${respLabel(p.response)}</div>
+            ${p.visitDate?`<div style="font-size:.75rem;color:rgba(255,255,255,.3);">Visited ${p.visitDate}</div>`:''}
+            ${p.nextDate&&!p.response?`<div style="font-size:.75rem;color:${overdue?'#f87171':'rgba(255,255,255,.3)'};">${overdue?'Overdue: ':'Deadline: '}${p.nextDate}</div>`:''}
+          </div>
+        </div>
+        ${p.comments?`<div style="margin-top:12px;padding:10px 13px;background:rgba(255,255,255,.04);border-radius:7px;font-size:.83rem;color:rgba(255,255,255,.55);">Your notes: "${p.comments}"</div>`:''}
+        <div style="margin-top:14px;">
+          <button class="btn btn-primary btn-sm" onclick="openResponseModal('${p.id}')">
+            ${p.response ? 'Update Response' : 'Log Response'}
+          </button>
+        </div>
+      </div>`;
+    }).join('') +
+    `<div style="padding:14px 16px;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.12);border-radius:10px;font-size:.83rem;color:rgba(255,255,255,.45);margin-top:4px;">
+      If a company says <strong style="color:#fbbf24;">Maybe</strong>, add a comment explaining what they said so Ethan or Mrs. Fude can follow up with a call.
     </div>`;
 }
 
-//  INIT 
-loadDB();
 
-// Set today as default date
-document.addEventListener('DOMContentLoaded', ()=>{
-  const today = new Date().toISOString().split('T')[0];
-  ['tx-date','fr-date','p-next-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
-
-  // Check for saved session
-  try{
-    const sess = sessionStorage.getItem('deca_session');
-    if(sess){ currentUser=JSON.parse(sess); launchApp(); }
-  }catch(e){}
-});
-</script>
-</body>
-</html>
