@@ -640,7 +640,7 @@ tbody tr:hover td{background:var(--off-white);}
     <div class="intro-main-text">DECA</div>
     <div class="intro-line"></div>
     <div class="intro-finance-text">Finance</div>
-    <div class="intro-platform-text">Chapter Platform &nbsp;·&nbsp; 2025–2026</div>
+    <div class="intro-platform-text">Chapter Platform &nbsp;·&nbsp; 2026–2027</div>
   </div>
 </div>
 
@@ -651,40 +651,25 @@ tbody tr:hover td{background:var(--off-white);}
   <div class="login-wrap">
     <!-- Logo + Typewriter -->
     <div class="login-logo-block">
-      <!-- Appleton East DECA Logo recreated in SVG -->
+      <!-- DECA Logo — diamond/cube mark only, no text inside -->
       <svg class="deca-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Blue square background -->
         <rect width="200" height="200" rx="18" fill="#0057B8"/>
-        <!-- Diamond outline (outer) -->
         <polygon points="100,22 178,100 100,178 22,100" fill="none" stroke="white" stroke-width="7" stroke-linejoin="round"/>
-        <!-- Inner cube lines - top face -->
-        <line x1="100" y1="22" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
-        <!-- Inner cube lines - left face -->
-        <line x1="22" y1="100" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
-        <!-- Inner cube lines - right face -->
-        <line x1="178" y1="100" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
-        <!-- Inner cube lines - bottom face -->
-        <line x1="100" y1="178" x2="100" y2="100" stroke="white" stroke-width="5" opacity=".9"/>
-        <!-- Inner diamond (rotated square cutout illusion) -->
-        <rect x="70" y="70" width="60" height="60" fill="#0057B8" stroke="none"/>
-        <!-- Re-draw center lines on top -->
         <line x1="100" y1="22" x2="100" y2="100" stroke="white" stroke-width="5"/>
-        <line x1="22" y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="22"  y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
         <line x1="178" y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
         <line x1="100" y1="100" x2="100" y2="178" stroke="white" stroke-width="5"/>
-        <!-- Small center dot -->
+        <rect x="70" y="70" width="60" height="60" fill="#0057B8"/>
+        <line x1="100" y1="22"  x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="22"  y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="178" y1="100" x2="100" y2="100" stroke="white" stroke-width="5"/>
+        <line x1="100" y1="100" x2="100" y2="178" stroke="white" stroke-width="5"/>
         <circle cx="100" cy="100" r="5" fill="white"/>
-        <!-- "APPLETON EAST" text -->
-        <text x="100" y="152" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">APPLETON EAST</text>
-        <!-- "DECA" text -->
-        <text x="100" y="175" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="22" font-weight="900" letter-spacing="3">DECA</text>
       </svg>
-
-      <div class="login-org-name">Appleton East DECA</div>
       <div class="login-headline">
         <span class="typed-word" id="typed-text"></span><span class="cursor" id="typed-cursor"></span>
       </div>
-      <div class="login-subtitle">Chapter · 2025–2026</div>
+      <div class="login-subtitle">Chapter · 2026–2027</div>
     </div>
 
     <!-- Login form -->
@@ -1740,7 +1725,7 @@ function renderMemberHome(){
   document.getElementById('member-hero-area').innerHTML = `
     <div class="member-hero">
       <h2>Welcome back, ${memberData.name.split(' ')[0]}! 👋</h2>
-      <p>Appleton East DECA · Grade ${memberData.grade} · ${new Date().getFullYear()}-${new Date().getFullYear()+1} Chapter Year</p>
+      <p>Appleton East DECA · Grade ${memberData.grade} · 2026–2027 Chapter Year</p>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hs-val">${memberData.duesStatus==='paid'?'✓ Paid':'⚠ Unpaid'}</div>
