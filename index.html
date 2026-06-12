@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appleton East DECA – Finances & Fundraising</title>
+  <style>
+    :root {
+      --blue: #003087;
+      --gold: #FFB81C;
+      --gold-dark: #e0a010;
+      --light-blue: #e8eef8;
+      --white: #ffffff;
+      --gray: #f4f5f7;
+      --border: #dde2ec;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --red: #dc2626;
+      --green: #16a34a;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gray); color: var(--text); min-height: 100vh; }
+
+    /* Header */
+    header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 64px;
+      box-shadow: 0 2px 12px rgba(0,0,48,0.2);
+    }
+    .logo {
+      width: 42px; height: 42px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 16px; color: var(--blue);
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; }
+    header h1 span { color: var(--gold); }
+    .header-balance {
+      margin-left: auto;
+      text-align: right;
+    }
+    .header-balance .label { font-size: 0.7rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; }
+    .header-balance .amount { font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+
+    /* Nav */
+    nav {
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+      padding: 0 16px;
+    }
+    nav button {
+      background: none; border: none; cursor: pointer;
+      padding: 14px 20px;
+      font-size: 0.88rem; font-weight: 600;
+      color: var(--muted);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+    nav button:hover:not(.active) { color: var(--text); }
+
+    /* Main layout */
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+    /* Section */
+    section { display: none; }
+    section.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--blue); }
+
+    /* Summary row */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      border-left: 4px solid var(--blue);
+    }
+    .stat-card.green { border-left-color: var(--green); }
+    .stat-card.red { border-left-color: var(--red); }
+    .stat-card.gold { border-left-color: var(--gold); }
+    .stat-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 700; }
+    .stat-card.green .value { color: var(--green); }
+    .stat-card.red .value { color: var(--red); }
+    .stat-card.gold .value { color: var(--gold-dark); }
+
+    /* Forms */
+    .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+    label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    input, select, textarea {
+      padding: 8px 11px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: var(--white);
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--blue); }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--blue); color: var(--white); }
+    .btn-primary:hover { background: #002070; }
+    .btn-gold { background: var(--gold); color: var(--blue); }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-danger { background: #fee2e2; color: var(--red); }
+    .btn-danger:hover { background: #fca5a5; }
+    .btn-sm { padding: 5px 11px; font-size: 0.8rem; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th {
+      background: var(--light-blue);
+      color: var(--blue);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray); }
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: var(--green); }
+    .badge-red { background: #fee2e2; color: var(--red); }
+    .badge-blue { background: var(--light-blue); color: var(--blue); }
+    .badge-gold { background: #fef3c7; color: #92400e; }
+
+    /* Progress bar */
+    .progress-bar { background: var(--border); border-radius: 20px; height: 10px; overflow: hidden; margin-top: 6px; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 20px; transition: width 0.5s; }
+    .progress-fill.over { background: var(--green); }
+
+    /* Fundraiser cards */
+    .fundraiser-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .fundraiser-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      border-top: 4px solid var(--gold);
+    }
+    .fundraiser-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .fundraiser-card .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
+    .fundraiser-card .amounts { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 6px; }
+
+    /* Budget bars */
+    .budget-item { margin-bottom: 18px; }
+    .budget-label { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 4px; }
+    .budget-label strong { font-weight: 600; }
+    .budget-bar { background: var(--border); border-radius: 20px; height: 14px; overflow: hidden; }
+    .budget-fill { height: 100%; border-radius: 20px; background: var(--blue); transition: width 0.5s; }
+    .budget-fill.warn { background: var(--gold); }
+    .budget-fill.over { background: var(--red); }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
+
+    /* Action row */
+    .action-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .action-row h2 { font-size: 1rem; font-weight: 700; color: var(--blue); }
+
+    /* Dues search */
+    #dues-search { max-width: 260px; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%; max-width: 460px;
+      box-shadow: 0 8px 32px rgba(0,0,48,0.18);
+    }
+    .modal h3 { font-size: 1rem; font-weight: 700; color: var(--blue); margin-bottom: 16px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 0.95rem; }
+      .header-balance .amount { font-size: 1.1rem; }
+      nav button { padding: 12px 14px; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AE</div>
+  <div>
+    <h1>Appleton East <span>DECA</span></h1>
+    <div style="font-size:0.72rem;opacity:0.7;">Finances &amp; Fundraising</div>
+  </div>
+  <div class="header-balance">
+    <div class="label">Account Balance</div>
+    <div class="amount" id="header-balance">$0.00</div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard')">Dashboard</button>
+  <button onclick="showTab('transactions')">Transactions</button>
+  <button onclick="showTab('fundraisers')">Fundraisers</button>
+  <button onclick="showTab('dues')">Member Dues</button>
+  <button onclick="showTab('budget')">Budget</button>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard" class="active">
+    <div class="summary-row">
+      <div class="stat-card green">
+        <div class="label">Total Income</div>
+        <div class="value" id="dash-income">$0.00</div>
+      </div>
+      <div class="stat-card red">
+        <div class="label">Total Expenses</div>
+        <div class="value" id="dash-expenses">$0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Net Balance</div>
+        <div class="value" id="dash-balance">$0.00</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="label">Dues Collected</div>
+        <div class="value" id="dash-dues">$0.00</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+      <div class="card">
+        <h2>Recent Transactions</h2>
+        <div class="table-wrap">
+          <table id="dash-recent-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Active Fundraisers</h2>
+        <div id="dash-fundraisers"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSACTIONS -->
+  <section id="tab-transactions">
+    <div class="card">
+      <h2>Add Transaction</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="tx-date" />
+        </div>
+        <div class="form-group" style="flex:2;min-width:180px;">
+          <label>Description</label>
+          <input type="text" id="tx-desc" placeholder="e.g. Conference registration fee" />
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="tx-cat">
+            <option value="Income – Dues">Income – Dues</option>
+            <option value="Income – Fundraiser">Income – Fundraiser</option>
+            <option value="Income – Other">Income – Other</option>
+            <option value="Conferences">Conferences</option>
+            <option value="Supplies">Supplies</option>
+            <option value="Food">Food</option>
+            <option value="Events">Events</option>
+            <option value="Other Expense">Other Expense</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="tx-type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="tx-amount" min="0" step="0.01" placeholder="0.00" />
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="action-row">
+        <h2>Transaction History</h2>
+        <div style="display:flex;gap:8px;">
+          <select id="tx-filter" onchange="renderTransactions()" style="font-size:0.85rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);">
+            <option value="">All Types</option>
+            <option value="income">Income Only</option>
+            <option value="expense">Expense Only</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+          <tbody id="tx-tbody"></tbody>
+        </table>
+      </div>
+      <div id="tx-empty" class="empty" style="display:none;">No transactions yet. Add one above!</div>
+    </div>
+  </section>
+
+  <!-- FUNDRAISERS -->
+  <section id="tab-fundraisers">
+    <div class="card">
+      <h2>Add Fundraiser</h2>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;min-width:180px;">
+          <label>Fundraiser Name</label>
+          <input type="text" id="fr-name" placeholder="e.g. Car Wash, Bake Sale" />
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="fr-date" />
+        </div>
+        <div class="form-group">
+          <label>Goal ($)</label>
+          <input type="number" id="fr-goal" min="0" step="0.01" placeholder="500.00" />
+        </div>
+        <div class="form-group">
+          <label>Raised So Far ($)</label>
+          <input type="number" id="fr-raised" min="0" step="0.01" placeholder="0.00" value="0" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="fr-status">
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="planned">Planned</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addFundraiser()">Add Fundraiser</button>
+    </div>
+
+    <div class="fundraiser-grid" id="fr-grid"></div>
+    <div id="fr-empty" class="empty card" style="display:none;">No fundraisers yet. Add one above!</div>
+  </section>
+
+  <!-- DUES -->
+  <section id="tab-dues">
+    <div class="card">
+      <h2>Add Member</h2>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;min-width:180px;">
+          <label>Member Name</label>
+          <input type="text" id="dues-name" placeholder="First Last" />
+        </div>
+        <div class="form-group">
+          <label>Grade</label>
+          <select id="dues-grade">
+            <option>9</option><option>10</option><option>11</option><option selected>12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Dues Amount ($)</label>
+          <input type="number" id="dues-amount" min="0" step="0.01" placeholder="20.00" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="dues-status">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date Paid</label>
+          <input type="date" id="dues-date" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+    </div>
+
+    <div class="card">
+      <div class="action-row">
+        <h2>Member List</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="dues-search" placeholder="Search members..." oninput="renderDues()" style="font-size:0.85rem;" />
+          <select id="dues-filter" onchange="renderDues()" style="font-size:0.85rem;padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);">
+            <option value="">All</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:14px;font-size:0.85rem;flex-wrap:wrap;">
+        <span>Total Members: <strong id="dues-total">0</strong></span>
+        <span style="color:var(--green);">Paid: <strong id="dues-paid-count">0</strong></span>
+        <span style="color:var(--red);">Unpaid: <strong id="dues-unpaid-count">0</strong></span>
+        <span style="color:var(--blue);">Collected: <strong id="dues-collected">$0.00</strong></span>
+        <span style="color:var(--muted);">Outstanding: <strong id="dues-outstanding">$0.00</strong></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Grade</th><th>Amount</th><th>Status</th><th>Date Paid</th><th></th></tr></thead>
+          <tbody id="dues-tbody"></tbody>
+        </table>
+      </div>
+      <div id="dues-empty" class="empty" style="display:none;">No members added yet.</div>
+    </div>
+  </section>
+
+  <!-- BUDGET -->
+  <section id="tab-budget">
+    <div class="card">
+      <h2>Set Budget by Category</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="bud-cat">
+            <option>Conferences</option>
+            <option>Supplies</option>
+            <option>Food</option>
+            <option>Events</option>
+            <option>Other Expense</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Budget ($)</label>
+          <input type="number" id="bud-amount" min="0" step="0.01" placeholder="500.00" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
+    </div>
+
+    <div class="card" id="budget-display">
+      <h2>Budget vs. Actuals</h2>
+      <div id="budget-bars"></div>
+      <div id="budget-empty" class="empty" style="display:none;">No budgets set yet. Add one above!</div>
+    </div>
+
+    <div class="card">
+      <h2>Income vs. Expense Summary</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Budget</th><th>Actual Spend</th><th>Remaining</th><th>% Used</th></tr></thead>
+          <tbody id="budget-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Edit Fundraiser Modal -->
+<div class="modal-overlay" id="fr-modal">
+  <div class="modal">
+    <h3>Edit Fundraiser</h3>
+    <input type="hidden" id="fr-edit-id" />
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>Name</label>
+        <input type="text" id="fr-edit-name" />
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="fr-edit-date" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Goal ($)</label>
+        <input type="number" id="fr-edit-goal" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Raised ($)</label>
+        <input type="number" id="fr-edit-raised" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="fr-edit-status">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="planned">Planned</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeFrModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFrEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+let data = {
+  transactions: [],
+  fundraisers: [],
+  members: [],
+  budgets: {}
+};
+
+function load() {
+  try {
+    const saved = localStorage.getItem('deca_data');
+    if (saved) data = JSON.parse(saved);
+  } catch(e) {}
+  // Seed sample data if empty
+  if (!data.transactions.length && !data.fundraisers.length && !data.members.length) seedData();
+}
+
+function save() {
+  localStorage.setItem('deca_data', JSON.stringify(data));
+}
+
+function seedData() {
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  const ago = n => { const d = new Date(today); d.setDate(d.getDate()-n); return fmt(d); };
+
+  data.transactions = [
+    { id: uid(), date: ago(30), desc: 'Member Dues – Fall Collection', cat: 'Income – Dues', type: 'income', amount: 320 },
+    { id: uid(), date: ago(25), desc: 'Car Wash Fundraiser Proceeds', cat: 'Income – Fundraiser', type: 'income', amount: 485 },
+    { id: uid(), date: ago(20), desc: 'State Conference Registration', cat: 'Conferences', type: 'expense', amount: 210 },
+    { id: uid(), date: ago(18), desc: 'Supplies – Name Tags & Folders', cat: 'Supplies', type: 'expense', amount: 47.50 },
+    { id: uid(), date: ago(10), desc: 'Bake Sale Proceeds', cat: 'Income – Fundraiser', type: 'income', amount: 175 },
+    { id: uid(), date: ago(7),  desc: 'Pizza for Chapter Meeting', cat: 'Food', type: 'expense', amount: 62 },
+    { id: uid(), date: ago(2),  desc: 'Additional Dues Collected', cat: 'Income – Dues', type: 'income', amount: 80 },
+  ];
+
+  data.fundraisers = [
+    { id: uid(), name: 'Car Wash', date: ago(25), goal: 500, raised: 485, status: 'completed' },
+    { id: uid(), name: 'Bake Sale', date: ago(10), goal: 200, raised: 175, status: 'completed' },
+    { id: uid(), name: 'Spirit Wear Sale', date: fmt(new Date(today.getFullYear(), today.getMonth()+1, 15)), goal: 750, raised: 0, status: 'planned' },
+    { id: uid(), name: 'Restaurant Night', date: fmt(new Date(today.getFullYear(), today.getMonth(), today.getDate()+14)), goal: 300, raised: 120, status: 'active' },
+  ];
+
+  data.members = [
+    { id: uid(), name: 'Alex Johnson', grade: '12', amount: 20, status: 'paid', datePaid: ago(28) },
+    { id: uid(), name: 'Mia Rodriguez', grade: '11', amount: 20, status: 'paid', datePaid: ago(27) },
+    { id: uid(), name: 'Ethan Carter', grade: '12', amount: 20, status: 'paid', datePaid: ago(26) },
+    { id: uid(), name: 'Sophia Lee', grade: '10', amount: 20, status: 'unpaid', datePaid: '' },
+    { id: uid(), name: 'Noah Williams', grade: '11', amount: 20, status: 'paid', datePaid: ago(20) },
+    { id: uid(), name: 'Olivia Brown', grade: '9', amount: 20, status: 'unpaid', datePaid: '' },
+    { id: uid(), name: 'Liam Davis', grade: '12', amount: 20, status: 'paid', datePaid: ago(15) },
+    { id: uid(), name: 'Emma Miller', grade: '10', amount: 20, status: 'unpaid', datePaid: '' },
+  ];
+
+  data.budgets = {
+    'Conferences': 400,
+    'Supplies': 150,
+    'Food': 100,
+    'Events': 200,
+    'Other Expense': 100
+  };
+
+  save();
+}
+
+function uid() { return Math.random().toString(36).slice(2,10); }
+function fmt$(n) { return '$' + (+n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  render();
+}
+
+// ─── Render All ──────────────────────────────────────────────────────────────
+function render() {
+  renderHeader();
+  renderDashboard();
+  renderTransactions();
+  renderFundraisers();
+  renderDues();
+  renderBudget();
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+function renderHeader() {
+  const bal = getBalance();
+  document.getElementById('header-balance').textContent = fmt$(bal);
+}
+
+function getBalance() {
+  return data.transactions.reduce((sum, t) => sum + (t.type === 'income' ? +t.amount : -t.amount), 0);
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const income = data.transactions.filter(t => t.type === 'income').reduce((s,t) => s + +t.amount, 0);
+  const expenses = data.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + +t.amount, 0);
+  const dues = data.members.filter(m => m.status === 'paid').reduce((s,m) => s + +m.amount, 0);
+
+  document.getElementById('dash-income').textContent = fmt$(income);
+  document.getElementById('dash-expenses').textContent = fmt$(expenses);
+  document.getElementById('dash-balance').textContent = fmt$(income - expenses);
+  document.getElementById('dash-dues').textContent = fmt$(dues);
+
+  // Recent transactions (last 5)
+  const recent = [...data.transactions].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
+  const tbody = document.querySelector('#dash-recent-table tbody');
+  tbody.innerHTML = recent.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.desc}</td>
+      <td style="color:${t.type==='income'?'var(--green)':'var(--red)'};font-weight:600;">
+        ${t.type==='income'?'+':'-'}${fmt$(t.amount)}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="3" class="empty">No transactions</td></tr>';
+
+  // Active fundraisers
+  const active = data.fundraisers.filter(f => f.status !== 'completed');
+  document.getElementById('dash-fundraisers').innerHTML = active.length ? active.map(f => {
+    const pct = Math.min(100, f.goal > 0 ? (f.raised / f.goal * 100) : 0);
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px;">
+        <strong>${f.name}</strong>
+        <span>${fmt$(f.raised)} / ${fmt$(f.goal)}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill${pct>=100?' over':''}" style="width:${pct}%"></div></div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">${pct.toFixed(0)}% of goal</div>
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:20px;">No active fundraisers</div>';
+}
+
+// ─── Transactions ────────────────────────────────────────────────────────────
+function addTransaction() {
+  const date = document.getElementById('tx-date').value;
+  const desc = document.getElementById('tx-desc').value.trim();
+  const cat  = document.getElementById('tx-cat').value;
+  const type = document.getElementById('tx-type').value;
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+
+  if (!date || !desc || isNaN(amount) || amount <= 0) { alert('Please fill in all fields with valid values.'); return; }
+
+  data.transactions.push({ id: uid(), date, desc, cat, type, amount });
+  save();
+  document.getElementById('tx-desc').value = '';
+  document.getElementById('tx-amount').value = '';
+  render();
+}
+
+function deleteTransaction(id) {
+  if (!confirm('Delete this transaction?')) return;
+  data.transactions = data.transactions.filter(t => t.id !== id);
+  save(); render();
+}
+
+function renderTransactions() {
+  const filter = document.getElementById('tx-filter')?.value || '';
+  let txs = [...data.transactions].sort((a,b) => b.date.localeCompare(a.date));
+  if (filter) txs = txs.filter(t => t.type === filter);
+
+  // Running balance (based on all transactions sorted ascending)
+  const sorted = [...data.transactions].sort((a,b) => a.date.localeCompare(b.date));
+  const balMap = {};
+  let bal = 0;
+  for (const t of sorted) { bal += t.type === 'income' ? +t.amount : -+t.amount; balMap[t.id] = bal; }
+
+  const tbody = document.getElementById('tx-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = txs.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.desc}</td>
+      <td><span class="badge badge-blue">${t.cat}</span></td>
+      <td><span class="badge ${t.type==='income'?'badge-green':'badge-red'}">${t.type==='income'?'Income':'Expense'}</span></td>
+      <td style="font-weight:600;color:${t.type==='income'?'var(--green)':'var(--red)'};">
+        ${t.type==='income'?'+':'-'}${fmt$(t.amount)}
+      </td>
+      <td style="font-weight:600;">${fmt$(balMap[t.id])}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTransaction('${t.id}')">Delete</button></td>
+    </tr>`).join('');
+
+  const empty = document.getElementById('tx-empty');
+  if (empty) { empty.style.display = txs.length ? 'none' : 'block'; if(tbody) tbody.style.display = txs.length ? '' : 'none'; }
+}
+
+function exportCSV() {
+  const txs = [...data.transactions].sort((a,b) => a.date.localeCompare(b.date));
+  let bal = 0;
+  const rows = [['Date','Description','Category','Type','Amount','Balance']];
+  for (const t of txs) {
+    bal += t.type === 'income' ? +t.amount : -+t.amount;
+    rows.push([t.date, `"${t.desc}"`, t.cat, t.type, (+t.amount).toFixed(2), bal.toFixed(2)]);
+  }
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = 'deca-transactions.csv';
+  a.click();
+}
+
+// ─── Fundraisers ─────────────────────────────────────────────────────────────
+function addFundraiser() {
+  const name   = document.getElementById('fr-name').value.trim();
+  const date   = document.getElementById('fr-date').value;
+  const goal   = parseFloat(document.getElementById('fr-goal').value);
+  const raised = parseFloat(document.getElementById('fr-raised').value) || 0;
+  const status = document.getElementById('fr-status').value;
+
+  if (!name || !date || isNaN(goal) || goal <= 0) { alert('Please fill in all required fields.'); return; }
+
+  data.fundraisers.push({ id: uid(), name, date, goal, raised, status });
+  save();
+  document.getElementById('fr-name').value = '';
+  document.getElementById('fr-goal').value = '';
+  document.getElementById('fr-raised').value = '0';
+  render();
+}
+
+function deleteFundraiser(id) {
+  if (!confirm('Delete this fundraiser?')) return;
+  data.fundraisers = data.fundraisers.filter(f => f.id !== id);
+  save(); render();
+}
+
+function openFrModal(id) {
+  const f = data.fundraisers.find(f => f.id === id);
+  if (!f) return;
+  document.getElementById('fr-edit-id').value = f.id;
+  document.getElementById('fr-edit-name').value = f.name;
+  document.getElementById('fr-edit-date').value = f.date;
+  document.getElementById('fr-edit-goal').value = f.goal;
+  document.getElementById('fr-edit-raised').value = f.raised;
+  document.getElementById('fr-edit-status').value = f.status;
+  document.getElementById('fr-modal').classList.add('open');
+}
+
+function closeFrModal() { document.getElementById('fr-modal').classList.remove('open'); }
+
+function saveFrEdit() {
+  const id = document.getElementById('fr-edit-id').value;
+  const f = data.fundraisers.find(f => f.id === id);
+  if (!f) return;
+  f.name   = document.getElementById('fr-edit-name').value.trim();
+  f.date   = document.getElementById('fr-edit-date').value;
+  f.goal   = parseFloat(document.getElementById('fr-edit-goal').value);
+  f.raised = parseFloat(document.getElementById('fr-edit-raised').value) || 0;
+  f.status = document.getElementById('fr-edit-status').value;
+  save(); closeFrModal(); render();
+}
+
+function renderFundraisers() {
+  const grid = document.getElementById('fr-grid');
+  const empty = document.getElementById('fr-empty');
+  if (!grid) return;
+  if (!data.fundraisers.length) { grid.innerHTML = ''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+
+  const statusLabel = { active: 'Active', completed: 'Completed', planned: 'Planned' };
+  const statusBadge = { active: 'badge-green', completed: 'badge-blue', planned: 'badge-gold' };
+
+  grid.innerHTML = data.fundraisers.map(f => {
+    const pct = Math.min(100, f.goal > 0 ? (f.raised / f.goal * 100) : 0);
+    return `
+    <div class="fundraiser-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <h3>${f.name}</h3>
+        <span class="badge ${statusBadge[f.status]}">${statusLabel[f.status]}</span>
+      </div>
+      <div class="meta">📅 ${f.date}</div>
+      <div class="progress-bar"><div class="progress-fill${pct>=100?' over':''}" style="width:${pct}%"></div></div>
+      <div class="amounts">
+        <span style="color:var(--muted);">Raised: <strong style="color:var(--green)">${fmt$(f.raised)}</strong></span>
+        <span>Goal: <strong>${fmt$(f.goal)}</strong></span>
+        <span>${pct.toFixed(0)}%</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-outline btn-sm" onclick="openFrModal('${f.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteFundraiser('${f.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Member Dues ─────────────────────────────────────────────────────────────
+function addMember() {
+  const name   = document.getElementById('dues-name').value.trim();
+  const grade  = document.getElementById('dues-grade').value;
+  const amount = parseFloat(document.getElementById('dues-amount').value);
+  const status = document.getElementById('dues-status').value;
+  const datePaid = document.getElementById('dues-date').value;
+
+  if (!name || isNaN(amount) || amount <= 0) { alert('Please enter a name and valid amount.'); return; }
+
+  data.members.push({ id: uid(), name, grade, amount, status, datePaid: status === 'paid' ? datePaid : '' });
+  save();
+  document.getElementById('dues-name').value = '';
+  document.getElementById('dues-amount').value = '';
+  document.getElementById('dues-date').value = '';
+  render();
+}
+
+function toggleDuesStatus(id) {
+  const m = data.members.find(m => m.id === id);
+  if (!m) return;
+  m.status = m.status === 'paid' ? 'unpaid' : 'paid';
+  if (m.status === 'paid') m.datePaid = new Date().toISOString().split('T')[0];
+  else m.datePaid = '';
+  save(); render();
+}
+
+function deleteMember(id) {
+  if (!confirm('Remove this member?')) return;
+  data.members = data.members.filter(m => m.id !== id);
+  save(); render();
+}
+
+function renderDues() {
+  const search = (document.getElementById('dues-search')?.value || '').toLowerCase();
+  const filter = document.getElementById('dues-filter')?.value || '';
+  let members = data.members.filter(m => m.name.toLowerCase().includes(search));
+  if (filter) members = members.filter(m => m.status === filter);
+
+  const paidCount   = data.members.filter(m => m.status === 'paid').length;
+  const unpaidCount = data.members.filter(m => m.status === 'unpaid').length;
+  const collected   = data.members.filter(m => m.status === 'paid').reduce((s,m) => s + +m.amount, 0);
+  const outstanding = data.members.filter(m => m.status === 'unpaid').reduce((s,m) => s + +m.amount, 0);
+
+  const el = id => document.getElementById(id);
+  if(el('dues-total')) el('dues-total').textContent = data.members.length;
+  if(el('dues-paid-count')) el('dues-paid-count').textContent = paidCount;
+  if(el('dues-unpaid-count')) el('dues-unpaid-count').textContent = unpaidCount;
+  if(el('dues-collected')) el('dues-collected').textContent = fmt$(collected);
+  if(el('dues-outstanding')) el('dues-outstanding').textContent = fmt$(outstanding);
+
+  const tbody = document.getElementById('dues-tbody');
+  const empty = document.getElementById('dues-empty');
+  if (!tbody) return;
+
+  const sorted = [...members].sort((a,b) => a.name.localeCompare(b.name));
+  tbody.innerHTML = sorted.map(m => `
+    <tr>
+      <td><strong>${m.name}</strong></td>
+      <td>Grade ${m.grade}</td>
+      <td>${fmt$(m.amount)}</td>
+      <td>
+        <span class="badge ${m.status==='paid'?'badge-green':'badge-red'}">${m.status==='paid'?'Paid':'Unpaid'}</span>
+      </td>
+      <td>${m.datePaid || '—'}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-sm ${m.status==='paid'?'btn-outline':'btn-gold'}" onclick="toggleDuesStatus('${m.id}')">
+          ${m.status==='paid'?'Mark Unpaid':'Mark Paid'}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}')">✕</button>
+      </td>
+    </tr>`).join('');
+
+  if(empty) empty.style.display = sorted.length ? 'none' : 'block';
+}
+
+// ─── Budget ───────────────────────────────────────────────────────────────────
+function setBudget() {
+  const cat    = document.getElementById('bud-cat').value;
+  const amount = parseFloat(document.getElementById('bud-amount').value);
+  if (isNaN(amount) || amount <= 0) { alert('Enter a valid budget amount.'); return; }
+  data.budgets[cat] = amount;
+  save();
+  document.getElementById('bud-amount').value = '';
+  render();
+}
+
+function renderBudget() {
+  const bars  = document.getElementById('budget-bars');
+  const tbody = document.getElementById('budget-tbody');
+  const empty = document.getElementById('budget-empty');
+  if (!bars || !tbody) return;
+
+  // Spend by category (expenses only)
+  const spend = {};
+  for (const t of data.transactions) {
+    if (t.type === 'expense') spend[t.cat] = (spend[t.cat] || 0) + +t.amount;
+  }
+
+  const cats = Object.keys(data.budgets);
+  if (!cats.length) { bars.innerHTML = ''; if(empty) empty.style.display='block'; tbody.innerHTML=''; return; }
+  if(empty) empty.style.display='none';
+
+  bars.innerHTML = cats.map(cat => {
+    const budget = data.budgets[cat];
+    const actual = spend[cat] || 0;
+    const pct = budget > 0 ? (actual / budget * 100) : 0;
+    const fillClass = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
+    return `
+    <div class="budget-item">
+      <div class="budget-label">
+        <strong>${cat}</strong>
+        <span style="color:${pct>=100?'var(--red)':pct>=80?'var(--gold-dark)':'var(--green)'};">
+          ${fmt$(actual)} / ${fmt$(budget)} (${pct.toFixed(0)}%)
+        </span>
+      </div>
+      <div class="budget-bar"><div class="budget-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
+    </div>`;
+  }).join('');
+
+  tbody.innerHTML = cats.map(cat => {
+    const budget = data.budgets[cat];
+    const actual = spend[cat] || 0;
+    const remaining = budget - actual;
+    const pct = budget > 0 ? (actual / budget * 100) : 0;
+    return `<tr>
+      <td><strong>${cat}</strong></td>
+      <td>${fmt$(budget)}</td>
+      <td style="color:${actual>budget?'var(--red)':'var(--text)'};">${fmt$(actual)}</td>
+      <td style="color:${remaining<0?'var(--red)':'var(--green)'};">${fmt$(remaining)}</td>
+      <td>
+        <span class="badge ${pct>=100?'badge-red':pct>=80?'badge-gold':'badge-green'}">${pct.toFixed(0)}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+// Set today's date as default
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('tx-date').value = today;
+  document.getElementById('fr-date').value = today;
+  document.getElementById('dues-date').value = today;
+  load();
+  render();
+});
+</script>
+</body>
+</html>
