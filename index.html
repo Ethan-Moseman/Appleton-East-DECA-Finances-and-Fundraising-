@@ -22,7 +22,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-bg);color:var(--dark);}
 
-/* ── INTRO SCREEN ──────────────────────────────────────── */
+/*  INTRO SCREEN  */
 #intro-screen{
   position:fixed;inset:0;z-index:1000;
   background:#000;
@@ -204,7 +204,7 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── LOGIN ─────────────────────────────────────────────── */
+/*  LOGIN  */
 #login-screen{
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;position:relative;overflow:hidden;
@@ -367,7 +367,7 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
   border-radius:4px;font-size:.73rem;color:rgba(255,255,255,.5);
 }
 
-/* ── APP SHELL ─────────────────────────────────────────── */
+/*  APP SHELL  */
 #app{display:none;height:100vh;flex-direction:column;background:#060d1f;}
 #app.visible{display:flex;}
 html,body{background:#060d1f;}
@@ -479,7 +479,7 @@ html,body{background:#060d1f;}
 .main-content::-webkit-scrollbar-thumb{background:rgba(74,158,255,.2);border-radius:3px;}
 .main-content::-webkit-scrollbar-thumb:hover{background:rgba(74,158,255,.35);}
 
-/* ── COMPONENTS ────────────────────────────────────────── */
+/*  COMPONENTS  */
 .page-header{margin-bottom:28px;}
 .page-header h2{
   font-size:1.5rem;font-weight:800;color:#fff;
@@ -698,7 +698,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 </head>
 <body>
 
-<!-- ══ INTRO ══════════════════════════════════════════════════════════════ -->
+<!--  INTRO  -->
 <div id="intro-screen">
   <div class="intro-bar-top"></div>
   <div class="intro-bar-bottom"></div>
@@ -735,7 +735,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
   </div>
 </div>
 
-<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<!--  LOGIN  -->
 <div id="login-screen">
   <canvas id="particles"></canvas>
 
@@ -781,7 +781,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
   </div>
 </div>
 
-<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+<!--  APP  -->
 <div id="app">
   <!-- Top Bar -->
   <div class="topbar">
@@ -816,7 +816,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
     <div class="main-content" id="main-content">
       <!-- sections injected below, shown/hidden by JS -->
 
-      <!-- ── DASHBOARD (admin) ── -->
+      <!--  DASHBOARD (admin)  -->
       <div class="section" id="s-dashboard">
         <div class="page-header">
           <h2 id="dash-welcome">Dashboard</h2>
@@ -826,32 +826,32 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         <div class="grid2">
           <div>
             <div class="card">
-              <div class="card-header"><h3>📋 Recent Transactions</h3><span id="dash-balance-chip" class="badge badge-blue"></span></div>
+              <div class="card-header"><h3>Recent Transactions</h3><span id="dash-balance-chip" class="badge badge-blue"></span></div>
               <div class="card-body" style="padding:0;">
                 <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody id="dash-tx-body"></tbody></table></div>
               </div>
             </div>
             <div class="card">
-              <div class="card-header"><h3>📣 Chapter Announcements</h3></div>
+              <div class="card-header"><h3>Chapter Announcements</h3></div>
               <div class="card-body" id="dash-announcements"></div>
             </div>
           </div>
           <div>
             <div class="card">
-              <div class="card-header"><h3>💰 Dues Collection Status</h3></div>
+              <div class="card-header"><h3>Dues Collection Status</h3></div>
               <div class="card-body">
                 <div id="dues-progress-wrap"></div>
               </div>
             </div>
             <div class="card">
-              <div class="card-header"><h3>🤝 Partnership Overview</h3></div>
+              <div class="card-header"><h3>Partnership Overview</h3></div>
               <div class="card-body" id="dash-partnerships-summary"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── TRANSACTIONS (admin) ── -->
+      <!--  TRANSACTIONS (admin)  -->
       <div class="section" id="s-transactions">
         <div class="page-header">
           <h2>Transaction Ledger</h2>
@@ -892,7 +892,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
       </div>
 
-      <!-- ── MEMBERS (admin) ── -->
+      <!--  MEMBERS (admin)  -->
       <div class="section" id="s-members">
         <div class="page-header"><h2>Member Management</h2><p>Track every member's status, dues, and assignments.</p></div>
         <div class="card">
@@ -926,7 +926,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
       </div>
 
-      <!-- ── FUNDRAISERS (admin) ── -->
+      <!--  FUNDRAISERS (admin)  -->
       <div class="section" id="s-fundraisers">
         <div class="page-header"><h2>Fundraising & Revenue Growth</h2><p>Track every fundraiser from plan to payoff.</p></div>
         <div class="card">
@@ -946,7 +946,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         <div id="fr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
       </div>
 
-      <!-- ── PARTNERSHIPS (admin) ── -->
+      <!--  PARTNERSHIPS (admin)  -->
       <div class="section" id="s-partnerships">
         <div class="page-header"><h2>Company Partnerships</h2><p>Manage sponsor relationships and assign members to companies.</p></div>
         <div class="card">
@@ -974,7 +974,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
       </div>
 
-      <!-- ── BUDGET (admin) ── -->
+      <!--  BUDGET (admin)  -->
       <div class="section" id="s-budget">
         <div class="page-header"><h2>Live Budget Tracker</h2><p>Set projected spending targets. The platform watches every transaction in real time.</p></div>
         <div class="card">
@@ -1002,7 +1002,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
       </div>
 
-      <!-- ── REPORTS (admin) ── -->
+      <!--  REPORTS (admin)  -->
       <div class="section" id="s-reports">
         <div class="page-header"><h2>Financial Record</h2><p>A permanent financial record this chapter has never had. Every report. Every dollar. Stored forever.</p></div>
         <div class="stats-row" id="report-stats"></div>
@@ -1025,19 +1025,19 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
       </div>
 
-      <!-- ── MEMBER HOME (member only) ── -->
+      <!--  MEMBER HOME (member only)  -->
       <div class="section" id="s-my-home">
         <div id="member-hero-area"></div>
         <div class="grid2" id="member-grid"></div>
       </div>
 
-      <!-- ── MY DUES (member only) ── -->
+      <!--  MY DUES (member only)  -->
       <div class="section" id="s-my-dues">
         <div class="page-header"><h2>My Dues</h2><p>Your personal dues record for this chapter year.</p></div>
         <div id="my-dues-detail"></div>
       </div>
 
-      <!-- ── MY PARTNERSHIP (member only) ── -->
+      <!--  MY PARTNERSHIP (member only)  -->
       <div class="section" id="s-my-partnership">
         <div class="page-header"><h2>My Company Partnership</h2><p>You've been assigned to manage the following company relationship.</p></div>
         <div id="my-partnership-detail"></div>
@@ -1100,7 +1100,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 </div>
 
 <script>
-// ══ INTRO ═════════════════════════════════════════════════════════════════════
+//  INTRO 
 (function(){
   const intro = document.getElementById('intro-screen');
   if(!intro) return;
@@ -1158,7 +1158,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
   }, 3600);
 })();
 
-// ══ PARTICLES + TYPEWRITER ════════════════════════════════════════════════════
+//  PARTICLES + TYPEWRITER 
 (function(){
   // Particles
   const canvas = document.getElementById('particles');
@@ -1227,7 +1227,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
   setTimeout(type, 900);
 })();
 
-// ══ DATA STORE ════════════════════════════════════════════════════════════════
+//  DATA STORE 
 const SEED_USERS = {
   ethan:   { password:'deca2025', role:'admin', name:'Ethan Moseman',  initials:'EM' },
   mrsfude: { password:'deca2025', role:'admin', name:'Mrs. Fude',      initials:'MF' },
@@ -1309,7 +1309,7 @@ function seedDB(){
   saveDB();
 }
 
-// ══ AUTH ══════════════════════════════════════════════════════════════════════
+//  AUTH 
 function getUser(username, password){
   if(SEED_USERS[username] && SEED_USERS[username].password === password) return {username, ...SEED_USERS[username]};
   const m = DB.members.find(m => m.username === username && m.password === password);
@@ -1338,7 +1338,7 @@ function doLogout(){
 
 document.addEventListener('keydown', e => { if(e.key==='Enter' && document.getElementById('login-screen').style.display!=='none') doLogin(); });
 
-// ══ APP LAUNCH ════════════════════════════════════════════════════════════════
+//  APP LAUNCH 
 function launchApp(){
   document.getElementById('login-screen').style.display='none';
   const app = document.getElementById('app');
@@ -1361,19 +1361,20 @@ function buildSidebar(){
   const isAdmin = currentUser.role === 'admin';
   const items = isAdmin ? [
     {section:'main', items:[
-      {id:'s-dashboard',icon:'📊',label:'Dashboard'},
-      {id:'s-transactions',icon:'💳',label:'Transactions'},
-      {id:'s-members',icon:'👥',label:'Members'},
-      {id:'s-fundraisers',icon:'🎯',label:'Fundraisers'},
-      {id:'s-partnerships',icon:'🤝',label:'Partnerships'},
-      {id:'s-budget',icon:'📈',label:'Budget Tracker'},
-      {id:'s-reports',icon:'📁',label:'Financial Record'},
+      {id:'s-dashboard',icon:'',label:'Dashboard'},
+      {id:'s-transactions',icon:'',label:'Transactions'},
+      {id:'s-members',icon:'',label:'Members'},
+      {id:'s-fundraisers',icon:'',label:'Fundraisers'},
+      {id:'s-fr-analytics',icon:'',label:'FR Analytics'},
+      {id:'s-partnerships',icon:'',label:'Partnerships'},
+      {id:'s-budget',icon:'',label:'Budget Tracker'},
+      {id:'s-reports',icon:'',label:'Financial Record'},
     ]}
   ] : [
     {section:'my account', items:[
-      {id:'s-my-home',icon:'🏠',label:'My Dashboard'},
-      {id:'s-my-dues',icon:'💰',label:'My Dues'},
-      {id:'s-my-partnership',icon:'🤝',label:'My Partnership'},
+      {id:'s-my-home',icon:'',label:'My Dashboard'},
+      {id:'s-my-dues',icon:'',label:'My Dues'},
+      {id:'s-my-partnership',icon:'',label:'My Partnership'},
     ]}
   ];
 
@@ -1398,7 +1399,7 @@ function showSection(id){
   render();
 }
 
-// ══ UTILITIES ═════════════════════════════════════════════════════════════════
+//  UTILITIES 
 const uid = () => Math.random().toString(36).slice(2,10);
 const fmt$ = n => '$' + (+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const fmtPct = (a,b) => b>0 ? Math.min(100,(a/b*100)).toFixed(0)+'%' : '0%';
@@ -1412,19 +1413,20 @@ function getPartnership(id){ return DB.partnerships.find(p => p.id===id); }
 
 function statusBadge(s){
   const map = { active:'badge-green', pending:'badge-amber', completed:'badge-blue', 'needs-attention':'badge-red', paid:'badge-green', unpaid:'badge-red', planned:'badge-gray' };
-  const labels = { active:'Active', pending:'Pending', completed:'Completed', 'needs-attention':'⚠ Needs Attention', paid:'✓ Paid', unpaid:'Unpaid', planned:'Planned' };
+  const labels = { active:'Active', pending:'Pending', completed:'Completed', 'needs-attention':'Needs Attention', paid:'Paid', unpaid:'Unpaid', planned:'Planned' };
   return `<span class="badge ${map[s]||'badge-gray'}">${labels[s]||s}</span>`;
 }
 
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
-// ══ RENDER ════════════════════════════════════════════════════════════════════
+//  RENDER 
 function render(){
   if(currentUser?.role === 'admin'){
     renderDashboard();
     renderTransactions();
     renderMembers();
     renderFundraisers();
+    renderFrAnalytics();
     renderPartnerships();
     renderBudget();
     renderReports();
@@ -1435,9 +1437,9 @@ function render(){
   }
 }
 
-// ── Admin Dashboard ───────────────────────────────────────────────────────────
+//  Admin Dashboard 
 function renderDashboard(){
-  document.getElementById('dash-welcome').textContent = `Welcome back, ${currentUser.name.split(' ')[0]} 👋`;
+  document.getElementById('dash-welcome').textContent = `Welcome back, ${currentUser.name.split(' ')[0]} `;
 
   const income = DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0);
   const expense = DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0);
@@ -1460,7 +1462,7 @@ function renderDashboard(){
     <tr>
       <td style="color:var(--gray);font-size:.8rem;">${t.date}</td>
       <td>${t.desc}</td>
-      <td>${statusBadge(t.type==='income'?'active':'needs-attention').replace('Active','Income').replace('⚠ Needs Attention','Expense')}</td>
+      <td>${statusBadge(t.type==='income'?'active':'needs-attention').replace('Active','Income').replace('Needs Attention','Expense')}</td>
       <td style="font-weight:700;color:${t.type==='income'?'var(--green)':'var(--red)'};">${t.type==='income'?'+':'-'}${fmt$(t.amount)}</td>
     </tr>`).join('');
 
@@ -1477,7 +1479,7 @@ function renderDashboard(){
     <div style="margin-top:14px;">
       ${DB.members.filter(m=>m.duesStatus==='unpaid').map(m=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gray-light);font-size:.84rem;">
-          <span>⚠ ${m.name} <span style="color:var(--gray);font-size:.75rem;">Gr.${m.grade}</span></span>
+          <span>${m.name} <span style="color:var(--gray);font-size:.75rem;">Gr.${m.grade}</span></span>
           <span class="badge badge-red">Unpaid – ${fmt$(m.dues)}</span>
         </div>`).join('')}
     </div>`;
@@ -1498,12 +1500,12 @@ function renderDashboard(){
   // Announcements
   document.getElementById('dash-announcements').innerHTML = DB.announcements.map(a=>`
     <div class="announcement" style="${a.urgent?'':'background:linear-gradient(90deg,var(--dark2),var(--dark3));'}">
-      <div class="ann-icon">${a.urgent?'🚨':'📣'}</div>
+      <div class="ann-icon">${a.urgent?'':''}</div>
       <div><h4>${a.title}</h4><p>${a.body}</p></div>
     </div>`).join('');
 }
 
-// ── Transactions ──────────────────────────────────────────────────────────────
+//  Transactions 
 function addTransaction(){
   const date=document.getElementById('tx-date').value;
   const desc=document.getElementById('tx-desc').value.trim();
@@ -1552,7 +1554,7 @@ function exportCSV(){
   a.download='deca-ledger.csv'; a.click();
 }
 
-// ── Members ───────────────────────────────────────────────────────────────────
+//  Members 
 function addMember(){
   const name=document.getElementById('m-name').value.trim();
   const username=document.getElementById('m-user').value.trim();
@@ -1629,7 +1631,7 @@ function renderMembers(){
     </tr>`;}).join('');
 }
 
-// ── Fundraisers ───────────────────────────────────────────────────────────────
+//  Fundraisers 
 function addFundraiser(){
   const name=document.getElementById('fr-name').value.trim();
   const date=document.getElementById('fr-date').value;
@@ -1662,7 +1664,7 @@ function renderFundraisers(){
         ${statusBadge(f.status)}
       </div>
       <div class="card-body">
-        <div style="font-size:.82rem;color:var(--gray);margin-bottom:12px;">📅 ${f.date}</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:12px;">${f.date}</div>
         <div class="progress" style="margin-bottom:8px;"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:10px;">
           <span>Raised: <strong style="color:var(--green);">${fmt$(f.raised)}</strong></span>
@@ -1675,7 +1677,7 @@ function renderFundraisers(){
     </div>`;}).join('');
 }
 
-// ── Partnerships ──────────────────────────────────────────────────────────────
+//  Partnerships 
 function populateMemberDropdowns(){
   const opts = `<option value="">— Unassigned —</option>` + DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
   ['p-member','p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
@@ -1756,7 +1758,7 @@ function renderPartnerships(){
     </tr>`;}).join('');
 }
 
-// ── Budget ────────────────────────────────────────────────────────────────────
+//  Budget 
 function setBudget(){
   const cat=document.getElementById('bud-cat').value;
   const amount=parseFloat(document.getElementById('bud-amount').value);
@@ -1772,7 +1774,7 @@ function renderBudget(){
   const spend={};
   DB.transactions.filter(t=>t.type==='expense').forEach(t=>{ spend[t.cat]=(spend[t.cat]||0)+ +t.amount; });
   const cats=Object.keys(DB.budgets);
-  if(!cats.length){ bars.innerHTML='<div class="empty-state"><div class="icon">📊</div><p>No budgets set yet. Add one above!</p></div>'; tbody.innerHTML=''; return; }
+  if(!cats.length){ bars.innerHTML='<div class="empty-state"><div class="icon"></div><p>No budgets set yet. Add one above!</p></div>'; tbody.innerHTML=''; return; }
   bars.innerHTML = cats.map(cat=>{
     const budget=DB.budgets[cat], actual=spend[cat]||0, pct=budget>0?(actual/budget*100):0;
     const fillClass=pct>=100?'red':pct>=80?'amber':'';
@@ -1784,7 +1786,7 @@ function renderBudget(){
         </span>
       </div>
       <div class="progress"><div class="progress-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
-      ${pct>=100?'<div style="font-size:.75rem;color:var(--red);margin-top:3px;">⚠ Over budget by '+fmt$(actual-budget)+'</div>':pct>=80?'<div style="font-size:.75rem;color:var(--amber);margin-top:3px;">⚠ Approaching budget limit</div>':''}
+      ${pct>=100?'<div style="font-size:.75rem;color:var(--red);margin-top:3px;">Over budget by '+fmt$(actual-budget)+'</div>':pct>=80?'<div style="font-size:.75rem;color:var(--amber);margin-top:3px;">Approaching budget limit</div>':''}
     </div>`;}).join('');
   tbody.innerHTML = cats.map(cat=>{
     const budget=DB.budgets[cat], actual=spend[cat]||0, remaining=budget-actual, pct=budget>0?(actual/budget*100):0;
@@ -1793,11 +1795,109 @@ function renderBudget(){
       <td>${fmt$(budget)}</td>
       <td style="color:${actual>budget?'var(--red)':'var(--dark)'};">${fmt$(actual)}</td>
       <td style="color:${remaining<0?'var(--red)':'var(--green)'};">${fmt$(remaining)}</td>
-      <td>${statusBadge(pct>=100?'needs-attention':pct>=80?'pending':'active').replace('⚠ Needs Attention','Over Budget').replace('Pending','Near Limit').replace('Active','On Track')}</td>
+      <td>${statusBadge(pct>=100?'needs-attention':pct>=80?'pending':'active').replace('Needs Attention','Over Budget').replace('Pending','Near Limit').replace('Active','On Track')}</td>
     </tr>`;}).join('');
 }
 
-// ── Reports ───────────────────────────────────────────────────────────────────
+//  Reports 
+
+// ── Fundraiser Analytics ──────────────────────────────────────────────────────
+function renderFrAnalytics(){
+  const completed = DB.fundraisers.filter(f => f.status === 'completed' && f.goal > 0);
+  const all = DB.fundraisers.filter(f => f.goal > 0);
+
+  const totalRaised = all.reduce((s,f) => s + +f.raised, 0);
+  const avgRaised   = all.length ? totalRaised / all.length : 0;
+  const hitGoal     = all.filter(f => +f.raised >= +f.goal).length;
+  const best        = [...all].sort((a,b) => +b.raised - +a.raised)[0];
+
+  const sr = document.getElementById('fr-stat-row');
+  if(sr) sr.innerHTML = `
+    <div class="stat blue"><div class="s-label">Total Raised</div><div class="s-val">${fmt$(totalRaised)}</div><div class="s-sub">Across all fundraisers</div></div>
+    <div class="stat green"><div class="s-label">Avg Per Event</div><div class="s-val">${fmt$(avgRaised)}</div><div class="s-sub">${all.length} events total</div></div>
+    <div class="stat amber"><div class="s-label">Goal Hit Rate</div><div class="s-val">${all.length ? Math.round(hitGoal/all.length*100) : 0}%</div><div class="s-sub">${hitGoal} of ${all.length} hit goal</div></div>
+    <div class="stat blue"><div class="s-label">Best Event</div><div class="s-val" style="font-size:1.1rem;">${best ? best.name : '—'}</div><div class="s-sub">${best ? fmt$(best.raised) + ' raised' : 'No data yet'}</div></div>`;
+
+  // Ranking
+  const ranked = [...all].sort((a,b) => +b.raised - +a.raised);
+  const rankEl = document.getElementById('fr-ranking');
+  if(rankEl) rankEl.innerHTML = ranked.length ? ranked.map((f,i) => {
+    const pct = f.goal > 0 ? Math.min(100, f.raised/f.goal*100) : 0;
+    const color = pct >= 100 ? 'green' : pct >= 75 ? '' : 'amber';
+    return `<div style="margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div>
+          <span style="font-size:.72rem;color:rgba(255,255,255,.3);margin-right:8px;">#${i+1}</span>
+          <strong style="color:#fff;font-size:.9rem;">${f.name}</strong>
+        </div>
+        <span style="font-size:.85rem;font-weight:700;color:#4a9eff;">${fmt$(f.raised)}</span>
+      </div>
+      <div class="progress"><div class="progress-fill ${color}" style="width:${pct}%"></div></div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:3px;">${pct.toFixed(0)}% of ${fmt$(f.goal)} goal</div>
+    </div>`;
+  }).join('') : '<p style="color:rgba(255,255,255,.3);font-size:.88rem;">No fundraiser data yet.</p>';
+
+  // Recommendations
+  const recEl = document.getElementById('fr-recommendations');
+  if(recEl){
+    const recs = [];
+    const topPerformers = ranked.filter(f => f.status==='completed' && +f.raised >= +f.goal);
+    const underPerformers = ranked.filter(f => f.status==='completed' && +f.raised < +f.goal * 0.6);
+
+    if(topPerformers.length){
+      recs.push({
+        label:'Run Again',
+        color:'#34d399',
+        bg:'rgba(52,211,153,.08)',
+        border:'rgba(52,211,153,.2)',
+        text:`<strong>${topPerformers.map(f=>f.name).join(', ')}</strong> hit or exceeded their goals. Strong candidates to repeat.`
+      });
+    }
+    if(underPerformers.length){
+      recs.push({
+        label:'Reconsider',
+        color:'#f87171',
+        bg:'rgba(248,113,113,.08)',
+        border:'rgba(248,113,113,.2)',
+        text:`<strong>${underPerformers.map(f=>f.name).join(', ')}</strong> raised less than 60% of goal. Consider adjusting the format or replacing with a higher-performing event.`
+      });
+    }
+    if(avgRaised > 0){
+      recs.push({
+        label:'Benchmark',
+        color:'#4a9eff',
+        bg:'rgba(74,158,255,.08)',
+        border:'rgba(74,158,255,.2)',
+        text:`Your average fundraiser brings in <strong>${fmt$(avgRaised)}</strong>. Set goals close to this number for realistic targets.`
+      });
+    }
+    if(!recs.length) recs.push({label:'Not enough data',color:'rgba(255,255,255,.3)',bg:'rgba(255,255,255,.04)',border:'rgba(255,255,255,.08)',text:'Complete more fundraisers to get recommendations.'});
+
+    recEl.innerHTML = recs.map(r => `
+      <div style="background:${r.bg};border:1px solid ${r.border};border-left:3px solid ${r.color};border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${r.color};margin-bottom:5px;">${r.label}</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">${r.text}</div>
+      </div>`).join('');
+  }
+
+  // Comparison table
+  const tbody = document.getElementById('fr-compare-tbody');
+  if(tbody) tbody.innerHTML = [...all].sort((a,b) => +b.raised - +a.raised).map(f => {
+    const pct = f.goal > 0 ? (f.raised/f.goal*100) : 0;
+    const verdict = pct >= 100 ? '<span class="badge badge-green">Run Again</span>'
+      : pct >= 75 ? '<span class="badge badge-blue">Good</span>'
+      : pct >= 50 ? '<span class="badge badge-amber">Average</span>'
+      : '<span class="badge badge-red">Reconsider</span>';
+    return `<tr>
+      <td><strong style="color:#fff;">${f.name}</strong></td>
+      <td>${fmt$(f.goal)}</td>
+      <td style="color:#4a9eff;font-weight:700;">${fmt$(f.raised)}</td>
+      <td><span style="color:${pct>=100?'#34d399':pct>=75?'#4a9eff':pct>=50?'#fbbf24':'#f87171'};font-weight:700;">${pct.toFixed(0)}%</span></td>
+      <td>${statusBadge(f.status)}</td>
+      <td>${verdict}</td>
+    </tr>`;}).join('');
+}
+
 function renderReports(){
   const income=DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0);
   const expense=DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0);
@@ -1835,7 +1935,7 @@ function renderReports(){
     </tr>`; }).join('');
 }
 
-// ── Member Home ───────────────────────────────────────────────────────────────
+//  Member Home 
 function renderMemberHome(){
   const memberData = DB.members.find(m=>m.id===currentUser.memberId);
   if(!memberData) return;
@@ -1844,11 +1944,11 @@ function renderMemberHome(){
 
   document.getElementById('member-hero-area').innerHTML = `
     <div class="member-hero">
-      <h2>Welcome back, ${memberData.name.split(' ')[0]}! 👋</h2>
+      <h2>Welcome back, ${memberData.name.split(' ')[0]}! </h2>
       <p>Appleton East DECA · Grade ${memberData.grade} · 2026–2027 Chapter Year</p>
       <div class="hero-stats">
         <div class="hero-stat">
-          <div class="hs-val">${memberData.duesStatus==='paid'?'✓ Paid':'⚠ Unpaid'}</div>
+          <div class="hs-val">${memberData.duesStatus==='paid'?'Paid':'Unpaid'}</div>
           <div class="hs-label">Dues Status</div>
         </div>
         <div class="hero-stat">
@@ -1865,7 +1965,7 @@ function renderMemberHome(){
   // Announcements + upcoming
   const anns = DB.announcements.map(a=>`
     <div class="announcement" style="${a.urgent?'':'background:linear-gradient(90deg,var(--dark2),var(--dark3));'}">
-      <div class="ann-icon">${a.urgent?'🚨':'📣'}</div>
+      <div class="ann-icon">${a.urgent?'':''}</div>
       <div><h4>${a.title}</h4><p>${a.body}</p></div>
     </div>`).join('');
 
@@ -1884,17 +1984,17 @@ function renderMemberHome(){
   document.getElementById('member-grid').innerHTML = `
     <div>
       <div class="card">
-        <div class="card-header"><h3>📣 Chapter Announcements</h3></div>
+        <div class="card-header"><h3>Chapter Announcements</h3></div>
         <div class="card-body">${anns||'<p style="color:var(--gray);">No announcements.</p>'}</div>
       </div>
     </div>
     <div>
       <div class="card">
-        <div class="card-header"><h3>🎯 Active Fundraisers</h3></div>
+        <div class="card-header"><h3>Active Fundraisers</h3></div>
         <div class="card-body">${frCards}</div>
       </div>
       <div class="card" style="margin-top:20px;">
-        <div class="card-header"><h3>📊 Chapter Balance</h3></div>
+        <div class="card-header"><h3>Chapter Balance</h3></div>
         <div class="card-body">
           <div style="text-align:center;padding:16px 0;">
             <div style="font-size:2rem;font-weight:800;color:var(--navy);">${fmt$(balance)}</div>
@@ -1922,7 +2022,7 @@ function renderMyDues(){
   const paid = m.duesStatus === 'paid';
   document.getElementById('my-dues-detail').innerHTML = `
     <div class="dues-card ${paid?'paid':'unpaid'}">
-      <div class="dues-icon">${paid?'✅':'⏰'}</div>
+      <div class="dues-icon">${paid?'':''}</div>
       <div>
         <h3>${paid?'Your dues are paid!':'Dues payment pending'}</h3>
         <p>${paid?`You paid ${fmt$(m.dues)} on ${m.datePaid}. You're all set!`:`You owe ${fmt$(m.dues)} in chapter dues. Please pay as soon as possible.`}</p>
@@ -1947,7 +2047,7 @@ function renderMyPartnership(){
   const m = DB.members.find(m=>m.id===currentUser.memberId);
   if(!m||!m.partnershipId){
     document.getElementById('my-partnership-detail').innerHTML = `
-      <div class="empty-state"><div class="icon">🤝</div><p>You haven't been assigned a company partnership yet.<br/>Check back soon or contact Mrs. Fude or Ethan.</p></div>`;
+      <div class="empty-state"><div class="icon"></div><p>You haven't been assigned a company partnership yet.<br/>Check back soon or contact Mrs. Fude or Ethan.</p></div>`;
     return;
   }
   const p = getPartnership(m.partnershipId);
@@ -1966,7 +2066,7 @@ function renderMyPartnership(){
     </div>
     ${p.notes?`
     <div class="card">
-      <div class="card-header"><h3>📝 Progress Notes</h3></div>
+      <div class="card-header"><h3>Progress Notes</h3></div>
       <div class="card-body">
         <p style="font-size:.88rem;line-height:1.6;">${p.notes}</p>
       </div>
@@ -1985,7 +2085,7 @@ function renderMyPartnership(){
     </div>`;
 }
 
-// ══ INIT ══════════════════════════════════════════════════════════════════════
+//  INIT 
 loadDB();
 
 // Set today as default date
