@@ -1440,9 +1440,6 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
               </div>
             </div>
             <div class="form-row">
-              <div class="fg"><label>Exams Passed (comma-separated)</label>
-                <input type="text" id="mos-exams" placeholder="e.g. Word, Excel, PowerPoint"/>
-              </div>
               <div class="fg"><label>Certified Date</label>
                 <input type="date" id="mos-cert-date"/>
               </div>
@@ -1467,7 +1464,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
           </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Grad Year</th><th>Status</th><th>Exams Passed</th><th>Cert Date</th><th>$ Value</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Name</th><th>Grad Year</th><th>Status</th><th>Cert Date</th><th>Actions</th></tr></thead>
               <tbody id="mos-tbody"></tbody>
             </table>
           </div>
@@ -2721,17 +2718,14 @@ function addMos(){
   const member=getMember(memberId);
   const gradYear=parseInt(document.getElementById('mos-grad-year').value);
   const certStatus=document.getElementById('mos-cert').value;
-  const exams=document.getElementById('mos-exams').value.trim();
   const certDate=document.getElementById('mos-cert-date').value;
   DB.mos.push({
     id:uid(),memberId,name:member?member.name:'',gradYear,
     certified:certStatus==='certified',
-    examsPassed:exams?exams.split(',').map(e=>e.trim()).filter(Boolean):[],
     certifiedDate:certDate||'',
   });
   logActivity('Added MOS entry', member?member.name:'Unknown');
   saveDB();
-  document.getElementById('mos-exams').value='';
   document.getElementById('mos-cert-date').value='';
   render();
 }
@@ -2788,14 +2782,12 @@ function renderMos(){
         <td><strong>${entry.name||'—'}</strong>${grade}</td>
         <td style="font-weight:700;color:#4a9eff;">Class of ${entry.gradYear}</td>
         <td>${entry.certified?'<span class="badge badge-green">Certified</span>':'<span class="badge badge-amber">In Progress</span>'}</td>
-        <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:rgba(255,255,255,.3);">None logged</span>'}</td>
         <td style="font-size:.82rem;color:rgba(255,255,255,.5);">${entry.certifiedDate||'—'}</td>
-        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?'✓ Certified':'—'}</td>
         <td style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-xs" onclick="toggleMosCert('${entry.id}')">${entry.certified?'Mark In Progress':'Mark Certified'}</button>
           <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMosEntry('${entry.id}')">Remove</button>
         </td>
-      </tr>`;}).join(''):'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.35);padding:24px;">No students tracked yet.</td></tr>';
+      </tr>`;}).join(''):'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.35);padding:24px;">No students tracked yet.</td></tr>';
   }
 }
 
