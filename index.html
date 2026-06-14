@@ -1018,8 +1018,6 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
       <div id="sync-indicator" style="display:none;align-items:center;gap:6px;font-size:.75rem;color:rgba(255,255,255,.4);">
         <span style="width:7px;height:7px;border-radius:50%;background:#4a9eff;display:inline-block;animation:skel-shimmer 1s ease-in-out infinite;background-size:200% 100%;"></span>Syncing…
       </div>
-      <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;font-size:.82rem;background:rgba(74,158,255,.15);border:1.5px solid rgba(74,158,255,.4);color:#4a9eff;border-radius:8px;padding:5px 12px;cursor:pointer;">⬇ Install App</button>
-      <button onclick="requestNotifPerms()" id="notif-btn" style="display:none;background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.85rem;" title="Enable reminders">🔔</button>
       <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:all .2s;" title="Toggle dark/light mode"><span id="theme-icon">&#9728;</span></button>
       <div class="user-pill">
         <div class="user-avatar" id="top-avatar">?</div>
@@ -2173,7 +2171,6 @@ function toggleDues(id){
   const m=getMember(id); if(!m)return;
   m.duesStatus=m.duesStatus==='paid'?'unpaid':'paid';
   m.datePaid=m.duesStatus==='paid'?new Date().toISOString().split('T')[0]:'';
-  logActivity('Dues updated', m.name + ' – ' + m.duesStatus);
   saveDB(); render(); // optimistic — UI updates immediately
   if(m.id && m.id.length > 10){
     bgSync(supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id));
@@ -2295,7 +2292,6 @@ function addTeam(){
   const sel = document.getElementById('team-members');
   const memberIds = Array.from(sel.selectedOptions).map(o=>o.value);
   DB.teams.push({id:uid(), name, memberIds});
-  logActivity('Created team', name);
   saveDB();
   document.getElementById('team-name').value='';
   sel.selectedIndex=-1;
