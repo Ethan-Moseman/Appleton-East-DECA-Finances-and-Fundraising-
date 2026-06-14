@@ -930,7 +930,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       <div class="login-headline">
         <span class="typed-word" id="typed-text"></span><span class="cursor" id="typed-cursor"></span>
       </div>
-      <div class="login-subtitle">Chapter · 2026–2027</div>
+      <div class="login-subtitle">Chapter · 2026–2027 &nbsp;|&nbsp; Appleton East</div>
     </div>
 
     <!-- Login / Signup form -->
@@ -1529,67 +1529,20 @@ let DB = {
 let currentUser = null;
 
 function loadDB(){
-  try{ const s=localStorage.getItem('deca_db_v3'); if(s) DB=JSON.parse(s); }catch(e){}
-  if(!DB.members.length) seedDB();
+  // v4 = clean slate for 2026-27 school year (v3 had demo data)
+  localStorage.removeItem('deca_db_v3');
+  try{ const s=localStorage.getItem('deca_db_v4'); if(s) DB=JSON.parse(s); }catch(e){}
+  if(!DB.members) seedDB();
 }
-function saveDB(){ localStorage.setItem('deca_db_v3', JSON.stringify(DB)); }
+function saveDB(){ localStorage.setItem('deca_db_v4', JSON.stringify(DB)); }
 
 function seedDB(){
-  const ago = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
-  const today = new Date().toISOString().split('T')[0];
-
-  DB.members = [
-    {id:'m1',name:'Alex Johnson',username:'alexj',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(28),partnershipId:'p1'},
-    {id:'m2',name:'Mia Rodriguez',username:'miar',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(25),partnershipId:'p2'},
-    {id:'m3',name:'Ethan Carter',username:'ethanc',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(22),partnershipId:'p3'},
-    {id:'m4',name:'Sophia Lee',username:'sophial',password:'member123',grade:'10',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:'p4'},
-    {id:'m5',name:'Noah Williams',username:'noahw',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(18),partnershipId:''},
-    {id:'m6',name:'Olivia Brown',username:'oliviab',password:'member123',grade:'9',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:''},
-    {id:'m7',name:'Liam Davis',username:'liamd',password:'member123',grade:'12',dues:20,duesStatus:'paid',datePaid:ago(15),partnershipId:'p5'},
-    {id:'m8',name:'Emma Miller',username:'emmam',password:'member123',grade:'10',dues:20,duesStatus:'unpaid',datePaid:'',partnershipId:''},
-    {id:'m9',name:'James Wilson',username:'jamesw',password:'member123',grade:'11',dues:20,duesStatus:'paid',datePaid:ago(10),partnershipId:''},
-    {id:'m10',name:'Ava Thomas',username:'avat',password:'member123',grade:'9',dues:20,duesStatus:'paid',datePaid:ago(8),partnershipId:''},
-  ];
-
-  DB.transactions = [
-    {id:'t1',date:ago(32),desc:'Member Dues – Fall Collection (Batch 1)',cat:'Income – Dues',type:'income',amount:160},
-    {id:'t2',date:ago(28),desc:'Car Wash Fundraiser Proceeds',cat:'Income – Fundraiser',type:'income',amount:485},
-    {id:'t3',date:ago(25),desc:'Kwik Trip Sponsorship Deposit',cat:'Income – Sponsorship',type:'income',amount:500},
-    {id:'t4',date:ago(22),desc:'State Conference Registration Fees',cat:'Conferences',type:'expense',amount:210},
-    {id:'t5',date:ago(20),desc:'Name Tags, Lanyards & Folders',cat:'Supplies',type:'expense',amount:47.50},
-    {id:'t6',date:ago(18),desc:'Member Dues – Fall Collection (Batch 2)',cat:'Income – Dues',type:'income',amount:100},
-    {id:'t7',date:ago(14),desc:'Bake Sale Proceeds',cat:'Income – Fundraiser',type:'income',amount:175},
-    {id:'t8',date:ago(12),desc:'Pizza – Chapter Meeting',cat:'Food',type:'expense',amount:62},
-    {id:'t9',date:ago(8),desc:'Fox Valley Bank Sponsorship',cat:'Income – Sponsorship',type:'income',amount:750},
-    {id:'t10',date:ago(5),desc:'Marketing Flyers (Printing)',cat:'Marketing',type:'expense',amount:38},
-    {id:'t11',date:ago(3),desc:'Member Dues – Late Collection',cat:'Income – Dues',type:'income',amount:60},
-    {id:'t12',date:ago(1),desc:'Scholarship Application Supplies',cat:'Supplies',type:'expense',amount:24},
-  ];
-
-  DB.fundraisers = [
-    {id:'f1',name:'Car Wash',date:ago(28),goal:500,raised:485,status:'completed',notes:'Great turnout! Near goal.'},
-    {id:'f2',name:'Bake Sale',date:ago(14),goal:200,raised:175,status:'completed',notes:'Sold out by noon.'},
-    {id:'f3',name:'Spirit Wear Sale',date: (() => { const d=new Date(); d.setDate(d.getDate()+20); return d.toISOString().split('T')[0]; })(),goal:800,raised:0,status:'planned',notes:'Orders open Nov 1.'},
-    {id:'f4',name:'Restaurant Night – Culver\'s',date: (() => { const d=new Date(); d.setDate(d.getDate()+10); return d.toISOString().split('T')[0]; })(),goal:300,raised:120,status:'active',notes:'25% of sales donated.'},
-    {id:'f5',name:'Silent Auction',date: (() => { const d=new Date(); d.setDate(d.getDate()+45); return d.toISOString().split('T')[0]; })(),goal:1200,raised:0,status:'planned',notes:'Tied to annual banquet.'},
-  ];
-
-  DB.partnerships = [
-    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,desc:'Drop off letter, ask for Sarah',assignedTo:'m1',response:'yes',comments:'Very interested, wants logo on banner.',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'active'},
-    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:0,desc:'Ask for branch manager, mention conference sponsorship',assignedTo:'m1',response:'maybe',comments:'Wants to see budget proposal before committing. Call back next week.',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'pending'},
-    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:0,desc:'Drop off letter at customer service desk',assignedTo:'m3',response:null,comments:'',visitDate:'',nextDate:(() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(),callbackNotes:'',status:'pending'},
-    {id:'p4',company:"Culver's Appleton",contact:'Owner (Lisa)',value:200,desc:'Ask for Lisa specifically, she is expecting us',assignedTo:'m4',response:'yes',comments:'',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'active'},
-    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:0,desc:'Drop letter at front office, ask about education grants',assignedTo:'m7',response:'maybe',comments:'Dr. Patterson said they need our enrollment numbers first.',visitDate:new Date().toISOString().split('T')[0],nextDate:(() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(),callbackNotes:'',status:'pending'},
-  ];
-
-  DB.budgets = { Conferences:500, Supplies:200, Food:150, Events:300, Marketing:100, 'Other Expense':100 };
-
-  DB.announcements = [
-    {id:'a1',title:'State Conference Registration Deadline',body:'All members competing at State must have dues paid and registration submitted by Nov 15.', date:ago(2), urgent:true},
-    {id:'a2',title:'Restaurant Night – Culver\'s',body:'Join us at Culver\'s on the 22nd! Mention DECA and 25% of your bill supports the chapter.', date:ago(5), urgent:false},
-    {id:'a3',title:'Spirit Wear Orders Open Soon',body:'We\'re planning a spirit wear sale. Send design ideas to Mrs. Fude by end of next week.', date:ago(8), urgent:false},
-  ];
-
+  DB.members      = [];
+  DB.transactions = [];
+  DB.fundraisers  = [];
+  DB.partnerships = [];
+  DB.budgets      = { Conferences:0, Supplies:0, Food:0, Events:0, Marketing:0, 'Other Expense':0 };
+  DB.announcements = [];
   saveDB();
 }
 
