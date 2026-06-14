@@ -1013,6 +1013,9 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
       </div>
     </div>
     <div class="topbar-right">
+      <div id="sync-indicator" style="display:none;align-items:center;gap:6px;font-size:.75rem;color:rgba(255,255,255,.4);">
+        <span style="width:7px;height:7px;border-radius:50%;background:#4a9eff;display:inline-block;animation:skel-shimmer 1s ease-in-out infinite;background-size:200% 100%;"></span>Syncing…
+      </div>
       <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:all .2s;" title="Toggle dark/light mode"><span id="theme-icon">&#9728;</span></button>
       <div class="user-pill">
         <div class="user-avatar" id="top-avatar">?</div>
@@ -1402,7 +1405,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
 
       <!--  MOS TRACKER (admin)  -->
       <div class="section" id="s-mos">
-        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification. Each fully certified graduate generates $1,000 for the chapter.</p></div>
+        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification progress for chapter members.</p></div>
         <div class="stats-row" id="mos-stats"></div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Student to MOS Tracker</h3></div>
@@ -1434,8 +1437,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
         </div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
-            <h3>Projected Income by Graduation Year</h3>
-            <span style="font-size:.78rem;color:rgba(255,255,255,.4);">$1,000 per fully certified graduate</span>
+            <h3>Certified Students by Graduation Year</h3>
           </div>
           <div class="card-body" id="mos-income-timeline"></div>
         </div>
@@ -1857,6 +1859,13 @@ function buildSidebar(){
     `<div class="sidebar-footer"><div class="version">AE DECA Finance Platform v2.0</div></div>`;
 }
 
+// ── Optimistic sync helper ──
+function bgSync(promise){
+  const el = document.getElementById('sync-indicator');
+  if(el) el.style.display='flex';
+  promise.finally(()=>{ if(el) el.style.display='none'; });
+}
+
 // ── Skeleton helpers ──
 const _skelRow = () => '<tr><td colspan="10" style="padding:5px 0;border:none;"><div class="skel skel" style="height:42px;border-radius:8px;"></div></td></tr>';
 const _skelStat = () => '<div class="skel skel-stat"></div>';
@@ -2111,16 +2120,15 @@ function deleteMember(id){
   saveDB();render();
 }
 
-async function toggleDues(id){
+function toggleDues(id){
   if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const m=getMember(id); if(!m)return;
   m.duesStatus=m.duesStatus==='paid'?'unpaid':'paid';
   m.datePaid=m.duesStatus==='paid'?new Date().toISOString().split('T')[0]:'';
-  // Sync to Supabase if member is a real user
+  saveDB(); render(); // optimistic — UI updates immediately
   if(m.id && m.id.length > 10){
-    await supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id);
+    bgSync(supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id));
   }
-  saveDB();render();
 }
 
 function openMemberEdit(id){
@@ -2665,11 +2673,9 @@ function renderMos(){
   else if(filter==='in-progress') list=list.filter(m=>!m.certified);
   const certified=DB.mos.filter(m=>m.certified);
   const inProgress=DB.mos.filter(m=>!m.certified);
-  const projected=certified.length*1000;
   document.getElementById('mos-stats').innerHTML=`
     <div class="stat green"><div class="s-label">Fully Certified</div><div class="s-val">${certified.length}</div><div class="s-sub">Students</div></div>
     <div class="stat amber"><div class="s-label">In Progress</div><div class="s-val">${inProgress.length}</div><div class="s-sub">Working toward cert</div></div>
-    <div class="stat blue"><div class="s-label">Projected Income</div><div class="s-val">${fmt$(projected)}</div><div class="s-sub">From certified grads</div></div>
     <div class="stat blue"><div class="s-label">Total Tracked</div><div class="s-val">${DB.mos.length}</div><div class="s-sub">Students in program</div></div>`;
   const byYear={};
   DB.mos.filter(m=>m.certified).forEach(m=>{ if(!byYear[m.gradYear]) byYear[m.gradYear]=[]; byYear[m.gradYear].push(m); });
@@ -2678,15 +2684,14 @@ function renderMos(){
     const years=Object.keys(byYear).sort();
     timelineEl.innerHTML=years.length?years.map(yr=>{
       const students=byYear[yr];
-      const amt=students.length*1000;
       return `<div style="display:flex;align-items:center;gap:20px;padding:16px;border:1px solid rgba(52,211,153,.15);border-left:3px solid #34d399;border-radius:10px;margin-bottom:12px;background:rgba(52,211,153,.04);">
         <div style="text-align:center;min-width:80px;">
-          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${fmt$(amt)}</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${students.length}</div>
           <div style="font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;">Class of ${yr}</div>
         </div>
         <div style="flex:1;">
           <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:4px;">${students.length} certified graduate${students.length!==1?'s':''}: ${students.map(s=>s.name).join(', ')}</div>
-          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">$1,000 per student · Expected ${yr}</div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">Expected graduation: ${yr}</div>
         </div>
       </div>`;}).join(''):'<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No certified students yet. Add students and mark them certified to see projected income.</p>';
   }
@@ -2701,7 +2706,7 @@ function renderMos(){
         <td>${entry.certified?'<span class="badge badge-green">Certified</span>':'<span class="badge badge-amber">In Progress</span>'}</td>
         <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:rgba(255,255,255,.3);">None logged</span>'}</td>
         <td style="font-size:.82rem;color:rgba(255,255,255,.5);">${entry.certifiedDate||'—'}</td>
-        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?fmt$(1000):'—'}</td>
+        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?'✓ Certified':'—'}</td>
         <td style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-xs" onclick="toggleMosCert('${entry.id}')">${entry.certified?'Mark In Progress':'Mark Certified'}</button>
           <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMosEntry('${entry.id}')">Remove</button>
@@ -3014,18 +3019,17 @@ function updateBulkCount(){
   const el=document.getElementById('bulk-count');
   if(el) el.textContent=n>0?`${n} selected`:'';
 }
-async function bulkMarkPaid(){
+function bulkMarkPaid(){
   if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const ids=[...document.querySelectorAll('.member-cb:checked')].map(c=>c.dataset.mid);
   if(!ids.length){alert('Select at least one member.');return;}
   const today=new Date().toISOString().split('T')[0];
   ids.forEach(id=>{ const m=getMember(id); if(m){m.duesStatus='paid';m.datePaid=today;} });
-  // Sync real users to Supabase
+  saveDB(); render(); // optimistic — UI updates immediately
   const realIds=ids.filter(id=>id&&id.length>10);
   if(realIds.length){
-    await supa.from('members').update({dues_status:'paid',date_paid:today}).in('id',realIds);
+    bgSync(supa.from('members').update({dues_status:'paid',date_paid:today}).in('id',realIds));
   }
-  saveDB();render();
 }
 
 // ── Announcements ──
