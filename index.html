@@ -127,9 +127,11 @@ body.light-mode .modal{background:#fff;color:#1a2340;}
 body.light-mode .page-header h2{color:#0a1628;}
 body.light-mode .page-header p{color:#556;}
 body.light-mode .sidebar-section-label{color:rgba(0,40,100,.4);}
-body.light-mode .stat{background:rgba(0,87,184,.05);border-color:rgba(0,87,184,.12);}
-body.light-mode .stat .s-label{color:#556;}
-body.light-mode .stat .s-val{color:#0a1628;}
+body.light-mode .stat{background:#fff;border-color:rgba(0,87,184,.15);box-shadow:0 2px 12px rgba(0,40,120,.08);}
+body.light-mode .stat .s-label{color:#667;}
+body.light-mode .stat .s-val,body.light-mode .stat.blue .s-val,body.light-mode .stat.green .s-val,body.light-mode .stat.red .s-val,body.light-mode .stat.amber .s-val{color:#0a1628!important;text-shadow:none!important;}
+body.light-mode .stat .s-sub{color:#889;}
+body.light-mode .stat::before{opacity:.04;}
 body.light-mode code{background:#e8edf8;color:#0057B8;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-bg);color:var(--dark);}
