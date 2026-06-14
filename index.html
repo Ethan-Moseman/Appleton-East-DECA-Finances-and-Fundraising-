@@ -1212,9 +1212,22 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 
       <!--  BUDGET (admin)  -->
       <div class="section" id="s-budget">
-        <div class="page-header"><h2>Live Budget Tracker</h2><p>Set projected spending targets. The platform watches every transaction in real time.</p></div>
-        <div class="card">
-          <div class="card-header"><h3>Set Budget Target</h3></div>
+        <div class="page-header"><h2>Annual Budget Planner</h2><p>Set your yearly spending targets at the start of the school year. The platform breaks it down by month and meeting automatically.</p></div>
+
+        <!-- Year Plan Settings -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Year Plan Settings</h3></div>
+          <div class="card-body">
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg" style="max-width:200px;"><label>Meetings Per Year</label><input type="number" id="bud-meetings" min="1" max="52" placeholder="12"/></div>
+              <div><button class="btn btn-primary" onclick="saveBudgetPlan()">Save Settings</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Set Budget -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Set Annual Budget by Category</h3></div>
           <div class="card-body">
             <div class="form-row" style="align-items:flex-end;">
               <div class="fg"><label>Category</label>
@@ -1225,14 +1238,42 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header"><h3>Budget vs. Actuals</h3></div>
-          <div class="card-body" id="budget-bars"></div>
+
+        <!-- Pie + Bars -->
+        <div class="grid2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header"><h3>Spending Breakdown</h3></div>
+            <div class="card-body" style="display:flex;flex-direction:column;align-items:center;">
+              <canvas id="bud-pie" width="260" height="260" style="max-width:260px;"></canvas>
+              <div id="bud-pie-legend" style="margin-top:16px;width:100%;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Budget vs. Actuals</h3></div>
+            <div class="card-body" id="budget-bars"></div>
+          </div>
         </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <h3>Recommended Monthly Spending</h3>
+            <span style="font-size:.78rem;color:rgba(255,255,255,.4);">Based on your budgets · Higher in conference months</span>
+          </div>
+          <div class="card-body" id="bud-monthly"></div>
+        </div>
+
+        <!-- Per Meeting -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Per-Meeting Budget</h3></div>
+          <div class="card-body" id="bud-per-meeting"></div>
+        </div>
+
+        <!-- Summary Table -->
         <div class="card">
           <div class="card-header"><h3>Summary Table</h3></div>
           <div class="tbl-wrap">
-            <table><thead><tr><th>Category</th><th>Budgeted</th><th>Actual Spend</th><th>Remaining</th><th>Used</th></tr></thead>
+            <table><thead><tr><th>Category</th><th>Budgeted</th><th>Actual Spend</th><th>Remaining</th><th>Status</th></tr></thead>
             <tbody id="bud-tbody"></tbody></table>
           </div>
         </div>
@@ -1306,6 +1347,86 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       <div class="section" id="s-my-partnership">
         <div class="page-header"><h2>My Company Partnership</h2><p>You've been assigned to manage the following company relationship.</p></div>
         <div id="my-partnership-detail"></div>
+      </div>
+
+      <!--  FR ANALYTICS (admin)  -->
+      <div class="section" id="s-fr-analytics">
+        <div class="page-header"><h2>Fundraiser Analytics</h2><p>Performance insights across all fundraising events.</p></div>
+        <div class="stats-row" id="fr-stat-row"></div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><h3>Performance Ranking</h3></div>
+            <div class="card-body" id="fr-ranking"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Recommendations</h3></div>
+            <div class="card-body" id="fr-recommendations"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><h3>Comparison Table</h3></div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Fundraiser</th><th>Goal</th><th>Raised</th><th>% of Goal</th><th>Status</th><th>Verdict</th></tr></thead>
+            <tbody id="fr-compare-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!--  MOS TRACKER (admin)  -->
+      <div class="section" id="s-mos">
+        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification. Each fully certified graduate generates $1,000 for the chapter.</p></div>
+        <div class="stats-row" id="mos-stats"></div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Add Student to MOS Tracker</h3></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="fg" style="flex:2"><label>Student</label>
+                <select id="mos-member-sel" style="padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;background:rgba(255,255,255,.05);color:#fff;width:100%;"></select>
+              </div>
+              <div class="fg"><label>Graduation Year</label>
+                <select id="mos-grad-year" style="padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;background:rgba(255,255,255,.05);color:#fff;width:100%;"></select>
+              </div>
+              <div class="fg"><label>Status</label>
+                <select id="mos-cert" style="padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;background:rgba(255,255,255,.05);color:#fff;width:100%;">
+                  <option value="in-progress">In Progress</option>
+                  <option value="certified">Fully Certified</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>Exams Passed (comma-separated)</label>
+                <input type="text" id="mos-exams" placeholder="e.g. Word, Excel, PowerPoint"/>
+              </div>
+              <div class="fg"><label>Certified Date</label>
+                <input type="date" id="mos-cert-date"/>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="addMos()">Add to Tracker</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <h3>Projected Income by Graduation Year</h3>
+            <span style="font-size:.78rem;color:rgba(255,255,255,.4);">$1,000 per fully certified graduate</span>
+          </div>
+          <div class="card-body" id="mos-income-timeline"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>All Students</h3>
+            <select id="mos-filter" onchange="renderMos()" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;">
+              <option value="">All</option>
+              <option value="certified">Certified</option>
+              <option value="in-progress">In Progress</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Grad Year</th><th>Status</th><th>Exams Passed</th><th>Cert Date</th><th>$ Value</th><th>Actions</th></tr></thead>
+              <tbody id="mos-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
     </div><!-- /main-content -->
@@ -1524,6 +1645,8 @@ let DB = {
   partnerships:[],
   budgets:{},
   announcements:[],
+  mos:[],
+  budgetPlan:{meetingsPerYear:12},
 };
 
 let currentUser = null;
@@ -1533,6 +1656,8 @@ function loadDB(){
   localStorage.removeItem('deca_db_v3');
   try{ const s=localStorage.getItem('deca_db_v4'); if(s) DB=JSON.parse(s); }catch(e){}
   if(!DB.members) seedDB();
+  if(!DB.mos) DB.mos = [];
+  if(!DB.budgetPlan) DB.budgetPlan = {meetingsPerYear:12};
 }
 function saveDB(){ localStorage.setItem('deca_db_v4', JSON.stringify(DB)); }
 
@@ -1543,6 +1668,8 @@ function seedDB(){
   DB.partnerships = [];
   DB.budgets      = { Conferences:0, Supplies:0, Food:0, Events:0, Marketing:0, 'Other Expense':0 };
   DB.announcements = [];
+  DB.mos          = [];
+  DB.budgetPlan   = {meetingsPerYear:12};
   saveDB();
 }
 
@@ -1683,6 +1810,7 @@ function buildSidebar(){
       {id:'s-reports',icon:'',label:'Financial Record'},
       {id:'s-announcements',icon:'',label:'Announcements'},
       {id:'s-reminders',icon:'',label:'Reminders'},
+      {id:'s-mos',icon:'',label:'MOS Tracker'},
     ]}
   ] : [
     {section:'my account', items:[
@@ -1746,6 +1874,7 @@ function render(){
     renderPartnerships();
     renderBudget();
     renderReports();
+    renderMos();
   } else {
     renderMemberHome();
     renderMyDues();
