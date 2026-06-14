@@ -1681,7 +1681,7 @@ const SUPA_KEY = 'sb_publishable_1OO4fgWFLRuah50nUhYejw__X-ilU6F';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 // Admin emails — only these can clear dues
-const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'mrsfude@appleton.k12.wi.us'];
+const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'fudestefanie@aasd.k12.wi.us'];
 
 function switchTab(tab){
   document.getElementById('panel-signin').style.display = tab==='signin'?'':'none';
@@ -1707,19 +1707,13 @@ async function doLogin(){
       launchApp(); return;
     }
   }
-  if(email==='mrsfude' || email.toLowerCase()==='fudestefanie@aasd.k12.wi.us'){
-    if(pass==='deca2025'){
-      currentUser={name:'Mrs. Fude',email:'fudestefanie@aasd.k12.wi.us',role:'admin',initials:'MF'};
-      launchApp(); return;
-    }
-  }
 
   const {data, error} = await supa.auth.signInWithPassword({email, password:pass});
   if(error){ errEl.style.display='block'; errEl.textContent='Invalid email or password.'; return; }
 
   // Fetch member profile
   const {data:profile} = await supa.from('members').select('*').eq('id',data.user.id).single();
-  const isAdmin = ADMIN_EMAILS.includes(data.user.email);
+  const isAdmin = ADMIN_EMAILS.includes((data.user.email||'').toLowerCase());
   currentUser = {
     id: data.user.id,
     email: data.user.email,
@@ -3062,7 +3056,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Restore Supabase session
   supa.auth.getSession().then(({data:{session}})=>{
     if(session){
-      const isAdmin = ADMIN_EMAILS.includes(session.user.email);
+      const isAdmin = ADMIN_EMAILS.includes((session.user.email||'').toLowerCase());
       supa.from('members').select('*').eq('id',session.user.id).single().then(({data:profile})=>{
         currentUser = {
           id:session.user.id, email:session.user.email,
