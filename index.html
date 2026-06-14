@@ -1374,7 +1374,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 
       <!--  MOS TRACKER (admin)  -->
       <div class="section" id="s-mos">
-        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification. Each fully certified graduate generates $1,000 for the chapter.</p></div>
+        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification for ICDC-qualifying students. First-test certifications earn the chapter the full benefit; a friend's test earns a partial benefit.</p></div>
         <div class="stats-row" id="mos-stats"></div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Student to MOS Tracker</h3></div>
@@ -1392,6 +1392,12 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
                   <option value="certified">Fully Certified</option>
                 </select>
               </div>
+              <div class="fg"><label>Test Type</label>
+                <select id="mos-test-type" style="padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;background:rgba(255,255,255,.05);color:#fff;width:100%;">
+                  <option value="first">First Test (Student)</option>
+                  <option value="friend">Friend's Test</option>
+                </select>
+              </div>
             </div>
             <div class="form-row">
               <div class="fg"><label>Exams Passed (comma-separated)</label>
@@ -1406,8 +1412,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
-            <h3>Projected Income by Graduation Year</h3>
-            <span style="font-size:.78rem;color:rgba(255,255,255,.4);">$1,000 per fully certified graduate</span>
+            <h3>Certified Students by Graduation Year</h3>
           </div>
           <div class="card-body" id="mos-income-timeline"></div>
         </div>
@@ -1422,7 +1427,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
           </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Grad Year</th><th>Status</th><th>Exams Passed</th><th>Cert Date</th><th>$ Value</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Name</th><th>Grad Year</th><th>Status</th><th>Test Type</th><th>Exams Passed</th><th>Cert Date</th><th>Benefit</th><th>Actions</th></tr></thead>
               <tbody id="mos-tbody"></tbody>
             </table>
           </div>
@@ -2501,11 +2506,13 @@ function addMos(){
   const member=getMember(memberId);
   const gradYear=parseInt(document.getElementById('mos-grad-year').value);
   const certStatus=document.getElementById('mos-cert').value;
+  const testType=document.getElementById('mos-test-type').value||'first';
   const exams=document.getElementById('mos-exams').value.trim();
   const certDate=document.getElementById('mos-cert-date').value;
   DB.mos.push({
     id:uid(),memberId,name:member?member.name:'',gradYear,
     certified:certStatus==='certified',
+    testType,
     examsPassed:exams?exams.split(',').map(e=>e.trim()).filter(Boolean):[],
     certifiedDate:certDate||'',
   });
@@ -2536,12 +2543,13 @@ function renderMos(){
   else if(filter==='in-progress') list=list.filter(m=>!m.certified);
   const certified=DB.mos.filter(m=>m.certified);
   const inProgress=DB.mos.filter(m=>!m.certified);
-  const projected=certified.length*1000;
+  const firstTests=certified.filter(m=>m.testType!=='friend');
+  const friendTests=certified.filter(m=>m.testType==='friend');
   document.getElementById('mos-stats').innerHTML=`
     <div class="stat green"><div class="s-label">Fully Certified</div><div class="s-val">${certified.length}</div><div class="s-sub">Students</div></div>
     <div class="stat amber"><div class="s-label">In Progress</div><div class="s-val">${inProgress.length}</div><div class="s-sub">Working toward cert</div></div>
-    <div class="stat blue"><div class="s-label">Projected Income</div><div class="s-val">${fmt$(projected)}</div><div class="s-sub">From certified grads</div></div>
-    <div class="stat blue"><div class="s-label">Total Tracked</div><div class="s-val">${DB.mos.length}</div><div class="s-sub">Students in program</div></div>`;
+    <div class="stat blue"><div class="s-label">First Tests (Full Benefit)</div><div class="s-val">${firstTests.length}</div><div class="s-sub">Full chapter benefit</div></div>
+    <div class="stat blue"><div class="s-label">Friend's Tests (Partial)</div><div class="s-val">${friendTests.length}</div><div class="s-sub">Partial chapter benefit</div></div>`;
   const byYear={};
   DB.mos.filter(m=>m.certified).forEach(m=>{ if(!byYear[m.gradYear]) byYear[m.gradYear]=[]; byYear[m.gradYear].push(m); });
   const timelineEl=document.getElementById('mos-income-timeline');
@@ -2549,35 +2557,45 @@ function renderMos(){
     const years=Object.keys(byYear).sort();
     timelineEl.innerHTML=years.length?years.map(yr=>{
       const students=byYear[yr];
-      const amt=students.length*1000;
+      const firstCount=students.filter(s=>s.testType!=='friend').length;
+      const friendCount=students.filter(s=>s.testType==='friend').length;
+      const breakdownParts=[];
+      if(firstCount) breakdownParts.push(`${firstCount} first test${firstCount!==1?'s':''} (full benefit)`);
+      if(friendCount) breakdownParts.push(`${friendCount} friend's test${friendCount!==1?'s':''} (partial benefit)`);
       return `<div style="display:flex;align-items:center;gap:20px;padding:16px;border:1px solid rgba(52,211,153,.15);border-left:3px solid #34d399;border-radius:10px;margin-bottom:12px;background:rgba(52,211,153,.04);">
         <div style="text-align:center;min-width:80px;">
-          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${fmt$(amt)}</div>
-          <div style="font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;">Class of ${yr}</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${students.length}</div>
+          <div style="font-size:.7rem;color:var(--text-sub);text-transform:uppercase;letter-spacing:.05em;">Class of ${yr}</div>
         </div>
         <div style="flex:1;">
-          <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:4px;">${students.length} certified graduate${students.length!==1?'s':''}: ${students.map(s=>s.name).join(', ')}</div>
-          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">$1,000 per student · Expected ${yr}</div>
+          <div style="font-size:.85rem;color:var(--text-main);margin-bottom:4px;">${students.length} certified graduate${students.length!==1?'s':''}: ${students.map(s=>s.name).join(', ')}</div>
+          <div style="font-size:.75rem;color:var(--text-sub);">${breakdownParts.join(' · ')} · Expected ${yr}</div>
         </div>
-      </div>`;}).join(''):'<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No certified students yet. Add students and mark them certified to see projected income.</p>';
+      </div>`;}).join(''):'<p style="color:var(--text-sub);font-size:.87rem;">No certified students yet. Add students and mark them certified to see projected income.</p>';
   }
   const tbody=document.getElementById('mos-tbody');
   if(tbody){
     tbody.innerHTML=list.length?list.map(entry=>{
       const member=entry.memberId?getMember(entry.memberId):null;
-      const grade=member?`<div style="font-size:.75rem;color:rgba(255,255,255,.35);">Grade ${member.grade}</div>`:'';
+      const grade=member?`<div style="font-size:.75rem;color:var(--text-sub);">Grade ${member.grade}</div>`:'';
+      const isFriend=entry.testType==='friend';
+      const testTypeBadge=isFriend
+        ?'<span class="badge" style="background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3);">Friend\'s Test</span>'
+        :'<span class="badge" style="background:rgba(74,158,255,.12);color:#4a9eff;border:1px solid rgba(74,158,255,.25);">First Test</span>';
+      const benefitLabel=entry.certified?(isFriend?'<span style="color:#c084fc;font-weight:700;">Partial</span>':'<span style="color:#34d399;font-weight:700;">Full</span>'):'<span style="color:var(--text-sub);">—</span>';
       return `<tr>
         <td><strong>${entry.name||'—'}</strong>${grade}</td>
         <td style="font-weight:700;color:#4a9eff;">Class of ${entry.gradYear}</td>
         <td>${entry.certified?'<span class="badge badge-green">Certified</span>':'<span class="badge badge-amber">In Progress</span>'}</td>
-        <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:rgba(255,255,255,.3);">None logged</span>'}</td>
-        <td style="font-size:.82rem;color:rgba(255,255,255,.5);">${entry.certifiedDate||'—'}</td>
-        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?fmt$(1000):'—'}</td>
+        <td>${testTypeBadge}</td>
+        <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:var(--text-sub);">None logged</span>'}</td>
+        <td style="font-size:.82rem;color:var(--text-sub);">${entry.certifiedDate||'—'}</td>
+        <td>${benefitLabel}</td>
         <td style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-xs" onclick="toggleMosCert('${entry.id}')">${entry.certified?'Mark In Progress':'Mark Certified'}</button>
           <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMosEntry('${entry.id}')">Remove</button>
         </td>
-      </tr>`;}).join(''):'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.35);padding:24px;">No students tracked yet.</td></tr>';
+      </tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text-sub);padding:24px;">No students tracked yet.</td></tr>';
   }
 }
 
