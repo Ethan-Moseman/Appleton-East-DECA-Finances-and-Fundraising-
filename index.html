@@ -480,9 +480,10 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 
 /*  APP SHELL  */
-#app{display:none;height:100vh;flex-direction:column;background:#060d1f;}
+#app{display:none;height:100vh;flex-direction:column;background:#060d1f;transition:background .3s;}
 #app.visible{display:flex;}
-html,body{background:#060d1f;}
+html,body{background:#060d1f;transition:background .3s,color .3s;}
+body.light-mode,body.light-mode #app{background:#f0f4ff!important;}
 
 /* Top Bar */
 .topbar{
@@ -1779,14 +1780,15 @@ function renderDashboard(){
 
   const income = DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+ +t.amount,0);
   const expense = DB.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+ +t.amount,0);
-  const paidMembers = DB.members.filter(m=>m.duesStatus==='paid').length;
+  const nonAdminMembers = DB.members.filter(m=>m.role!=='admin');
+  const paidMembers = nonAdminMembers.filter(m=>m.duesStatus==='paid').length;
   const totalPartnerValue = DB.partnerships.filter(p=>p.status==='active').reduce((s,p)=>s+ +p.value,0);
 
   document.getElementById('admin-stats').innerHTML = `
     <div class="stat blue"><div class="s-label">Account Balance</div><div class="s-val count-up" data-target="${(income-expense).toFixed(2)}" data-prefix="$">$0</div><div class="s-sub">Net of all transactions</div></div>
     <div class="stat green"><div class="s-label">Total Income</div><div class="s-val count-up" data-target="${income.toFixed(2)}" data-prefix="$">$0</div><div class="s-sub">All sources</div></div>
     <div class="stat red"><div class="s-label">Total Expenses</div><div class="s-val count-up" data-target="${expense.toFixed(2)}" data-prefix="$">$0</div><div class="s-sub">All categories</div></div>
-    <div class="stat amber"><div class="s-label">Dues Collected</div><div class="s-val">${paidMembers}/${DB.members.length}</div><div class="s-sub">${fmt$(DB.members.filter(m=>m.duesStatus==='paid').reduce((s,m)=>s+ +m.dues,0))} collected</div></div>
+    <div class="stat amber"><div class="s-label">Dues Collected</div><div class="s-val">${paidMembers}/${nonAdminMembers.length}</div><div class="s-sub">${fmt$(nonAdminMembers.filter(m=>m.duesStatus==='paid').reduce((s,m)=>s+ +m.dues,0))} collected</div></div>
     <div class="stat blue"><div class="s-label">Active Partnerships</div><div class="s-val count-up" data-target="${totalPartnerValue.toFixed(2)}" data-prefix="$">$0</div><div class="s-sub">${DB.partnerships.filter(p=>p.status==='active').length} active companies</div></div>`;
   // Count-up animation
   setTimeout(()=>{
@@ -1820,8 +1822,8 @@ function renderDashboard(){
     </tr>`).join('');
 
   // Dues progress
-  const paid = DB.members.filter(m=>m.duesStatus==='paid').length;
-  const total = DB.members.length;
+  const paid = DB.members.filter(m=>m.duesStatus==='paid'&&m.role!=='admin').length;
+  const total = DB.members.filter(m=>m.role!=='admin').length;
   const pct = total>0 ? (paid/total*100) : 0;
   document.getElementById('dues-progress-wrap').innerHTML = `
     <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:8px;">
@@ -1830,7 +1832,7 @@ function renderDashboard(){
     </div>
     <div class="progress"><div class="progress-fill green" style="width:${pct}%"></div></div>
     <div style="margin-top:14px;">
-      ${DB.members.filter(m=>m.duesStatus==='unpaid').map(m=>`
+      ${DB.members.filter(m=>m.duesStatus==='unpaid'&&m.role!=='admin').map(m=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gray-light);font-size:.84rem;">
           <span>${m.name} <span style="color:var(--gray);font-size:.75rem;">Gr.${m.grade}</span></span>
           <span class="badge badge-red">Unpaid – ${fmt$(m.dues)}</span>
@@ -1968,7 +1970,7 @@ function saveMemberEdit(){
 function renderMembers(){
   const search=(document.getElementById('m-search')?.value||'').toLowerCase();
   const filter=document.getElementById('m-filter')?.value||'';
-  let members=[...DB.members].filter(m=>m.name.toLowerCase().includes(search)||(m.username||'').toLowerCase().includes(search));
+  let members=[...DB.members].filter(m=>m.role!=='admin').filter(m=>m.name.toLowerCase().includes(search)||(m.username||'').toLowerCase().includes(search));
   if(filter) members=members.filter(m=>m.duesStatus===filter);
 
   document.getElementById('m-tbody').innerHTML = members.map(m=>{
