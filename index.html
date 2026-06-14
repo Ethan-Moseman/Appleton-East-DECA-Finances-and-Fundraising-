@@ -735,11 +735,25 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 }
 .fg input::placeholder{color:rgba(255,255,255,.2);}
 .fg select option{background:#0f1f3d;color:#fff;}
+#mos-member-sel option,#mos-grad-year option,#mos-cert option,#mos-filter option{background:#fff;color:#0a1628;}
+#mos-filter{color:#fff;}
 .fg input:focus,.fg select:focus{
   outline:none;
   border-color:rgba(74,158,255,.5);
   background:rgba(74,158,255,.05);
 }
+
+/* Skeleton loaders */
+@keyframes skel-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-shimmer 1.4s ease-in-out infinite;border-radius:8px;}
+.skel-stat{height:88px;border-radius:14px;}
+.skel-line{height:14px;border-radius:4px;margin-bottom:8px;}
+.skel-line.w60{width:60%;}
+.skel-line.w40{width:40%;}
+.skel-fr-card{height:160px;border-radius:14px;margin-bottom:12px;}
+.skel-bar{height:32px;border-radius:6px;margin-bottom:12px;}
+.skel-pad{padding:16px;display:flex;flex-direction:column;gap:8px;}
+body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(0,0,0,.11) 50%,rgba(0,0,0,.06) 75%);background-size:200% 100%;animation:skel-shimmer 1.4s ease-in-out infinite;}
 
 /* Alert */
 .alert{border-radius:var(--radius-sm);padding:12px 16px;font-size:.85rem;margin-bottom:16px;}
@@ -999,6 +1013,9 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       </div>
     </div>
     <div class="topbar-right">
+      <div id="sync-indicator" style="display:none;align-items:center;gap:6px;font-size:.75rem;color:rgba(255,255,255,.4);">
+        <span style="width:7px;height:7px;border-radius:50%;background:#4a9eff;display:inline-block;animation:skel-shimmer 1s ease-in-out infinite;background-size:200% 100%;"></span>Syncing…
+      </div>
       <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:all .2s;" title="Toggle dark/light mode"><span id="theme-icon">&#9728;</span></button>
       <div class="user-pill">
         <div class="user-avatar" id="top-avatar">?</div>
@@ -1160,6 +1177,19 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       <div class="section" id="s-partnerships">
         <div class="page-header"><h2>Company Outreach</h2><p>Assign companies to students. Dollar amounts are recorded only after a company says Yes.</p></div>
 
+        <!-- Fundraising Teams -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Fundraising Teams</h3></div>
+          <div class="card-body">
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg" style="flex:2"><label>Team Name</label><input type="text" id="team-name" placeholder="e.g. Downtown Group"/></div>
+              <div class="fg" style="flex:3"><label>Members (hold Ctrl/Cmd to select multiple)</label><select id="team-members" multiple style="height:90px;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.85rem;background:rgba(255,255,255,.05);color:#fff;width:100%;"></select></div>
+              <div class="fg" style="flex:none"><button class="btn btn-primary" onclick="addTeam()">Create Team</button></div>
+            </div>
+            <div id="teams-list" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
         <!-- Add Company -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Company</h3></div>
@@ -1167,7 +1197,8 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
             <div class="form-row">
               <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip"/></div>
               <div class="fg"><label>Contact Person</label><input type="text" id="p-contact" placeholder="e.g. Sarah M."/></div>
-              <div class="fg"><label>Assigned Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
+              <div class="fg"><label>Assign to Team</label><select id="p-team"><option value="">— No Team —</option></select></div>
+              <div class="fg"><label>Or Individual Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
               <div class="fg"><label>Visit Deadline</label><input type="date" id="p-next-date"/></div>
             </div>
             <div class="form-row">
@@ -1374,7 +1405,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 
       <!--  MOS TRACKER (admin)  -->
       <div class="section" id="s-mos">
-        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification. Each fully certified graduate generates $1,000 for the chapter.</p></div>
+        <div class="page-header"><h2>MOS Certification Tracker</h2><p>Track Microsoft Office Specialist certification progress for chapter members.</p></div>
         <div class="stats-row" id="mos-stats"></div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Student to MOS Tracker</h3></div>
@@ -1406,8 +1437,7 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
         </div>
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
-            <h3>Projected Income by Graduation Year</h3>
-            <span style="font-size:.78rem;color:rgba(255,255,255,.4);">$1,000 per fully certified graduate</span>
+            <h3>Certified Students by Graduation Year</h3>
           </div>
           <div class="card-body" id="mos-income-timeline"></div>
         </div>
@@ -1643,6 +1673,7 @@ let DB = {
   transactions:[],
   fundraisers:[],
   partnerships:[],
+  teams:[],
   budgets:{},
   announcements:[],
   mos:[],
@@ -1657,6 +1688,7 @@ function loadDB(){
   try{ const s=localStorage.getItem('deca_db_v4'); if(s) DB=JSON.parse(s); }catch(e){}
   if(!DB.members) seedDB();
   if(!DB.mos) DB.mos = [];
+  if(!DB.teams) DB.teams = [];
   if(!DB.budgetPlan) DB.budgetPlan = {meetingsPerYear:12};
 }
 function saveDB(){ localStorage.setItem('deca_db_v4', JSON.stringify(DB)); }
@@ -1666,6 +1698,7 @@ function seedDB(){
   DB.transactions = [];
   DB.fundraisers  = [];
   DB.partnerships = [];
+  DB.teams        = [];
   DB.budgets      = { Conferences:0, Supplies:0, Food:0, Events:0, Marketing:0, 'Other Expense':0 };
   DB.announcements = [];
   DB.mos          = [];
@@ -1679,7 +1712,7 @@ const SUPA_KEY = 'sb_publishable_1OO4fgWFLRuah50nUhYejw__X-ilU6F';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 // Admin emails — only these can clear dues
-const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'mrsfude@appleton.k12.wi.us'];
+const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'fudestefanie@aasd.k12.wi.us'];
 
 function switchTab(tab){
   document.getElementById('panel-signin').style.display = tab==='signin'?'':'none';
@@ -1705,19 +1738,13 @@ async function doLogin(){
       launchApp(); return;
     }
   }
-  if(email==='mrsfude' || email.includes('fude')){
-    if(pass==='deca2025'){
-      currentUser={name:'Mrs. Fude',email:'mrsfude@appleton.k12.wi.us',role:'admin',initials:'MF'};
-      launchApp(); return;
-    }
-  }
 
   const {data, error} = await supa.auth.signInWithPassword({email, password:pass});
   if(error){ errEl.style.display='block'; errEl.textContent='Invalid email or password.'; return; }
 
   // Fetch member profile
   const {data:profile} = await supa.from('members').select('*').eq('id',data.user.id).single();
-  const isAdmin = ADMIN_EMAILS.includes(data.user.email);
+  const isAdmin = ADMIN_EMAILS.includes((data.user.email||'').toLowerCase());
   currentUser = {
     id: data.user.id,
     email: data.user.email,
@@ -1832,6 +1859,58 @@ function buildSidebar(){
     `<div class="sidebar-footer"><div class="version">AE DECA Finance Platform v2.0</div></div>`;
 }
 
+// ── Optimistic sync helper ──
+function bgSync(promise){
+  const el = document.getElementById('sync-indicator');
+  if(el) el.style.display='flex';
+  promise.finally(()=>{ if(el) el.style.display='none'; });
+}
+
+// ── Skeleton helpers ──
+const _skelRow = () => '<tr><td colspan="10" style="padding:5px 0;border:none;"><div class="skel skel" style="height:42px;border-radius:8px;"></div></td></tr>';
+const _skelStat = () => '<div class="skel skel-stat"></div>';
+const _skelLine = (w='100%') => `<div class="skel skel-line" style="width:${w};"></div>`;
+const _skelBar = () => '<div class="skel skel-bar"></div>';
+const _skelFrCard = () => '<div class="skel skel-fr-card"></div>';
+
+const SKEL_MAP = {
+  's-dashboard':{
+    'admin-stats': ()=>`<div class="stats-row">${Array(5).fill(_skelStat()).join('')}</div>`,
+    'dash-tx-body': ()=>Array(4).fill(_skelRow()).join(''),
+    'dash-announcements': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('75%')+''+_skelLine('50%')}</div>`,
+    'dash-partnerships-summary': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')}</div>`,
+  },
+  's-transactions':{ 'tx-tbody': ()=>Array(5).fill(_skelRow()).join('') },
+  's-members':{ 'm-tbody': ()=>Array(5).fill(_skelRow()).join('') },
+  's-fundraisers':{ 'fr-grid': ()=>Array(3).fill(_skelFrCard()).join('') },
+  's-fr-analytics':{
+    'fr-stat-row': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'fr-ranking': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('70%')+''+_skelLine('50%')+''+_skelLine('30%')}</div>`,
+    'fr-recommendations': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('65%')+''+_skelLine('45%')}</div>`,
+    'fr-compare-tbody': ()=>Array(3).fill(_skelRow()).join(''),
+  },
+  's-partnerships':{
+    'p-tbody': ()=>Array(4).fill(_skelRow()).join(''),
+    'teams-list': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('55%')}</div>`,
+  },
+  's-budget':{ 'budget-bars': ()=>`<div style="padding:8px 0;">${Array(5).fill(_skelBar()).join('')}</div>` },
+  's-reports':{
+    'report-stats': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'report-income': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')+''+_skelLine('40%')}</div>`,
+    'report-expense': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')+''+_skelLine('40%')}</div>`,
+    'report-tbody': ()=>Array(5).fill(_skelRow()).join(''),
+  },
+  's-mos':{
+    'mos-stats': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'mos-tbody': ()=>Array(4).fill(_skelRow()).join(''),
+  },
+};
+
+function showSkeleton(sectionId){
+  const map = SKEL_MAP[sectionId]; if(!map) return;
+  Object.entries(map).forEach(([id,fn])=>{ const el=document.getElementById(id); if(el) el.innerHTML=fn(); });
+}
+
 function showSection(id){
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1839,7 +1918,8 @@ function showSection(id){
   if(el) el.classList.add('active');
   const nav = document.getElementById('nav-'+id);
   if(nav) nav.classList.add('active');
-  render();
+  showSkeleton(id);
+  setTimeout(() => render(), 150);
 }
 
 //  UTILITIES 
@@ -2040,16 +2120,15 @@ function deleteMember(id){
   saveDB();render();
 }
 
-async function toggleDues(id){
+function toggleDues(id){
   if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const m=getMember(id); if(!m)return;
   m.duesStatus=m.duesStatus==='paid'?'unpaid':'paid';
   m.datePaid=m.duesStatus==='paid'?new Date().toISOString().split('T')[0]:'';
-  // Sync to Supabase if member is a real user
+  saveDB(); render(); // optimistic — UI updates immediately
   if(m.id && m.id.length > 10){
-    await supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id);
+    bgSync(supa.from('members').update({dues_status:m.duesStatus, date_paid:m.datePaid}).eq('id',m.id));
   }
-  saveDB();render();
 }
 
 function openMemberEdit(id){
@@ -2154,15 +2233,65 @@ function populateMemberDropdowns(){
   ['p-member','p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
 }
 
+function populateTeamDropdown(){
+  const sel = document.getElementById('p-team'); if(!sel) return;
+  sel.innerHTML = '<option value="">— No Team —</option>' +
+    DB.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+}
+
+function addTeam(){
+  const name = document.getElementById('team-name').value.trim();
+  if(!name){alert('Enter a team name.');return;}
+  const sel = document.getElementById('team-members');
+  const memberIds = Array.from(sel.selectedOptions).map(o=>o.value);
+  DB.teams.push({id:uid(), name, memberIds});
+  saveDB();
+  document.getElementById('team-name').value='';
+  sel.selectedIndex=-1;
+  renderTeams();
+  populateTeamDropdown();
+}
+
+function deleteTeam(id){
+  if(!confirm('Delete this team?'))return;
+  DB.teams = DB.teams.filter(t=>t.id!==id);
+  DB.partnerships.forEach(p=>{ if(p.teamId===id) p.teamId=''; });
+  saveDB(); renderTeams(); populateTeamDropdown(); renderPartnerships();
+}
+
+function renderTeams(){
+  const el = document.getElementById('teams-list'); if(!el) return;
+  // populate multi-select
+  const msel = document.getElementById('team-members');
+  if(msel) msel.innerHTML = DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+
+  if(!DB.teams.length){
+    el.innerHTML='<p style="font-size:.85rem;color:rgba(255,255,255,.35);">No teams yet.</p>';
+    return;
+  }
+  el.innerHTML = DB.teams.map(t=>{
+    const names = t.memberIds.map(id=>{ const m=getMember(id); return m?m.name:'?'; }).join(', ');
+    const companyCount = DB.partnerships.filter(p=>p.teamId===t.id).length;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.03);">
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.95rem;color:#fff;">${t.name}</div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.45);margin-top:2px;">${names||'No members'} &nbsp;·&nbsp; ${companyCount} compan${companyCount===1?'y':'ies'}</div>
+      </div>
+      <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteTeam('${t.id}')">Delete</button>
+    </div>`;
+  }).join('');
+}
+
 function addPartnership(){
   const company=document.getElementById('p-company').value.trim();
   const contact=document.getElementById('p-contact').value.trim();
   const desc=document.getElementById('p-desc').value.trim();
-  const assignedTo=document.getElementById('p-member').value;
+  const teamId=document.getElementById('p-team')?.value||'';
+  const assignedTo=teamId?'':document.getElementById('p-member').value;
   const nextDate=document.getElementById('p-next-date').value;
   if(!company){alert('Enter a company name.');return;}
   const id=uid();
-  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
+  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,teamId,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
   if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=id; }
   saveDB();
   document.getElementById('p-company').value='';
@@ -2266,6 +2395,8 @@ function saveResponse(){
 
 function renderPartnerships(){
   populateMemberDropdowns();
+  populateTeamDropdown();
+  renderTeams();
   const respColor = r => r==='yes'?'#34d399':r==='maybe'?'#fbbf24':r==='no'?'#f87171':'rgba(255,255,255,.3)';
   const respLabel = r => r==='yes'?'Said Yes':r==='maybe'?'Maybe':r==='no'?'Said No':'Not Visited';
 
@@ -2278,11 +2409,13 @@ function renderPartnerships(){
     } else {
       cbEl.innerHTML = maybes.map(p=>{
         const member = p.assignedTo?getMember(p.assignedTo):null;
+        const team = p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
+        const whoLabel = team?'Team: '+team.name : member?'Assigned to: '+member.name:'';
         return `<div style="border:1px solid rgba(251,191,36,.25);border-left:3px solid #fbbf24;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:rgba(251,191,36,.04);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
             <div>
               <div style="font-weight:800;font-size:1rem;color:#fff;">${p.company}</div>
-              <div style="font-size:.82rem;color:rgba(255,255,255,.45);margin-top:2px;">Contact: ${p.contact||'—'} ${member?' · Assigned to: '+member.name:''}</div>
+              <div style="font-size:.82rem;color:rgba(255,255,255,.45);margin-top:2px;">Contact: ${p.contact||'—'} ${whoLabel?' · '+whoLabel:''}</div>
             </div>
             <button class="btn btn-primary btn-sm" onclick="openAmountModal('${p.id}')">Record Amount</button>
           </div>
@@ -2300,10 +2433,14 @@ function renderPartnerships(){
 
   document.getElementById('p-tbody').innerHTML = list.map(p=>{
     const member=p.assignedTo?getMember(p.assignedTo):null;
+    const team=p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
+    const assignLabel = team
+      ? `<span style="color:#60a5fa;">&#128101; ${team.name}</span>`
+      : member ? member.name : '<span style="color:var(--gray);">Unassigned</span>';
     return `<tr>
       <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc||''}</div></td>
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
-      <td style="font-size:.83rem;">${member?member.name:'<span style="color:var(--gray);">Unassigned</span>'}</td>
+      <td style="font-size:.83rem;">${assignLabel}</td>
       <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
       <td style="font-weight:700;color:${p.response==='yes'&&p.value?'#34d399':'var(--gray)'};">${p.response==='yes'&&p.value?fmt$(p.value):'—'}</td>
       <td style="font-size:.8rem;color:${p.nextDate&&new Date(p.nextDate)<new Date()?'var(--red)':'var(--gray)'};">${p.nextDate||'—'}</td>
@@ -2536,11 +2673,9 @@ function renderMos(){
   else if(filter==='in-progress') list=list.filter(m=>!m.certified);
   const certified=DB.mos.filter(m=>m.certified);
   const inProgress=DB.mos.filter(m=>!m.certified);
-  const projected=certified.length*1000;
   document.getElementById('mos-stats').innerHTML=`
     <div class="stat green"><div class="s-label">Fully Certified</div><div class="s-val">${certified.length}</div><div class="s-sub">Students</div></div>
     <div class="stat amber"><div class="s-label">In Progress</div><div class="s-val">${inProgress.length}</div><div class="s-sub">Working toward cert</div></div>
-    <div class="stat blue"><div class="s-label">Projected Income</div><div class="s-val">${fmt$(projected)}</div><div class="s-sub">From certified grads</div></div>
     <div class="stat blue"><div class="s-label">Total Tracked</div><div class="s-val">${DB.mos.length}</div><div class="s-sub">Students in program</div></div>`;
   const byYear={};
   DB.mos.filter(m=>m.certified).forEach(m=>{ if(!byYear[m.gradYear]) byYear[m.gradYear]=[]; byYear[m.gradYear].push(m); });
@@ -2549,15 +2684,14 @@ function renderMos(){
     const years=Object.keys(byYear).sort();
     timelineEl.innerHTML=years.length?years.map(yr=>{
       const students=byYear[yr];
-      const amt=students.length*1000;
       return `<div style="display:flex;align-items:center;gap:20px;padding:16px;border:1px solid rgba(52,211,153,.15);border-left:3px solid #34d399;border-radius:10px;margin-bottom:12px;background:rgba(52,211,153,.04);">
         <div style="text-align:center;min-width:80px;">
-          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${fmt$(amt)}</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${students.length}</div>
           <div style="font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;">Class of ${yr}</div>
         </div>
         <div style="flex:1;">
           <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:4px;">${students.length} certified graduate${students.length!==1?'s':''}: ${students.map(s=>s.name).join(', ')}</div>
-          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">$1,000 per student · Expected ${yr}</div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">Expected graduation: ${yr}</div>
         </div>
       </div>`;}).join(''):'<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No certified students yet. Add students and mark them certified to see projected income.</p>';
   }
@@ -2572,7 +2706,7 @@ function renderMos(){
         <td>${entry.certified?'<span class="badge badge-green">Certified</span>':'<span class="badge badge-amber">In Progress</span>'}</td>
         <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:rgba(255,255,255,.3);">None logged</span>'}</td>
         <td style="font-size:.82rem;color:rgba(255,255,255,.5);">${entry.certifiedDate||'—'}</td>
-        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?fmt$(1000):'—'}</td>
+        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?'✓ Certified':'—'}</td>
         <td style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-xs" onclick="toggleMosCert('${entry.id}')">${entry.certified?'Mark In Progress':'Mark Certified'}</button>
           <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMosEntry('${entry.id}')">Remove</button>
@@ -2885,18 +3019,17 @@ function updateBulkCount(){
   const el=document.getElementById('bulk-count');
   if(el) el.textContent=n>0?`${n} selected`:'';
 }
-async function bulkMarkPaid(){
+function bulkMarkPaid(){
   if(currentUser?.role !== 'admin'){ alert('Only admins can clear dues.'); return; }
   const ids=[...document.querySelectorAll('.member-cb:checked')].map(c=>c.dataset.mid);
   if(!ids.length){alert('Select at least one member.');return;}
   const today=new Date().toISOString().split('T')[0];
   ids.forEach(id=>{ const m=getMember(id); if(m){m.duesStatus='paid';m.datePaid=today;} });
-  // Sync real users to Supabase
+  saveDB(); render(); // optimistic — UI updates immediately
   const realIds=ids.filter(id=>id&&id.length>10);
   if(realIds.length){
-    await supa.from('members').update({dues_status:'paid',date_paid:today}).in('id',realIds);
+    bgSync(supa.from('members').update({dues_status:'paid',date_paid:today}).in('id',realIds));
   }
-  saveDB();render();
 }
 
 // ── Announcements ──
@@ -3060,7 +3193,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Restore Supabase session
   supa.auth.getSession().then(({data:{session}})=>{
     if(session){
-      const isAdmin = ADMIN_EMAILS.includes(session.user.email);
+      const isAdmin = ADMIN_EMAILS.includes((session.user.email||'').toLowerCase());
       supa.from('members').select('*').eq('id',session.user.id).single().then(({data:profile})=>{
         currentUser = {
           id:session.user.id, email:session.user.email,
@@ -3080,6 +3213,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }catch(e){}
   });
 });
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
