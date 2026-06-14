@@ -1130,29 +1130,55 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
 
       <!--  PARTNERSHIPS (admin)  -->
       <div class="section" id="s-partnerships">
-        <div class="page-header"><h2>Company Partnerships</h2><p>Manage sponsor relationships and assign members to companies.</p></div>
-        <div class="card">
-          <div class="card-header"><h3>Add Partnership</h3></div>
+        <div class="page-header"><h2>Company Outreach</h2><p>Assign companies to students. Dollar amounts are recorded only after a company says Yes.</p></div>
+
+        <!-- Add Company -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Add Company</h3></div>
           <div class="card-body">
             <div class="form-row">
               <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip"/></div>
-              <div class="fg"><label>Contact</label><input type="text" id="p-contact" placeholder="Contact person"/></div>
-              <div class="fg"><label>Value ($)</label><input type="number" id="p-value" min="0" step="0.01" placeholder="500"/></div>
-              <div class="fg"><label>Status</label><select id="p-status"><option value="active">Active</option><option value="pending">Pending</option><option value="needs-attention">Needs Attention</option><option value="completed">Completed</option></select></div>
+              <div class="fg"><label>Contact Person</label><input type="text" id="p-contact" placeholder="e.g. Sarah M."/></div>
+              <div class="fg"><label>Assigned Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
+              <div class="fg"><label>Visit Deadline</label><input type="date" id="p-next-date"/></div>
             </div>
             <div class="form-row">
-              <div class="fg" style="flex:2"><label>Description / What they provide</label><input type="text" id="p-desc" placeholder="e.g. Cash sponsorship for state conference"/></div>
-              <div class="fg"><label>Assigned Member</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
-              <div class="fg"><label>Next Action Date</label><input type="date" id="p-next-date"/></div>
+              <div class="fg" style="flex:3"><label>Notes for student</label><input type="text" id="p-desc" placeholder="e.g. Drop off letter, ask for manager"/></div>
             </div>
-            <button class="btn btn-primary" onclick="addPartnership()">Add Partnership</button>
+            <button class="btn btn-primary" onclick="addPartnership()">Assign Company</button>
           </div>
         </div>
-        <div class="tbl-wrap card">
-          <table style="margin:0;">
-            <thead><tr><th>Company</th><th>Contact</th><th>Value</th><th>Status</th><th>Assigned To</th><th>Next Action</th><th>Actions</th></tr></thead>
-            <tbody id="p-tbody"></tbody>
-          </table>
+
+        <!-- Callback Section -->
+        <div class="card" style="margin-bottom:20px;border-left:4px solid #fbbf24;">
+          <div class="card-header" style="border-bottom:1px solid rgba(251,191,36,.2);">
+            <h3 style="color:#fbbf24;">Callbacks Needed</h3>
+            <span style="font-size:.8rem;color:rgba(255,255,255,.4);">Companies that said Maybe — review student notes before calling</span>
+          </div>
+          <div class="card-body" id="p-callbacks">
+            <p style="color:rgba(255,255,255,.35);font-size:.87rem;">No pending callbacks.</p>
+          </div>
+        </div>
+
+        <!-- All Companies Table -->
+        <div class="card">
+          <div class="card-header"><h3>All Companies</h3>
+            <div style="display:flex;gap:8px;">
+              <select id="p-filter" onchange="renderPartnerships()" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;">
+                <option value="">All</option>
+                <option value="yes">Said Yes</option>
+                <option value="maybe">Maybe</option>
+                <option value="no">Said No</option>
+                <option value="null">Not Visited</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table style="margin:0;">
+              <thead><tr><th>Company</th><th>Contact</th><th>Assigned To</th><th>Response</th><th>Amount</th><th>Deadline</th><th>Actions</th></tr></thead>
+              <tbody id="p-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1521,11 +1547,11 @@ function seedDB(){
   ];
 
   DB.partnerships = [
-    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,desc:'Cash sponsorship — state conference costs',assignedTo:'m1',response:'yes',comments:'Very interested, wants logo on banner.',visitDate: (() => { const d=new Date(); d.setDate(d.getDate()+14); return d.toISOString().split('T')[0]; })(),notes:'Follow-up thank-you letter due. Alex to deliver in person.'},
-    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:750,desc:'Annual chapter sponsor – supports all events',assignedTo:'m1',response:'maybe',comments:'Wants to see budget proposal before committing. Call back next week.',visitDate:new Date().toISOString().split('T')[0], nextDate:'', callbackNotes:''},
-    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:300,desc:'In-store fundraiser night + supply donation',assignedTo:'m3',response:null,comments:'',visitDate:'', nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(), callbackNotes:''},
-    {id:'p4',company:"Culver's Appleton",contact:'Owner (Lisa)',value:200,desc:'Restaurant night – 25% donated to chapter',assignedTo:'m4',response:'yes',comments:'',visitDate:new Date().toISOString().split('T')[0], nextDate:'', callbackNotes:''},
-    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:1000,desc:'Annual education grant – application pending',assignedTo:'m7',response:'maybe',comments:'Dr. Patterson said they need our enrollment numbers first.',visitDate:new Date().toISOString().split('T')[0], nextDate: (() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(), callbackNotes:''},
+    {id:'p1',company:'Kwik Trip',contact:'Sarah M.',value:500,desc:'Drop off letter, ask for Sarah',assignedTo:'m1',response:'yes',comments:'Very interested, wants logo on banner.',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'active'},
+    {id:'p2',company:'Fox Valley Bank',contact:'Mr. Jensen',value:0,desc:'Ask for branch manager, mention conference sponsorship',assignedTo:'m1',response:'maybe',comments:'Wants to see budget proposal before committing. Call back next week.',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'pending'},
+    {id:'p3',company:'Festival Foods',contact:'Regional Manager',value:0,desc:'Drop off letter at customer service desk',assignedTo:'m3',response:null,comments:'',visitDate:'',nextDate:(() => { const d=new Date(); d.setDate(d.getDate()+3); return d.toISOString().split('T')[0]; })(),callbackNotes:'',status:'pending'},
+    {id:'p4',company:"Culver's Appleton",contact:'Owner (Lisa)',value:200,desc:'Ask for Lisa specifically, she is expecting us',assignedTo:'m4',response:'yes',comments:'',visitDate:new Date().toISOString().split('T')[0],nextDate:'',callbackNotes:'',status:'active'},
+    {id:'p5',company:'AASD Foundation',contact:'Dr. Patterson',value:0,desc:'Drop letter at front office, ask about education grants',assignedTo:'m7',response:'maybe',comments:'Dr. Patterson said they need our enrollment numbers first.',visitDate:new Date().toISOString().split('T')[0],nextDate:(() => { const d=new Date(); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; })(),callbackNotes:'',status:'pending'},
   ];
 
   DB.budgets = { Conferences:500, Supplies:200, Food:150, Events:300, Marketing:100, 'Other Expense':100 };
@@ -2020,17 +2046,17 @@ function populateMemberDropdowns(){
 function addPartnership(){
   const company=document.getElementById('p-company').value.trim();
   const contact=document.getElementById('p-contact').value.trim();
-  const value=parseFloat(document.getElementById('p-value').value)||0;
-  const status=document.getElementById('p-status').value;
   const desc=document.getElementById('p-desc').value.trim();
   const assignedTo=document.getElementById('p-member').value;
   const nextDate=document.getElementById('p-next-date').value;
-  if(!company){alert('Company name required.');return;}
-  const newP={id:uid(),company,contact,value,status,desc,assignedTo,nextDate,notes:''};
-  DB.partnerships.push(newP);
-  if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=newP.id; }
+  if(!company){alert('Enter a company name.');return;}
+  const id=uid();
+  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
+  if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=id; }
   saveDB();
-  document.getElementById('p-company').value=''; document.getElementById('p-contact').value=''; document.getElementById('p-value').value=''; document.getElementById('p-desc').value='';
+  document.getElementById('p-company').value='';
+  document.getElementById('p-contact').value='';
+  document.getElementById('p-desc').value='';
   render();
 }
 
@@ -2129,21 +2155,65 @@ function saveResponse(){
 
 function renderPartnerships(){
   populateMemberDropdowns();
-  const statusColors={'active':'var(--green)','pending':'var(--amber)','needs-attention':'var(--red)','completed':'var(--navy)'};
-  document.getElementById('p-tbody').innerHTML = DB.partnerships.map(p=>{
+  const respColor = r => r==='yes'?'#34d399':r==='maybe'?'#fbbf24':r==='no'?'#f87171':'rgba(255,255,255,.3)';
+  const respLabel = r => r==='yes'?'Said Yes':r==='maybe'?'Maybe':r==='no'?'Said No':'Not Visited';
+
+  // Callback section — maybe responses
+  const maybes = DB.partnerships.filter(p=>p.response==='maybe');
+  const cbEl = document.getElementById('p-callbacks');
+  if(cbEl){
+    if(!maybes.length){
+      cbEl.innerHTML='<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No pending callbacks.</p>';
+    } else {
+      cbEl.innerHTML = maybes.map(p=>{
+        const member = p.assignedTo?getMember(p.assignedTo):null;
+        return `<div style="border:1px solid rgba(251,191,36,.25);border-left:3px solid #fbbf24;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:rgba(251,191,36,.04);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:800;font-size:1rem;color:#fff;">${p.company}</div>
+              <div style="font-size:.82rem;color:rgba(255,255,255,.45);margin-top:2px;">Contact: ${p.contact||'—'} ${member?' · Assigned to: '+member.name:''}</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAmountModal('${p.id}')">Record Amount</button>
+          </div>
+          ${p.comments?`<div style="margin-top:10px;padding:10px 13px;background:rgba(251,191,36,.08);border-radius:8px;font-size:.85rem;color:#fbbf24;"><strong>Student notes:</strong> "${p.comments}"</div>`:'<div style="margin-top:8px;font-size:.82rem;color:rgba(255,255,255,.3);">No student notes left.</div>'}
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Filter
+  const filter = document.getElementById('p-filter')?.value||'';
+  let list = DB.partnerships;
+  if(filter==='null') list=list.filter(p=>!p.response);
+  else if(filter) list=list.filter(p=>p.response===filter);
+
+  document.getElementById('p-tbody').innerHTML = list.map(p=>{
     const member=p.assignedTo?getMember(p.assignedTo):null;
     return `<tr>
-      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc}</div></td>
+      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc||''}</div></td>
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
-      <td style="font-weight:700;color:var(--navy);">${fmt$(p.value)}</td>
-      <td>${statusBadge(p.status)}</td>
       <td style="font-size:.83rem;">${member?member.name:'<span style="color:var(--gray);">Unassigned</span>'}</td>
+      <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
+      <td style="font-weight:700;color:${p.response==='yes'&&p.value?'#34d399':'var(--gray)'};">${p.response==='yes'&&p.value?fmt$(p.value):'—'}</td>
       <td style="font-size:.8rem;color:${p.nextDate&&new Date(p.nextDate)<new Date()?'var(--red)':'var(--gray)'};">${p.nextDate||'—'}</td>
       <td style="display:flex;gap:6px;">
+        ${p.response==='yes'?`<button class="btn btn-ghost btn-xs" style="color:#34d399;" onclick="openAmountModal('${p.id}')">Set Amount</button>`:''}
         <button class="btn btn-ghost btn-xs" onclick="openPartnershipEdit('${p.id}')">Edit</button>
         <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deletePartnership('${p.id}')">Delete</button>
       </td>
     </tr>`;}).join('');
+}
+
+// Amount modal — only shown after Yes
+function openAmountModal(id){
+  const p=DB.partnerships.find(x=>x.id===id); if(!p) return;
+  // Simple prompt for now
+  const val = prompt(`${p.company} said Yes! Enter the sponsorship amount ($):`);
+  if(val===null) return;
+  const amount = parseFloat(val);
+  if(isNaN(amount)||amount<0){alert('Enter a valid dollar amount.');return;}
+  p.value=amount; p.status='active'; p.response='yes';
+  saveDB(); render();
 }
 
 //  Budget 
