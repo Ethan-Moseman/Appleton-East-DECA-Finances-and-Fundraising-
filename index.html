@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Appleton East DECA – Chapter Finance Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<link rel="manifest" href="manifest.json">
 <script>
 // Minimal Supabase client (inline, no CDN needed)
 const supabase = (()=>{
@@ -879,6 +881,15 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
   .main-content{padding:16px;}
 }
 </style>
+<style media="print">
+  .sidebar, .topbar, #login-screen, button, .btn { display: none !important; }
+  .section { display: none !important; }
+  .section.active { display: block !important; }
+  body, #app { background: #fff !important; color: #000 !important; }
+  * { color: #000 !important; }
+  .card { border: 1px solid #ccc !important; background: #fff !important; }
+  .page-header h2::before { content: "Appleton East DECA – "; }
+</style>
 </head>
 <body>
 
@@ -1037,6 +1048,10 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
           <p>Real-time financial overview for Appleton East DECA</p>
         </div>
         <div class="stats-row" id="admin-stats"></div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Income vs Expenses by Month</h3></div>
+          <div class="card-body"><canvas id="dash-chart" height="120"></canvas></div>
+        </div>
         <div class="grid2">
           <div>
             <div class="card">
@@ -1062,6 +1077,10 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
               <div class="card-body" id="dash-partnerships-summary"></div>
             </div>
           </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><h3>Activity Feed</h3></div>
+          <div class="card-body" id="dash-activity"><p style="color:rgba(255,255,255,.35);font-size:.87rem;">No activity yet.</p></div>
         </div>
       </div>
 
@@ -1230,6 +1249,11 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
             </table>
           </div>
         </div>
+        <!-- Leaderboard card -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><h3>Outreach Leaderboard</h3></div>
+          <div class="card-body" id="p-leaderboard-body"><p style="color:rgba(255,255,255,.35);font-size:.87rem;">No data yet.</p></div>
+        </div>
       </div>
 
       <!--  BUDGET (admin)  -->
@@ -1316,7 +1340,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><h3>Full Activity Log</h3><button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button></div>
+          <div class="card-header"><h3>Full Activity Log</h3><div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button><button class="btn btn-ghost btn-sm" onclick="exportPDF()">Export PDF</button></div></div>
           <div class="tbl-wrap">
             <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Running Balance</th></tr></thead>
             <tbody id="report-tbody"></tbody></table>
@@ -1669,6 +1693,7 @@ let DB = {
   announcements:[],
   mos:[],
   budgetPlan:{meetingsPerYear:12},
+  activity:[],
 };
 
 let currentUser = null;
@@ -1681,8 +1706,10 @@ function loadDB(){
   if(!DB.mos) DB.mos = [];
   if(!DB.teams) DB.teams = [];
   if(!DB.budgetPlan) DB.budgetPlan = {meetingsPerYear:12};
+  if(!DB.activity) DB.activity = [];
 }
 function saveDB(){ localStorage.setItem('deca_db_v4', JSON.stringify(DB)); }
+
 
 function seedDB(){
   DB.members      = [];
@@ -1694,6 +1721,7 @@ function seedDB(){
   DB.announcements = [];
   DB.mos          = [];
   DB.budgetPlan   = {meetingsPerYear:12};
+  DB.activity     = [];
   saveDB();
 }
 
@@ -1811,6 +1839,14 @@ function launchApp(){
   if(currentUser?.role === 'admin') syncMembersFromSupabase();
   showSection(currentUser.role === 'admin' ? 's-dashboard' : 's-my-home');
   render();
+  // Notification button visibility
+  if('Notification' in window){
+    if(Notification.permission==='default'){
+      const nb=document.getElementById('notif-btn'); if(nb) nb.style.display='block';
+    } else if(Notification.permission==='granted'){
+      scheduleNotifCheck();
+    }
+  }
 }
 
 function buildSidebar(){
@@ -2038,9 +2074,23 @@ function renderDashboard(){
       <div class="ann-icon">${a.urgent?'':''}</div>
       <div><h4>${a.title}</h4><p>${a.body}</p></div>
     </div>`).join('');
+
+  // Monthly income vs expense chart
+  const _mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const _inc=Array(12).fill(0),_exp=Array(12).fill(0);
+  DB.transactions.forEach(t=>{const m=new Date(t.date+'T12:00:00').getMonth();if(t.type==='income')_inc[m]+= +t.amount;else _exp[m]+= +t.amount;});
+  const _ce=document.getElementById('dash-chart');
+  if(_ce&&window.Chart){if(window._dashChart)window._dashChart.destroy();window._dashChart=new Chart(_ce,{type:'bar',data:{labels:_mo,datasets:[{label:'Income',data:_inc,backgroundColor:'rgba(52,211,153,.75)',borderRadius:4},{label:'Expenses',data:_exp,backgroundColor:'rgba(248,113,113,.75)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'rgba(255,255,255,.7)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,.5)'},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'rgba(255,255,255,.5)',callback:v=>'$'+v},grid:{color:'rgba(255,255,255,.05)'}}}}});}
+
+  // Activity feed
+  const _ae=document.getElementById('dash-activity');
+  if(_ae){const _r=ts=>{const d=Date.now()-new Date(ts).getTime(),m2=Math.floor(d/60000),h=Math.floor(m2/60),dy=Math.floor(h/24);return dy>0?dy+'d ago':h>0?h+'h ago':m2>0?m2+'m ago':'Just now';};_ae.innerHTML=(DB.activity&&DB.activity.length)?DB.activity.slice(0,15).map(a=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);"><div style="width:3px;min-width:3px;border-radius:2px;background:#4a9eff;margin:2px 0;"></div><div><div style="font-size:.88rem;color:#fff;font-weight:600;">${a.action} <span style="font-weight:400;color:rgba(255,255,255,.6);">— ${a.detail}</span></div><div style="font-size:.75rem;color:rgba(255,255,255,.35);margin-top:2px;">${a.user} · ${_r(a.ts)}</div></div></div>`).join(''):'<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No activity yet.</p>';}
 }
 
-//  Transactions 
+// ── Activity log helper ──
+function logActivity(action,detail){if(!currentUser)return;if(!DB.activity)DB.activity=[];DB.activity.unshift({id:uid(),action,detail,user:currentUser.name,ts:new Date().toISOString()});if(DB.activity.length>100)DB.activity=DB.activity.slice(0,100);saveDB();}
+
+//  Transactions
 function addTransaction(){
   const date=document.getElementById('tx-date').value;
   const desc=document.getElementById('tx-desc').value.trim();
@@ -2049,6 +2099,7 @@ function addTransaction(){
   const amount=parseFloat(document.getElementById('tx-amount').value);
   if(!date||!desc||isNaN(amount)||amount<=0){alert('Fill in all fields.');return;}
   DB.transactions.push({id:uid(),date,desc,cat,type,amount});
+  logActivity('Added transaction', desc + ' ' + fmt$(amount));
   saveDB();
   document.getElementById('tx-desc').value='';
   document.getElementById('tx-amount').value='';
@@ -2099,6 +2150,7 @@ function addMember(){
   const duesStatus=document.getElementById('m-dues-status').value;
   if(!name||!username){alert('Name and username required.');return;}
   DB.members.push({id:uid(),name,username,password,grade,dues,duesStatus,datePaid:duesStatus==='paid'?new Date().toISOString().split('T')[0]:'',partnershipId:''});
+  logActivity('Added member', name);
   saveDB();
   document.getElementById('m-name').value=''; document.getElementById('m-user').value=''; document.getElementById('m-pass').value='';
   render();
@@ -2106,8 +2158,11 @@ function addMember(){
 
 function deleteMember(id){
   if(!confirm('Remove this member?'))return;
+  const m=getMember(id);
+  const name=m?m.name:'Unknown';
   DB.members=DB.members.filter(m=>m.id!==id);
   DB.partnerships.forEach(p=>{if(p.assignedTo===id) p.assignedTo='';});
+  logActivity('Removed member', name);
   saveDB();render();
 }
 
@@ -2181,6 +2236,7 @@ function addFundraiser(){
   const notes=document.getElementById('fr-notes').value;
   if(!name||!date||isNaN(goal)){alert('Fill required fields.');return;}
   DB.fundraisers.push({id:uid(),name,date,goal,raised,status,notes});
+  logActivity('Added fundraiser', name);
   saveDB();
   document.getElementById('fr-name').value=''; document.getElementById('fr-goal').value=''; document.getElementById('fr-raised').value='0'; document.getElementById('fr-notes').value='';
   render();
@@ -2284,6 +2340,7 @@ function addPartnership(){
   const id=uid();
   DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,teamId,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
   if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=id; }
+  logActivity('Added company', company);
   saveDB();
   document.getElementById('p-company').value='';
   document.getElementById('p-contact').value='';
@@ -2441,6 +2498,41 @@ function renderPartnerships(){
         <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deletePartnership('${p.id}')">Delete</button>
       </td>
     </tr>`;}).join('');
+
+  // Leaderboard
+  const lbEl = document.getElementById('p-leaderboard-body');
+  if(lbEl){
+    const entries = [];
+    DB.teams.forEach(t=>{
+      const companies = DB.partnerships.filter(p=>p.teamId===t.id);
+      const yes = companies.filter(p=>p.response==='yes').length;
+      const total = companies.filter(p=>p.response==='yes').reduce((s,p)=>s+ +p.value,0);
+      entries.push({name:t.name, type:'team', yes, total});
+    });
+    DB.members.filter(m=>m.role!=='admin').forEach(m=>{
+      const companies = DB.partnerships.filter(p=>p.assignedTo===m.id&&!p.teamId);
+      const yes = companies.filter(p=>p.response==='yes').length;
+      const total = companies.filter(p=>p.response==='yes').reduce((s,p)=>s+ +p.value,0);
+      if(companies.length>0) entries.push({name:m.name, type:'member', yes, total});
+    });
+    entries.sort((a,b)=>b.yes-a.yes||b.total-a.total);
+    if(!entries.length){
+      lbEl.innerHTML='<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No outreach data yet.</p>';
+    } else {
+      lbEl.innerHTML = entries.map((e,i)=>`
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+          <div style="font-size:1.2rem;font-weight:800;min-width:28px;text-align:center;">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;color:#fff;font-size:.92rem;">${e.name} <span style="font-size:.72rem;color:rgba(255,255,255,.35);margin-left:4px;">${e.type==='team'?'Team':'Member'}</span></div>
+            <div style="font-size:.78rem;color:rgba(255,255,255,.45);margin-top:2px;">${e.yes} yes${e.yes!==1?'es':''} · ${fmt$(e.total)} secured</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1rem;font-weight:800;color:#34d399;">${e.yes}</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.35);">yes</div>
+          </div>
+        </div>`).join('');
+    }
+  }
 }
 
 // Amount modal — only shown after Yes
@@ -2637,6 +2729,7 @@ function addMos(){
     examsPassed:exams?exams.split(',').map(e=>e.trim()).filter(Boolean):[],
     certifiedDate:certDate||'',
   });
+  logActivity('Added MOS entry', member?member.name:'Unknown');
   saveDB();
   document.getElementById('mos-exams').value='';
   document.getElementById('mos-cert-date').value='';
@@ -3175,6 +3268,58 @@ async function syncMembersFromSupabase(){
     saveDB(); render();
   }catch(e){ console.log('Supabase sync error:', e); }
 }
+
+// ── Activity Log ──
+
+// ── PWA Install ──
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display = 'flex';
+});
+function installPWA(){
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(()=>{ _pwaPrompt=null; const btn=document.getElementById('pwa-install-btn'); if(btn) btn.style.display='none'; });
+}
+window.addEventListener('appinstalled', ()=>{ const btn=document.getElementById('pwa-install-btn'); if(btn) btn.style.display='none'; });
+
+// ── Notifications ──
+function requestNotifPerms(){
+  if(!('Notification' in window)) return;
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){
+      const btn=document.getElementById('notif-btn'); if(btn) btn.style.display='none';
+      scheduleNotifCheck();
+    }
+  });
+}
+function scheduleNotifCheck(){
+  function runCheck(){
+    if(Notification.permission!=='granted') return;
+    const today=new Date();
+    const in3days=new Date(today.getTime()+3*24*60*60*1000);
+    DB.partnerships.forEach(p=>{
+      if(p.nextDate&&!p.response){
+        const d=new Date(p.nextDate);
+        if(d>=today&&d<=in3days){
+          new Notification('Follow up needed: '+p.company,{body:'Deadline: '+p.nextDate,icon:'./icon.png'});
+        }
+      }
+    });
+    const unpaid=DB.members.filter(m=>m.duesStatus==='unpaid'&&m.role!=='admin').length;
+    if(unpaid>0){
+      new Notification('Dues reminder',{body:unpaid+' member'+(unpaid!==1?'s':'')+' still have unpaid dues.',icon:'./icon.png'});
+    }
+  }
+  runCheck();
+  setInterval(runCheck,6*60*60*1000);
+}
+
+// ── PDF Export ──
+function exportPDF(){ window.print(); }
 
 loadDB();
 
