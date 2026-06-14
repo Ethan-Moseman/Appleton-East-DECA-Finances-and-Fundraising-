@@ -1162,6 +1162,19 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
       <div class="section" id="s-partnerships">
         <div class="page-header"><h2>Company Outreach</h2><p>Assign companies to students. Dollar amounts are recorded only after a company says Yes.</p></div>
 
+        <!-- Fundraising Teams -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Fundraising Teams</h3></div>
+          <div class="card-body">
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg" style="flex:2"><label>Team Name</label><input type="text" id="team-name" placeholder="e.g. Downtown Group"/></div>
+              <div class="fg" style="flex:3"><label>Members (hold Ctrl/Cmd to select multiple)</label><select id="team-members" multiple style="height:90px;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.85rem;background:rgba(255,255,255,.05);color:#fff;width:100%;"></select></div>
+              <div class="fg" style="flex:none"><button class="btn btn-primary" onclick="addTeam()">Create Team</button></div>
+            </div>
+            <div id="teams-list" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
         <!-- Add Company -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Company</h3></div>
@@ -1169,7 +1182,8 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
             <div class="form-row">
               <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip"/></div>
               <div class="fg"><label>Contact Person</label><input type="text" id="p-contact" placeholder="e.g. Sarah M."/></div>
-              <div class="fg"><label>Assigned Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
+              <div class="fg"><label>Assign to Team</label><select id="p-team"><option value="">— No Team —</option></select></div>
+              <div class="fg"><label>Or Individual Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
               <div class="fg"><label>Visit Deadline</label><input type="date" id="p-next-date"/></div>
             </div>
             <div class="form-row">
@@ -1645,6 +1659,7 @@ let DB = {
   transactions:[],
   fundraisers:[],
   partnerships:[],
+  teams:[],
   budgets:{},
   announcements:[],
   mos:[],
@@ -1659,6 +1674,7 @@ function loadDB(){
   try{ const s=localStorage.getItem('deca_db_v4'); if(s) DB=JSON.parse(s); }catch(e){}
   if(!DB.members) seedDB();
   if(!DB.mos) DB.mos = [];
+  if(!DB.teams) DB.teams = [];
   if(!DB.budgetPlan) DB.budgetPlan = {meetingsPerYear:12};
 }
 function saveDB(){ localStorage.setItem('deca_db_v4', JSON.stringify(DB)); }
@@ -1668,6 +1684,7 @@ function seedDB(){
   DB.transactions = [];
   DB.fundraisers  = [];
   DB.partnerships = [];
+  DB.teams        = [];
   DB.budgets      = { Conferences:0, Supplies:0, Food:0, Events:0, Marketing:0, 'Other Expense':0 };
   DB.announcements = [];
   DB.mos          = [];
@@ -2150,15 +2167,65 @@ function populateMemberDropdowns(){
   ['p-member','p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
 }
 
+function populateTeamDropdown(){
+  const sel = document.getElementById('p-team'); if(!sel) return;
+  sel.innerHTML = '<option value="">— No Team —</option>' +
+    DB.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+}
+
+function addTeam(){
+  const name = document.getElementById('team-name').value.trim();
+  if(!name){alert('Enter a team name.');return;}
+  const sel = document.getElementById('team-members');
+  const memberIds = Array.from(sel.selectedOptions).map(o=>o.value);
+  DB.teams.push({id:uid(), name, memberIds});
+  saveDB();
+  document.getElementById('team-name').value='';
+  sel.selectedIndex=-1;
+  renderTeams();
+  populateTeamDropdown();
+}
+
+function deleteTeam(id){
+  if(!confirm('Delete this team?'))return;
+  DB.teams = DB.teams.filter(t=>t.id!==id);
+  DB.partnerships.forEach(p=>{ if(p.teamId===id) p.teamId=''; });
+  saveDB(); renderTeams(); populateTeamDropdown(); renderPartnerships();
+}
+
+function renderTeams(){
+  const el = document.getElementById('teams-list'); if(!el) return;
+  // populate multi-select
+  const msel = document.getElementById('team-members');
+  if(msel) msel.innerHTML = DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+
+  if(!DB.teams.length){
+    el.innerHTML='<p style="font-size:.85rem;color:rgba(255,255,255,.35);">No teams yet.</p>';
+    return;
+  }
+  el.innerHTML = DB.teams.map(t=>{
+    const names = t.memberIds.map(id=>{ const m=getMember(id); return m?m.name:'?'; }).join(', ');
+    const companyCount = DB.partnerships.filter(p=>p.teamId===t.id).length;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.03);">
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.95rem;color:#fff;">${t.name}</div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.45);margin-top:2px;">${names||'No members'} &nbsp;·&nbsp; ${companyCount} compan${companyCount===1?'y':'ies'}</div>
+      </div>
+      <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteTeam('${t.id}')">Delete</button>
+    </div>`;
+  }).join('');
+}
+
 function addPartnership(){
   const company=document.getElementById('p-company').value.trim();
   const contact=document.getElementById('p-contact').value.trim();
   const desc=document.getElementById('p-desc').value.trim();
-  const assignedTo=document.getElementById('p-member').value;
+  const teamId=document.getElementById('p-team')?.value||'';
+  const assignedTo=teamId?'':document.getElementById('p-member').value;
   const nextDate=document.getElementById('p-next-date').value;
   if(!company){alert('Enter a company name.');return;}
   const id=uid();
-  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
+  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,teamId,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
   if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=id; }
   saveDB();
   document.getElementById('p-company').value='';
@@ -2262,6 +2329,8 @@ function saveResponse(){
 
 function renderPartnerships(){
   populateMemberDropdowns();
+  populateTeamDropdown();
+  renderTeams();
   const respColor = r => r==='yes'?'#34d399':r==='maybe'?'#fbbf24':r==='no'?'#f87171':'rgba(255,255,255,.3)';
   const respLabel = r => r==='yes'?'Said Yes':r==='maybe'?'Maybe':r==='no'?'Said No':'Not Visited';
 
@@ -2274,11 +2343,13 @@ function renderPartnerships(){
     } else {
       cbEl.innerHTML = maybes.map(p=>{
         const member = p.assignedTo?getMember(p.assignedTo):null;
+        const team = p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
+        const whoLabel = team?'Team: '+team.name : member?'Assigned to: '+member.name:'';
         return `<div style="border:1px solid rgba(251,191,36,.25);border-left:3px solid #fbbf24;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:rgba(251,191,36,.04);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
             <div>
               <div style="font-weight:800;font-size:1rem;color:#fff;">${p.company}</div>
-              <div style="font-size:.82rem;color:rgba(255,255,255,.45);margin-top:2px;">Contact: ${p.contact||'—'} ${member?' · Assigned to: '+member.name:''}</div>
+              <div style="font-size:.82rem;color:rgba(255,255,255,.45);margin-top:2px;">Contact: ${p.contact||'—'} ${whoLabel?' · '+whoLabel:''}</div>
             </div>
             <button class="btn btn-primary btn-sm" onclick="openAmountModal('${p.id}')">Record Amount</button>
           </div>
@@ -2296,10 +2367,14 @@ function renderPartnerships(){
 
   document.getElementById('p-tbody').innerHTML = list.map(p=>{
     const member=p.assignedTo?getMember(p.assignedTo):null;
+    const team=p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
+    const assignLabel = team
+      ? `<span style="color:#60a5fa;">&#128101; ${team.name}</span>`
+      : member ? member.name : '<span style="color:var(--gray);">Unassigned</span>';
     return `<tr>
       <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc||''}</div></td>
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
-      <td style="font-size:.83rem;">${member?member.name:'<span style="color:var(--gray);">Unassigned</span>'}</td>
+      <td style="font-size:.83rem;">${assignLabel}</td>
       <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
       <td style="font-weight:700;color:${p.response==='yes'&&p.value?'#34d399':'var(--gray)'};">${p.response==='yes'&&p.value?fmt$(p.value):'—'}</td>
       <td style="font-size:.8rem;color:${p.nextDate&&new Date(p.nextDate)<new Date()?'var(--red)':'var(--gray)'};">${p.nextDate||'—'}</td>
