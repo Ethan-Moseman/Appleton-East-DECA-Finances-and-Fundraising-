@@ -2327,48 +2327,261 @@ function openAmountModal(id){
   saveDB(); render();
 }
 
-//  Budget 
+//  Budget
 function setBudget(){
   const cat=document.getElementById('bud-cat').value;
   const amount=parseFloat(document.getElementById('bud-amount').value);
-  if(isNaN(amount)||amount<=0){alert('Enter valid amount.');return;}
+  if(isNaN(amount)||amount<0){alert('Enter valid amount.');return;}
   DB.budgets[cat]=amount; saveDB();
   document.getElementById('bud-amount').value=''; render();
 }
 
+function saveBudgetPlan(){
+  const meetings=parseInt(document.getElementById('bud-meetings').value)||12;
+  if(!DB.budgetPlan) DB.budgetPlan={};
+  DB.budgetPlan.meetingsPerYear=meetings;
+  saveDB(); render();
+}
+
+function drawPieBudget(){
+  const canvas=document.getElementById('bud-pie'); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const colors={'Conferences':'#4a9eff','Supplies':'#34d399','Food':'#fbbf24','Events':'#f87171','Marketing':'#a78bfa','Other Expense':'#94a3b8'};
+  const cats=Object.keys(DB.budgets).filter(c=>DB.budgets[c]>0);
+  const total=cats.reduce((s,c)=>s+DB.budgets[c],0);
+  ctx.clearRect(0,0,260,260);
+  const isLight=document.body.classList.contains('light-mode');
+  const centerColor=isLight?'#f0f4ff':'#0d1b35';
+  if(!total){
+    ctx.fillStyle='rgba(255,255,255,.08)';
+    ctx.beginPath();ctx.arc(130,130,120,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('No budgets set',130,135);
+    const leg=document.getElementById('bud-pie-legend'); if(leg) leg.innerHTML=''; return;
+  }
+  let angle=-Math.PI/2;
+  cats.forEach(cat=>{
+    const slice=(DB.budgets[cat]/total)*(Math.PI*2);
+    ctx.beginPath();ctx.moveTo(130,130);
+    ctx.arc(130,130,120,angle+0.02,angle+slice-0.02);
+    ctx.closePath();ctx.fillStyle=colors[cat]||'#888';ctx.fill();
+    angle+=slice;
+  });
+  ctx.beginPath();ctx.arc(130,130,65,0,Math.PI*2);ctx.fillStyle=centerColor;ctx.fill();
+  ctx.fillStyle=isLight?'#0a1628':'#fff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+  ctx.fillText(fmt$(total),130,126);
+  ctx.fillStyle=isLight?'rgba(0,0,0,.4)':'rgba(255,255,255,.4)';ctx.font='11px sans-serif';
+  ctx.fillText('Total Budget',130,144);
+  const leg=document.getElementById('bud-pie-legend');
+  if(leg) leg.innerHTML=cats.map(cat=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <div style="width:11px;height:11px;border-radius:3px;background:${colors[cat]||'#888'};flex-shrink:0;"></div>
+      <div style="font-size:.82rem;flex:1;">${cat}</div>
+      <div style="font-size:.82rem;font-weight:700;">${fmt$(DB.budgets[cat])}</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.35);">${(DB.budgets[cat]/total*100).toFixed(0)}%</div>
+    </div>`).join('');
+}
+
+function renderMonthlyBreakdown(){
+  const el=document.getElementById('bud-monthly'); if(!el) return;
+  const total=Object.values(DB.budgets).reduce((s,v)=>s+v,0);
+  if(!total){el.innerHTML='<p style="color:rgba(255,255,255,.35);font-size:.87rem;">Set budgets above to see monthly breakdown.</p>';return;}
+  const months=[
+    {name:'September',w:0.8},
+    {name:'October',  w:2.0,note:'District Conference'},
+    {name:'November', w:1.0},
+    {name:'December', w:0.4},
+    {name:'January',  w:0.8},
+    {name:'February', w:2.2,note:'State Conference'},
+    {name:'March',    w:0.7},
+    {name:'April',    w:2.5,note:'ICDC Nationals'},
+    {name:'May',      w:0.5},
+    {name:'June',     w:0.3},
+  ];
+  const totalW=months.reduce((s,m)=>s+m.w,0);
+  const maxAmt=Math.max(...months.map(m=>(m.w/totalW)*total));
+  el.innerHTML=months.map(m=>{
+    const amt=(m.w/totalW)*total;
+    const pct=maxAmt>0?(amt/maxAmt*100):0;
+    const isHigh=m.w>=2.0;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div style="font-size:.88rem;"><strong>${m.name}</strong>${m.note?`<span style="font-size:.72rem;color:${isHigh?'#fbbf24':'rgba(255,255,255,.35)'};margin-left:8px;">${m.note}</span>`:''}</div>
+        <strong style="color:${isHigh?'#fbbf24':'#fff'};font-size:.9rem;">${fmt$(amt)}</strong>
+      </div>
+      <div class="progress" style="height:8px;"><div class="progress-fill ${isHigh?'amber':''}" style="width:${pct}%;"></div></div>
+    </div>`;}).join('');
+}
+
+function renderPerMeeting(){
+  const el=document.getElementById('bud-per-meeting'); if(!el) return;
+  const total=Object.values(DB.budgets).reduce((s,v)=>s+v,0);
+  const meetings=DB.budgetPlan?.meetingsPerYear||12;
+  if(!total){el.innerHTML='<p style="color:rgba(255,255,255,.35);font-size:.87rem;">Set budgets above to see per-meeting breakdown.</p>';return;}
+  const perMeeting=total/meetings;
+  el.innerHTML=`
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.15);border-radius:12px;padding:20px 24px;text-align:center;flex:1;min-width:140px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#4a9eff;">${fmt$(perMeeting)}</div>
+        <div style="font-size:.73rem;color:rgba(255,255,255,.4);margin-top:4px;">Avg Per Meeting</div>
+      </div>
+      <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:20px 24px;text-align:center;flex:1;min-width:140px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${meetings}</div>
+        <div style="font-size:.73rem;color:rgba(255,255,255,.4);margin-top:4px;">Meetings This Year</div>
+      </div>
+      <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.15);border-radius:12px;padding:20px 24px;text-align:center;flex:1;min-width:140px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#fbbf24;">${fmt$(total)}</div>
+        <div style="font-size:.73rem;color:rgba(255,255,255,.4);margin-top:4px;">Total Annual Budget</div>
+      </div>
+    </div>
+    <div style="border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;">
+      ${Object.entries(DB.budgets).filter(([,v])=>v>0).map(([cat,budget])=>`
+        <div style="display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.86rem;">
+          <span>${cat}</span>
+          <span><strong>${fmt$(budget/meetings)}</strong><span style="color:rgba(255,255,255,.35);margin-left:6px;">/ meeting</span></span>
+        </div>`).join('')}
+    </div>`;
+}
+
 function renderBudget(){
+  const meetingsEl=document.getElementById('bud-meetings');
+  if(meetingsEl) meetingsEl.value=DB.budgetPlan?.meetingsPerYear||12;
   const bars=document.getElementById('budget-bars');
   const tbody=document.getElementById('bud-tbody');
-  if(!bars||!tbody)return;
   const spend={};
   DB.transactions.filter(t=>t.type==='expense').forEach(t=>{ spend[t.cat]=(spend[t.cat]||0)+ +t.amount; });
   const cats=Object.keys(DB.budgets);
-  if(!cats.length){ bars.innerHTML='<div class="empty-state"><div class="icon"></div><p>No budgets set yet. Add one above!</p></div>'; tbody.innerHTML=''; return; }
-  bars.innerHTML = cats.map(cat=>{
-    const budget=DB.budgets[cat], actual=spend[cat]||0, pct=budget>0?(actual/budget*100):0;
-    const fillClass=pct>=100?'red':pct>=80?'amber':'';
-    return `<div style="margin-bottom:20px;">
-      <div style="display:flex;justify-content:space-between;font-size:.87rem;margin-bottom:6px;">
-        <strong>${cat}</strong>
-        <span style="color:${pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)'};">
-          ${fmt$(actual)} / ${fmt$(budget)} (${pct.toFixed(0)}%)
-        </span>
-      </div>
-      <div class="progress"><div class="progress-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
-      ${pct>=100?'<div style="font-size:.75rem;color:var(--red);margin-top:3px;">Over budget by '+fmt$(actual-budget)+'</div>':pct>=80?'<div style="font-size:.75rem;color:var(--amber);margin-top:3px;">Approaching budget limit</div>':''}
-    </div>`;}).join('');
-  tbody.innerHTML = cats.map(cat=>{
-    const budget=DB.budgets[cat], actual=spend[cat]||0, remaining=budget-actual, pct=budget>0?(actual/budget*100):0;
-    return `<tr>
-      <td><strong>${cat}</strong></td>
-      <td>${fmt$(budget)}</td>
-      <td style="color:${actual>budget?'var(--red)':'var(--dark)'};">${fmt$(actual)}</td>
-      <td style="color:${remaining<0?'var(--red)':'var(--green)'};">${fmt$(remaining)}</td>
-      <td>${statusBadge(pct>=100?'needs-attention':pct>=80?'pending':'active').replace('Needs Attention','Over Budget').replace('Pending','Near Limit').replace('Active','On Track')}</td>
-    </tr>`;}).join('');
+  const setCats=cats.filter(c=>DB.budgets[c]>0);
+  if(!setCats.length && bars){
+    bars.innerHTML='<div class="empty-state"><div class="icon"></div><p>No budgets set yet. Add one above!</p></div>';
+  } else if(bars){
+    bars.innerHTML=setCats.map(cat=>{
+      const budget=DB.budgets[cat],actual=spend[cat]||0,pct=budget>0?(actual/budget*100):0;
+      const fillClass=pct>=100?'red':pct>=80?'amber':'';
+      return `<div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;font-size:.87rem;margin-bottom:6px;">
+          <strong>${cat}</strong>
+          <span style="color:${pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)'};">${fmt$(actual)} / ${fmt$(budget)} (${pct.toFixed(0)}%)</span>
+        </div>
+        <div class="progress"><div class="progress-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
+        ${pct>=100?'<div style="font-size:.75rem;color:var(--red);margin-top:3px;">Over budget by '+fmt$(actual-budget)+'</div>':pct>=80?'<div style="font-size:.75rem;color:var(--amber);margin-top:3px;">Approaching limit</div>':''}
+      </div>`;}).join('');
+  }
+  if(tbody){
+    tbody.innerHTML=cats.map(cat=>{
+      const budget=DB.budgets[cat],actual=spend[cat]||0,remaining=budget-actual,pct=budget>0?(actual/budget*100):0;
+      return `<tr>
+        <td><strong>${cat}</strong></td>
+        <td>${fmt$(budget)}</td>
+        <td style="color:${actual>budget?'var(--red)':'inherit'};">${fmt$(actual)}</td>
+        <td style="color:${remaining<0?'var(--red)':'var(--green)'};">${fmt$(remaining)}</td>
+        <td>${statusBadge(pct>=100?'needs-attention':pct>=80?'pending':'active').replace('Needs Attention','Over Budget').replace('Pending','Near Limit').replace('Active','On Track')}</td>
+      </tr>`;}).join('');
+  }
+  drawPieBudget();
+  renderMonthlyBreakdown();
+  renderPerMeeting();
 }
 
-//  Reports 
+//  MOS Tracker
+function populateMosMemberSelect(){
+  const sel=document.getElementById('mos-member-sel'); if(!sel) return;
+  sel.innerHTML='<option value="">— Select Member —</option>'+
+    DB.members.filter(m=>m.role!=='admin').map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+function populateMosGradYears(){
+  const sel=document.getElementById('mos-grad-year'); if(!sel) return;
+  const yr=new Date().getFullYear();
+  sel.innerHTML=Array.from({length:6},(_,i)=>`<option value="${yr+i}">${yr+i}</option>`).join('');
+}
+function addMos(){
+  const memberId=document.getElementById('mos-member-sel').value;
+  if(!memberId){alert('Select a student.');return;}
+  if(DB.mos.find(m=>m.memberId===memberId)){alert('This student is already in the tracker.');return;}
+  const member=getMember(memberId);
+  const gradYear=parseInt(document.getElementById('mos-grad-year').value);
+  const certStatus=document.getElementById('mos-cert').value;
+  const exams=document.getElementById('mos-exams').value.trim();
+  const certDate=document.getElementById('mos-cert-date').value;
+  DB.mos.push({
+    id:uid(),memberId,name:member?member.name:'',gradYear,
+    certified:certStatus==='certified',
+    examsPassed:exams?exams.split(',').map(e=>e.trim()).filter(Boolean):[],
+    certifiedDate:certDate||'',
+  });
+  saveDB();
+  document.getElementById('mos-exams').value='';
+  document.getElementById('mos-cert-date').value='';
+  render();
+}
+function deleteMosEntry(id){
+  if(!confirm('Remove this student from MOS tracker?'))return;
+  DB.mos=DB.mos.filter(m=>m.id!==id);
+  saveDB();render();
+}
+function toggleMosCert(id){
+  const entry=DB.mos.find(m=>m.id===id); if(!entry)return;
+  entry.certified=!entry.certified;
+  if(entry.certified&&!entry.certifiedDate) entry.certifiedDate=new Date().toISOString().split('T')[0];
+  if(!entry.certified) entry.certifiedDate='';
+  saveDB();render();
+}
+function renderMos(){
+  if(!document.getElementById('mos-stats')) return;
+  populateMosMemberSelect();
+  populateMosGradYears();
+  const filter=document.getElementById('mos-filter')?.value||'';
+  let list=[...DB.mos];
+  if(filter==='certified') list=list.filter(m=>m.certified);
+  else if(filter==='in-progress') list=list.filter(m=>!m.certified);
+  const certified=DB.mos.filter(m=>m.certified);
+  const inProgress=DB.mos.filter(m=>!m.certified);
+  const projected=certified.length*1000;
+  document.getElementById('mos-stats').innerHTML=`
+    <div class="stat green"><div class="s-label">Fully Certified</div><div class="s-val">${certified.length}</div><div class="s-sub">Students</div></div>
+    <div class="stat amber"><div class="s-label">In Progress</div><div class="s-val">${inProgress.length}</div><div class="s-sub">Working toward cert</div></div>
+    <div class="stat blue"><div class="s-label">Projected Income</div><div class="s-val">${fmt$(projected)}</div><div class="s-sub">From certified grads</div></div>
+    <div class="stat blue"><div class="s-label">Total Tracked</div><div class="s-val">${DB.mos.length}</div><div class="s-sub">Students in program</div></div>`;
+  const byYear={};
+  DB.mos.filter(m=>m.certified).forEach(m=>{ if(!byYear[m.gradYear]) byYear[m.gradYear]=[]; byYear[m.gradYear].push(m); });
+  const timelineEl=document.getElementById('mos-income-timeline');
+  if(timelineEl){
+    const years=Object.keys(byYear).sort();
+    timelineEl.innerHTML=years.length?years.map(yr=>{
+      const students=byYear[yr];
+      const amt=students.length*1000;
+      return `<div style="display:flex;align-items:center;gap:20px;padding:16px;border:1px solid rgba(52,211,153,.15);border-left:3px solid #34d399;border-radius:10px;margin-bottom:12px;background:rgba(52,211,153,.04);">
+        <div style="text-align:center;min-width:80px;">
+          <div style="font-size:1.5rem;font-weight:800;color:#34d399;">${fmt$(amt)}</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;">Class of ${yr}</div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:4px;">${students.length} certified graduate${students.length!==1?'s':''}: ${students.map(s=>s.name).join(', ')}</div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.35);">$1,000 per student · Expected ${yr}</div>
+        </div>
+      </div>`;}).join(''):'<p style="color:rgba(255,255,255,.35);font-size:.87rem;">No certified students yet. Add students and mark them certified to see projected income.</p>';
+  }
+  const tbody=document.getElementById('mos-tbody');
+  if(tbody){
+    tbody.innerHTML=list.length?list.map(entry=>{
+      const member=entry.memberId?getMember(entry.memberId):null;
+      const grade=member?`<div style="font-size:.75rem;color:rgba(255,255,255,.35);">Grade ${member.grade}</div>`:'';
+      return `<tr>
+        <td><strong>${entry.name||'—'}</strong>${grade}</td>
+        <td style="font-weight:700;color:#4a9eff;">Class of ${entry.gradYear}</td>
+        <td>${entry.certified?'<span class="badge badge-green">Certified</span>':'<span class="badge badge-amber">In Progress</span>'}</td>
+        <td style="font-size:.82rem;">${entry.examsPassed.length?entry.examsPassed.join(', '):'<span style="color:rgba(255,255,255,.3);">None logged</span>'}</td>
+        <td style="font-size:.82rem;color:rgba(255,255,255,.5);">${entry.certifiedDate||'—'}</td>
+        <td style="font-weight:700;color:${entry.certified?'#34d399':'rgba(255,255,255,.3)'};">${entry.certified?fmt$(1000):'—'}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-xs" onclick="toggleMosCert('${entry.id}')">${entry.certified?'Mark In Progress':'Mark Certified'}</button>
+          <button class="btn btn-ghost btn-xs" style="color:var(--red);" onclick="deleteMosEntry('${entry.id}')">Remove</button>
+        </td>
+      </tr>`;}).join(''):'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.35);padding:24px;">No students tracked yet.</td></tr>';
+  }
+}
+
+//  Reports
 
 // ── Fundraiser Analytics ──────────────────────────────────────────────────────
 function renderFrAnalytics(){
