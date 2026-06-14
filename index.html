@@ -743,6 +743,18 @@ tbody tr:hover td{background:rgba(74,158,255,.04);color:#fff;}
   background:rgba(74,158,255,.05);
 }
 
+/* Skeleton loaders */
+@keyframes skel-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-shimmer 1.4s ease-in-out infinite;border-radius:8px;}
+.skel-stat{height:88px;border-radius:14px;}
+.skel-line{height:14px;border-radius:4px;margin-bottom:8px;}
+.skel-line.w60{width:60%;}
+.skel-line.w40{width:40%;}
+.skel-fr-card{height:160px;border-radius:14px;margin-bottom:12px;}
+.skel-bar{height:32px;border-radius:6px;margin-bottom:12px;}
+.skel-pad{padding:16px;display:flex;flex-direction:column;gap:8px;}
+body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(0,0,0,.11) 50%,rgba(0,0,0,.06) 75%);background-size:200% 100%;animation:skel-shimmer 1.4s ease-in-out infinite;}
+
 /* Alert */
 .alert{border-radius:var(--radius-sm);padding:12px 16px;font-size:.85rem;margin-bottom:16px;}
 .alert-red{background:rgba(248,113,113,.08);color:#fca5a5;border-left:3px solid #f87171;}
@@ -1845,6 +1857,51 @@ function buildSidebar(){
     `<div class="sidebar-footer"><div class="version">AE DECA Finance Platform v2.0</div></div>`;
 }
 
+// ── Skeleton helpers ──
+const _skelRow = () => '<tr><td colspan="10" style="padding:5px 0;border:none;"><div class="skel skel" style="height:42px;border-radius:8px;"></div></td></tr>';
+const _skelStat = () => '<div class="skel skel-stat"></div>';
+const _skelLine = (w='100%') => `<div class="skel skel-line" style="width:${w};"></div>`;
+const _skelBar = () => '<div class="skel skel-bar"></div>';
+const _skelFrCard = () => '<div class="skel skel-fr-card"></div>';
+
+const SKEL_MAP = {
+  's-dashboard':{
+    'admin-stats': ()=>`<div class="stats-row">${Array(5).fill(_skelStat()).join('')}</div>`,
+    'dash-tx-body': ()=>Array(4).fill(_skelRow()).join(''),
+    'dash-announcements': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('75%')+''+_skelLine('50%')}</div>`,
+    'dash-partnerships-summary': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')}</div>`,
+  },
+  's-transactions':{ 'tx-tbody': ()=>Array(5).fill(_skelRow()).join('') },
+  's-members':{ 'm-tbody': ()=>Array(5).fill(_skelRow()).join('') },
+  's-fundraisers':{ 'fr-grid': ()=>Array(3).fill(_skelFrCard()).join('') },
+  's-fr-analytics':{
+    'fr-stat-row': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'fr-ranking': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('70%')+''+_skelLine('50%')+''+_skelLine('30%')}</div>`,
+    'fr-recommendations': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('65%')+''+_skelLine('45%')}</div>`,
+    'fr-compare-tbody': ()=>Array(3).fill(_skelRow()).join(''),
+  },
+  's-partnerships':{
+    'p-tbody': ()=>Array(4).fill(_skelRow()).join(''),
+    'teams-list': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('55%')}</div>`,
+  },
+  's-budget':{ 'budget-bars': ()=>`<div style="padding:8px 0;">${Array(5).fill(_skelBar()).join('')}</div>` },
+  's-reports':{
+    'report-stats': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'report-income': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')+''+_skelLine('40%')}</div>`,
+    'report-expense': ()=>`<div class="skel-pad">${_skelLine()+''+_skelLine('60%')+''+_skelLine('40%')}</div>`,
+    'report-tbody': ()=>Array(5).fill(_skelRow()).join(''),
+  },
+  's-mos':{
+    'mos-stats': ()=>`<div class="stats-row">${Array(3).fill(_skelStat()).join('')}</div>`,
+    'mos-tbody': ()=>Array(4).fill(_skelRow()).join(''),
+  },
+};
+
+function showSkeleton(sectionId){
+  const map = SKEL_MAP[sectionId]; if(!map) return;
+  Object.entries(map).forEach(([id,fn])=>{ const el=document.getElementById(id); if(el) el.innerHTML=fn(); });
+}
+
 function showSection(id){
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1852,7 +1909,8 @@ function showSection(id){
   if(el) el.classList.add('active');
   const nav = document.getElementById('nav-'+id);
   if(nav) nav.classList.add('active');
-  render();
+  showSkeleton(id);
+  setTimeout(() => render(), 150);
 }
 
 //  UTILITIES 
@@ -3151,6 +3209,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }catch(e){}
   });
 });
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
