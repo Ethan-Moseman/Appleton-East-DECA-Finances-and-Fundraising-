@@ -135,6 +135,14 @@ body.light-mode .sidebar-section-label{color:rgba(0,40,100,.4)!important;}
 body.light-mode .topbar h1{color:#0a1628!important;}
 body.light-mode .topbar h1 em{color:#0057B8!important;}
 body.light-mode .topbar .sub{color:rgba(0,0,0,.4)!important;}
+body.light-mode .main-content{background:#f0f4ff!important;}
+body.light-mode .announcement{background:rgba(0,87,184,.06)!important;border-color:rgba(0,87,184,.2)!important;}
+body.light-mode .announcement h4{color:#0a1628!important;}
+body.light-mode .announcement p{color:#445!important;}
+body.light-mode .dues-card{background:#fff!important;color:#0a1628!important;}
+body.light-mode .dues-card *{color:#0a1628!important;}
+body.light-mode .empty-state p{color:#556!important;}
+body.light-mode [style*="color:#fff"],[style*="color: #fff"],[style*="color:rgba(255"],[style*="color: rgba(255"]{color:#0a1628;}
 body.light-mode .stat{background:#fff;border-color:rgba(0,87,184,.15);box-shadow:0 2px 12px rgba(0,40,120,.08);}
 body.light-mode .stat .s-label{color:#667!important;}
 body.light-mode .stat .s-val,body.light-mode .stat.blue .s-val,body.light-mode .stat.green .s-val,body.light-mode .stat.red .s-val,body.light-mode .stat.amber .s-val{color:#0a1628!important;text-shadow:none!important;}
@@ -2686,6 +2694,21 @@ function fireConfetti(){
 }
 
 // ── Theme Toggle ──
+function applyLightFix(isLight){
+  // Fix inline-styled white text that CSS can't override
+  const app = document.getElementById('app');
+  if(!app) return;
+  if(isLight){
+    app.querySelectorAll('[style]').forEach(el=>{
+      const s = el.style;
+      if(s.color==='rgb(255, 255, 255)'||s.color==='#fff'||s.color==='white') s.color='#0a1628';
+      if(s.color&&s.color.startsWith('rgba(255')&&parseFloat(s.color.split(',')[3])>0.5) s.color='#0a1628';
+    });
+  } else {
+    // Re-render restores inline styles naturally
+    render();
+  }
+}
 function toggleTheme(){
   const isLight=document.body.classList.toggle('light-mode');
   localStorage.setItem('deca_theme', isLight?'light':'dark');
@@ -2696,6 +2719,8 @@ function toggleTheme(){
     btn.style.borderColor=isLight?'rgba(0,87,184,.3)':'rgba(255,255,255,.18)';
     btn.style.color=isLight?'#0057B8':'rgba(255,255,255,.8)';
   }
+  render();
+  if(isLight) setTimeout(()=>applyLightFix(true),50);
 }
 function applyTheme(){
   const saved=localStorage.getItem('deca_theme');
@@ -2705,6 +2730,7 @@ function applyTheme(){
     const btn=document.getElementById('theme-toggle');
     if(icon) icon.innerHTML='&#9790;';
     if(btn){ btn.style.borderColor='rgba(0,87,184,.3)'; btn.style.color='#0057B8'; }
+    setTimeout(()=>applyLightFix(true),100);
   }
 }
 
