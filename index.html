@@ -821,6 +821,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
 .resp-btn.resp-active[data-val="yes"]{ background:rgba(52,211,153,.25)!important;border-color:#34d399!important;box-shadow:0 0 12px rgba(52,211,153,.35); }
 .resp-btn.resp-active[data-val="maybe"]{ background:rgba(251,191,36,.25)!important;border-color:#fbbf24!important;box-shadow:0 0 12px rgba(251,191,36,.35); }
 .resp-btn.resp-active[data-val="no"]{ background:rgba(248,113,113,.25)!important;border-color:#f87171!important;box-shadow:0 0 12px rgba(248,113,113,.35); }
+.tier-btn.tier-active{ background:rgba(52,211,153,.22)!important;border-color:#34d399!important;box-shadow:0 0 12px rgba(52,211,153,.3); }
 
 /* Partnership card */
 .partnership-card{
@@ -1617,6 +1618,16 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
         <button class="resp-btn" data-val="maybe" onclick="selectResp('maybe')" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08);color:#fbbf24;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .15s;">Maybe</button>
         <button class="resp-btn" data-val="no" onclick="selectResp('no')" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:#f87171;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .15s;">No</button>
       </div>
+    </div>
+    <div class="fg" id="resp-tier-block" style="margin-bottom:16px;display:none;">
+      <label>Partnership Tier</label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+        <button class="tier-btn" data-tier="Traditional" onclick="selectTier('Traditional',200)" style="padding:11px 14px;border-radius:8px;border:1.5px solid rgba(74,158,255,.25);background:rgba(74,158,255,.06);color:#e8eef8;font-weight:700;cursor:pointer;font-size:.9rem;text-align:left;display:flex;justify-content:space-between;transition:all .15s;"><span>Traditional</span><span style="color:#4a9eff;">$200</span></button>
+        <button class="tier-btn" data-tier="Platinum" onclick="selectTier('Platinum',500)" style="padding:11px 14px;border-radius:8px;border:1.5px solid rgba(74,158,255,.25);background:rgba(74,158,255,.06);color:#e8eef8;font-weight:700;cursor:pointer;font-size:.9rem;text-align:left;display:flex;justify-content:space-between;transition:all .15s;"><span>Platinum</span><span style="color:#4a9eff;">$500</span></button>
+        <button class="tier-btn" data-tier="Elite" onclick="selectTier('Elite',750)" style="padding:11px 14px;border-radius:8px;border:1.5px solid rgba(74,158,255,.25);background:rgba(74,158,255,.06);color:#e8eef8;font-weight:700;cursor:pointer;font-size:.9rem;text-align:left;display:flex;justify-content:space-between;transition:all .15s;"><span>Elite</span><span style="color:#4a9eff;">$750</span></button>
+        <button class="tier-btn" data-tier="Custom" onclick="selectTier('Custom',null)" style="padding:11px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);font-weight:700;cursor:pointer;font-size:.9rem;text-align:left;transition:all .15s;">Other amount…</button>
+      </div>
+      <input type="number" id="resp-custom-amt" min="0" step="0.01" placeholder="Amount ($)" style="display:none;margin-top:8px;width:100%;padding:11px 13px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:.95rem;background:rgba(255,255,255,.05);color:#fff;"/>
     </div>
     <div class="fg" style="margin-bottom:4px;">
       <label>Comments <span style="color:rgba(255,255,255,.3);text-transform:none;font-weight:400;">(required if Maybe)</span></label>
@@ -2590,20 +2601,38 @@ function showMaybeFlag(){
 /* ── Response modal logic ── */
 let _currentRespId = null;
 let _currentRespVal = null;
+let _currentTier = null;
 
 function openResponseModal(id){
   _currentRespId = id;
   _currentRespVal = null;
+  _currentTier = null;
   const p = DB.partnerships.find(x=>x.id===id);
   if(!p) return;
   document.getElementById('resp-id').value = id;
   document.getElementById('resp-company-name').textContent = p.company + (p.contact ? ' — ' + p.contact : '');
   document.getElementById('resp-comments').value = p.comments||'';
   document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('resp-active'));
+  document.querySelectorAll('.tier-btn').forEach(b=>b.classList.remove('tier-active'));
+  document.getElementById('resp-tier-block').style.display='none';
+  document.getElementById('resp-custom-amt').style.display='none';
+  document.getElementById('resp-custom-amt').value='';
   if(p.response){
     _currentRespVal = p.response;
     const active = document.querySelector(`.resp-btn[data-val="${p.response}"]`);
     if(active) active.classList.add('resp-active');
+    if(p.response==='yes'){
+      document.getElementById('resp-tier-block').style.display='';
+      if(p.tier){
+        const tb = document.querySelector(`.tier-btn[data-tier="${p.tier}"]`);
+        if(tb) tb.classList.add('tier-active');
+        _currentTier = {name:p.tier, amt:p.tier==='Custom'?null:+p.value};
+        if(p.tier==='Custom'){
+          document.getElementById('resp-custom-amt').style.display='';
+          document.getElementById('resp-custom-amt').value = p.value||'';
+        }
+      }
+    }
   }
   openModal('response-modal');
 }
@@ -2613,8 +2642,17 @@ function selectResp(val){
   document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('resp-active'));
   const btn = document.querySelector(`.resp-btn[data-val="${val}"]`);
   if(btn) btn.classList.add('resp-active');
+  document.getElementById('resp-tier-block').style.display = val==='yes' ? '' : 'none';
   if(val==='maybe') showMaybeFlag();
   if(val==='yes') fireConfetti();
+}
+
+function selectTier(name, amt){
+  _currentTier = {name, amt};
+  document.querySelectorAll('.tier-btn').forEach(b=>b.classList.remove('tier-active'));
+  const btn = document.querySelector(`.tier-btn[data-tier="${name}"]`);
+  if(btn) btn.classList.add('tier-active');
+  document.getElementById('resp-custom-amt').style.display = name==='Custom' ? '' : 'none';
 }
 
 function saveResponse(){
@@ -2623,6 +2661,17 @@ function saveResponse(){
   if(_currentRespVal==='maybe'&&!comments){ alert('Please add a comment explaining what the company said.'); return; }
   const p = DB.partnerships.find(x=>x.id===_currentRespId);
   if(!p) return;
+  if(_currentRespVal==='yes'){
+    if(!_currentTier){ alert('Please select a partnership tier.'); return; }
+    let amount = _currentTier.amt;
+    if(_currentTier.name==='Custom'){
+      amount = parseFloat(document.getElementById('resp-custom-amt').value);
+      if(isNaN(amount)||amount<0){ alert('Enter a valid dollar amount for the partnership.'); return; }
+    }
+    p.tier = _currentTier.name;
+    p.value = amount;
+    p.status = 'active';
+  }
   p.response = _currentRespVal;
   p.comments = comments;
   p.visitDate = new Date().toISOString().split('T')[0];
@@ -2678,7 +2727,7 @@ function renderPartnerships(){
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
       <td style="font-size:.83rem;">${assignLabel}</td>
       <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
-      <td style="font-weight:700;color:${p.response==='yes'&&p.value?'#34d399':'var(--gray)'};">${p.response==='yes'&&p.value?fmt$(p.value):'—'}</td>
+      <td style="font-weight:700;color:${p.response==='yes'&&p.value?'#34d399':'var(--gray)'};">${p.response==='yes'&&p.value?`${p.tier&&p.tier!=='Custom'?p.tier+' · ':''}${fmt$(p.value)}`:'—'}</td>
       <td style="font-size:.8rem;color:${p.nextDate&&new Date(p.nextDate)<new Date()?'var(--red)':'var(--gray)'};">${p.nextDate||'—'}</td>
       <td style="display:flex;gap:6px;">
         ${p.response==='yes'?`<button class="btn btn-ghost btn-xs" style="color:#34d399;" onclick="openAmountModal('${p.id}')">Set Amount</button>`:''}
@@ -2723,16 +2772,11 @@ function renderPartnerships(){
   }
 }
 
-// Amount modal — only shown after Yes
+// Amount modal — only shown after Yes; uses the tier picker
 function openAmountModal(id){
   const p=DB.partnerships.find(x=>x.id===id); if(!p) return;
-  // Simple prompt for now
-  const val = prompt(`${p.company} said Yes! Enter the sponsorship amount ($):`);
-  if(val===null) return;
-  const amount = parseFloat(val);
-  if(isNaN(amount)||amount<0){alert('Enter a valid dollar amount.');return;}
-  p.value=amount; p.status='active'; p.response='yes';
-  saveDB(); render();
+  openResponseModal(id);
+  if(_currentRespVal!=='yes') selectResp('yes');
 }
 
 //  Budget
@@ -3243,6 +3287,7 @@ function renderMyPartnership(){
           </div>
           <div style="text-align:right;flex-shrink:0;">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${respColor(p.response)};margin-bottom:4px;">${respLabel(p.response)}</div>
+            ${p.response==='yes'&&p.value?`<div style="font-size:.78rem;font-weight:700;color:#34d399;margin-bottom:4px;">${p.tier&&p.tier!=='Custom'?p.tier+' · ':''}${fmt$(p.value)}</div>`:''}
             ${p.visitDate?`<div style="font-size:.75rem;color:rgba(255,255,255,.3);">Visited ${p.visitDate}</div>`:''}
             ${p.nextDate&&!p.response?`<div style="font-size:.75rem;color:${overdue?'#f87171':'rgba(255,255,255,.3)'};">${overdue?'Overdue: ':'Deadline: '}${p.nextDate}</div>`:''}
           </div>
