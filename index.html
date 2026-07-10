@@ -1813,6 +1813,11 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 // Admin emails — only these can clear dues
 const ADMIN_EMAILS = ['ethanmoseman770@gmail.com', 'fudestefanie@aasd.k12.wi.us'];
 
+// Automatic dues for new signups — set DUES_DEFAULT to 20 and
+// DUES_STATUS_DEFAULT to 'unpaid' when dues collection starts
+const DUES_DEFAULT = 0;
+const DUES_STATUS_DEFAULT = 'paid';
+
 function switchTab(tab){
   document.getElementById('panel-signin').style.display = tab==='signin'?'':'none';
   document.getElementById('panel-signup').style.display = tab==='signup'?'':'none';
@@ -1864,8 +1869,8 @@ async function doLogin(){
         name: meta.name || data.user.email,
         email: data.user.email,
         grade: meta.grade || '',
-        dues: metaAdvisor ? 0 : 20,
-        dues_status: metaAdvisor ? 'paid' : 'unpaid',
+        dues: metaAdvisor ? 0 : DUES_DEFAULT,
+        dues_status: metaAdvisor ? 'paid' : DUES_STATUS_DEFAULT,
         date_paid: '',
         role: 'member',
         partnership_id: '',
@@ -1877,10 +1882,10 @@ async function doLogin(){
     {
       const meta = data.user.user_metadata || {};
       const local = profile ? {id:profile.id, name:profile.name, email:profile.email, grade:profile.grade,
-          dues:profile.dues ?? 20, duesStatus:profile.dues_status || 'unpaid', datePaid:profile.date_paid || '',
+          dues:profile.dues ?? DUES_DEFAULT, duesStatus:profile.dues_status || DUES_STATUS_DEFAULT, datePaid:profile.date_paid || '',
           partnershipId:profile.partnership_id || '', username:profile.email}
         : {id:data.user.id, name:meta.name || data.user.email, email:data.user.email, grade:meta.grade || '',
-          dues:meta.grade==='Advisor'?0:20, duesStatus:meta.grade==='Advisor'?'paid':'unpaid', datePaid:'',
+          dues:meta.grade==='Advisor'?0:DUES_DEFAULT, duesStatus:meta.grade==='Advisor'?'paid':DUES_STATUS_DEFAULT, datePaid:'',
           partnershipId:'', username:data.user.email};
       const existing = DB.members.find(m=>m.id===local.id);
       if(existing) Object.assign(existing, local); else DB.members.push(local);
@@ -1937,8 +1942,8 @@ async function doSignup(){
     const {error:insErr} = await supa.from('members').insert({
       id: data.user.id,
       name, email, grade,
-      dues: isAdvisor ? 0 : 20,
-      dues_status: isAdvisor ? 'paid' : 'unpaid',
+      dues: isAdvisor ? 0 : DUES_DEFAULT,
+      dues_status: isAdvisor ? 'paid' : DUES_STATUS_DEFAULT,
       date_paid: '',
       role: 'member',
       partnership_id: '',
@@ -1946,7 +1951,7 @@ async function doSignup(){
     // Always add locally so their own dashboard shows immediately,
     // even if the server insert was blocked
     if(!DB.members.find(m=>m.id===data.user.id)){
-      DB.members.push({id:data.user.id, name, email, grade, dues:isAdvisor?0:20, duesStatus:isAdvisor?'paid':'unpaid', datePaid:'', partnershipId:'', username:email});
+      DB.members.push({id:data.user.id, name, email, grade, dues:isAdvisor?0:DUES_DEFAULT, duesStatus:isAdvisor?'paid':DUES_STATUS_DEFAULT, datePaid:'', partnershipId:'', username:email});
       saveDB();
     }
     if(insErr) console.log('members insert error:', insErr);
@@ -3118,7 +3123,7 @@ function renderMemberHome(){
   // Fall back to the signed-in user's info so the dashboard never renders blank
   const memberData = DB.members.find(m=>m.id===currentUser.memberId) || {
     id:currentUser.memberId, name:currentUser.name||'Member', email:currentUser.email||'',
-    grade:'', dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:''
+    grade:'', dues:DUES_DEFAULT, duesStatus:DUES_STATUS_DEFAULT, datePaid:'', partnershipId:''
   };
   const partner = memberData.partnershipId ? getPartnership(memberData.partnershipId) : null;
 
@@ -3178,16 +3183,17 @@ function renderMemberHome(){
 
 function renderMyDues(){
   const m = DB.members.find(m=>m.id===currentUser.memberId) || {
-    name:currentUser.name||'Member', dues:20, duesStatus:'unpaid', datePaid:''
+    name:currentUser.name||'Member', dues:DUES_DEFAULT, duesStatus:DUES_STATUS_DEFAULT, datePaid:''
   };
 
   const paid = m.duesStatus === 'paid';
+  const noDues = +m.dues === 0;
   document.getElementById('my-dues-detail').innerHTML = `
     <div class="dues-card ${paid?'paid':'unpaid'}">
       <div class="dues-icon">${paid?'':''}</div>
       <div>
-        <h3>${paid?'Your dues are paid!':'Dues payment pending'}</h3>
-        <p>${paid?`You paid ${fmt$(m.dues)} on ${m.datePaid}. You're all set!`:`You owe ${fmt$(m.dues)} in chapter dues. Please pay as soon as possible.`}</p>
+        <h3>${noDues?'No dues owed right now':paid?'Your dues are paid!':'Dues payment pending'}</h3>
+        <p>${noDues?'Chapter dues haven’t been assigned yet — you’ll see the amount here when dues collection starts.':paid?`You paid ${fmt$(m.dues)} on ${m.datePaid}. You're all set!`:`You owe ${fmt$(m.dues)} in chapter dues. Please pay as soon as possible.`}</p>
       </div>
     </div>
     <div class="card" style="margin-top:20px;">
@@ -3420,7 +3426,7 @@ async function syncMembersFromSupabase(){
       const existing = DB.members.find(m=>m.id===row.id);
       const mapped = {
         id:row.id, name:row.name, email:row.email||'', grade:row.grade||'12',
-        dues:row.dues||20, duesStatus:row.dues_status||'unpaid',
+        dues:row.dues??0, duesStatus:row.dues_status||DUES_STATUS_DEFAULT,
         datePaid:row.date_paid||'', partnershipId:row.partnership_id||'',
         username:row.email, role:row.role||'member'
       };
