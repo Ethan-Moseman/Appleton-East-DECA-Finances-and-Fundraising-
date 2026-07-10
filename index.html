@@ -679,7 +679,7 @@ body.light-mode,body.light-mode #app{background:#f0f4ff!important;}
   display:flex;align-items:center;justify-content:space-between;
 }
 .card-header h3{font-size:.93rem;font-weight:700;color:#fff;}
-.card-body{padding:20px;}
+.card-body{padding:20px;color:var(--text-main);}
 .card-body strong{color:var(--text-main);}
 
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;}
@@ -958,6 +958,11 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
   .tbl-wrap{-webkit-overflow-scrolling:touch;}
   .dues-card{flex-direction:column;text-align:center;padding:20px 16px;}
 
+  /* Card headers with controls (search boxes, filters) wrap instead of overflowing */
+  .card-header{flex-wrap:wrap;gap:10px;}
+  .card-header > div{flex-wrap:wrap;max-width:100%;}
+  #m-search{width:150px;max-width:100%;}
+
   /* Login screen */
   #login-screen{padding:16px;}
   .login-card{padding:26px 20px 24px;}
@@ -993,8 +998,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
     <!-- DECA Logo -->
     <svg class="intro-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="200" rx="20" fill="#0057B8"/>
-      <polygon points="100,24 176,100 100,176 24,100" fill="white"/>
-      <polygon points="100,52 148,100 100,148 52,100" fill="#0057B8"/>
+      <path d="M100 24 L176 100 L100 176 L24 100 Z M100 52 L52 100 L100 148 L148 100 Z" fill="#fff" fill-rule="evenodd"/>
     </svg>
 
     <!-- Fades in first -->
@@ -1017,8 +1021,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
       <!-- DECA Logo — diamond/cube mark only, no text inside -->
       <svg class="deca-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="200" height="200" rx="18" fill="#0057B8"/>
-        <polygon points="100,24 176,100 100,176 24,100" fill="white"/>
-        <polygon points="100,52 148,100 100,148 52,100" fill="#0057B8"/>
+        <path d="M100 24 L176 100 L100 176 L24 100 Z M100 52 L52 100 L100 148 L148 100 Z" fill="#fff" fill-rule="evenodd"/>
       </svg>
       <div class="login-headline">
         <span class="typed-word" id="typed-text"></span><span class="cursor" id="typed-cursor"></span>
@@ -2250,6 +2253,17 @@ function renderDashboard(){
   DB.transactions.forEach(t=>{const m=new Date(t.date+'T12:00:00').getMonth();if(t.type==='income')_inc[m]+= +t.amount;else _exp[m]+= +t.amount;});
   const _ce=document.getElementById('dash-chart');
   if(_ce&&window.Chart){if(window._dashChart)window._dashChart.destroy();window._dashChart=new Chart(_ce,{type:'bar',data:{labels:_mo,datasets:[{label:'Income',data:_inc,backgroundColor:'rgba(52,211,153,.75)',borderRadius:4},{label:'Expenses',data:_exp,backgroundColor:'rgba(248,113,113,.75)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'rgba(255,255,255,.7)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,.5)'},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'rgba(255,255,255,.5)',callback:v=>'$'+v},grid:{color:'rgba(255,255,255,.05)'}}}}});}
+  else if(_ce){
+    // Chart.js blocked/offline — draw simple CSS bars instead of an empty box
+    const _max=Math.max(..._inc,..._exp,1);
+    const _rows=_mo.map((mo,i)=>(_inc[i]||_exp[i])?`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;"><span>${mo}</span><span><strong style="color:#34d399;">+${fmt$(_inc[i])}</strong> / <strong style="color:#f87171;">-${fmt$(_exp[i])}</strong></span></div>
+        <div class="progress" style="margin-bottom:3px;"><div class="progress-fill green" style="width:${(_inc[i]/_max*100).toFixed(0)}%"></div></div>
+        <div class="progress"><div class="progress-fill red" style="width:${(_exp[i]/_max*100).toFixed(0)}%"></div></div>
+      </div>`:'').join('');
+    _ce.parentElement.innerHTML = _rows || '<p style="color:var(--text-sub);font-size:.85rem;">No transactions yet this year.</p>';
+  }
 
   // Activity feed
   const _ae=document.getElementById('dash-activity');
@@ -2429,7 +2443,7 @@ function renderFundraisers(){
         ${statusBadge(f.status)}
       </div>
       <div class="card-body">
-        <div style="font-size:.82rem;color:var(--gray);margin-bottom:12px;">${f.date}</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:12px;">${f.date||''}</div>
         <div class="progress" style="margin-bottom:8px;"><div class="progress-fill ${fillClass} fr-bar" data-pct="${pct.toFixed(0)}" style="width:0%;transition:width 1.1s cubic-bezier(.22,1,.36,1);"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:10px;">
           <span>Raised: <strong style="color:var(--green);">${fmt$(f.raised)}</strong></span>
