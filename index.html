@@ -1789,12 +1789,17 @@ async function doLogin(){
       });
       profile = Array.isArray(created) ? created[0] : created;
     }
-    // Mirror the profile into this device's local DB so member pages have data
-    if(profile){
-      const local = {id:profile.id, name:profile.name, email:profile.email, grade:profile.grade,
-        dues:profile.dues ?? 20, duesStatus:profile.dues_status || 'unpaid', datePaid:profile.date_paid || '',
-        partnershipId:profile.partnership_id || '', username:profile.email};
-      const existing = DB.members.find(m=>m.id===profile.id);
+    // Mirror the profile into this device's local DB so member pages have data;
+    // fall back to signup metadata if the profile row couldn't be read/created
+    {
+      const meta = data.user.user_metadata || {};
+      const local = profile ? {id:profile.id, name:profile.name, email:profile.email, grade:profile.grade,
+          dues:profile.dues ?? 20, duesStatus:profile.dues_status || 'unpaid', datePaid:profile.date_paid || '',
+          partnershipId:profile.partnership_id || '', username:profile.email}
+        : {id:data.user.id, name:meta.name || data.user.email, email:data.user.email, grade:meta.grade || '',
+          dues:meta.grade==='Advisor'?0:20, duesStatus:meta.grade==='Advisor'?'paid':'unpaid', datePaid:'',
+          partnershipId:'', username:data.user.email};
+      const existing = DB.members.find(m=>m.id===local.id);
       if(existing) Object.assign(existing, local); else DB.members.push(local);
       saveDB();
     }
@@ -1855,11 +1860,13 @@ async function doSignup(){
       role: 'member',
       partnership_id: '',
     });
-    if(!insErr){
-      // Also add to local DB for immediate display
+    // Always add locally so their own dashboard shows immediately,
+    // even if the server insert was blocked
+    if(!DB.members.find(m=>m.id===data.user.id)){
       DB.members.push({id:data.user.id, name, email, grade, dues:isAdvisor?0:20, duesStatus:isAdvisor?'paid':'unpaid', datePaid:'', partnershipId:'', username:email});
       saveDB();
     }
+    if(insErr) console.log('members insert error:', insErr);
   }
 
   // If email confirmation is off, signup returns a session — sign them straight in
@@ -3009,14 +3016,17 @@ function renderReports(){
 
 //  Member Home 
 function renderMemberHome(){
-  const memberData = DB.members.find(m=>m.id===currentUser.memberId);
-  if(!memberData) return;
+  // Fall back to the signed-in user's info so the dashboard never renders blank
+  const memberData = DB.members.find(m=>m.id===currentUser.memberId) || {
+    id:currentUser.memberId, name:currentUser.name||'Member', email:currentUser.email||'',
+    grade:'', dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:''
+  };
   const partner = memberData.partnershipId ? getPartnership(memberData.partnershipId) : null;
 
   document.getElementById('member-hero-area').innerHTML = `
     <div class="member-hero">
       <h2>Welcome back, ${memberData.name.split(' ')[0]}! </h2>
-      <p>Appleton East DECA · ${memberData.grade==='Advisor' ? 'Advisor' : 'Grade '+memberData.grade} · 2026–2027 Chapter Year</p>
+      <p>Appleton East DECA · ${memberData.grade==='Advisor' ? 'Advisor' : (memberData.grade ? 'Grade '+memberData.grade : 'Member')} · 2026–2027 Chapter Year</p>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hs-val">${memberData.duesStatus==='paid'?'Paid':'Unpaid'}</div>
@@ -3068,8 +3078,9 @@ function renderMemberHome(){
 }
 
 function renderMyDues(){
-  const m = DB.members.find(m=>m.id===currentUser.memberId);
-  if(!m){ document.getElementById('my-dues-detail').innerHTML='<p>Member not found.</p>'; return; }
+  const m = DB.members.find(m=>m.id===currentUser.memberId) || {
+    name:currentUser.name||'Member', dues:20, duesStatus:'unpaid', datePaid:''
+  };
 
   const paid = m.duesStatus === 'paid';
   document.getElementById('my-dues-detail').innerHTML = `
