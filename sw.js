@@ -1,4 +1,4 @@
-const CACHE = 'deca-v11';
+const CACHE = 'deca-v12';
 const SHELL = ['./', './index.html'];
 
 self.addEventListener('install', e => {
