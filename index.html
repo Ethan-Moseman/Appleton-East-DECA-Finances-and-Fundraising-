@@ -1747,10 +1747,34 @@ async function doLogin(){
   }
 
   const {data, error} = await supa.auth.signInWithPassword({email, password:pass});
-  if(error){ errEl.style.display='block'; errEl.textContent='Invalid email or password.'; return; }
+  if(error){
+    errEl.style.display='block';
+    const m = error.msg || error.message || '';
+    errEl.textContent = (error.error_code==='email_not_confirmed' || /confirm/i.test(m))
+      ? 'Your email isn’t confirmed yet — check your inbox for the confirmation link.'
+      : 'Invalid email or password.';
+    return;
+  }
 
   // Fetch member profile
-  const {data:profile} = await supa.from('members').select('*').eq('id',data.user.id).single();
+  let {data:profile} = await supa.from('members').select('*').eq('id',data.user.id).single();
+  // Create the profile on first sign-in if it couldn't be created at signup
+  // (signups with email confirmation have no session yet, so the insert is blocked then)
+  if(!profile){
+    const meta = data.user.user_metadata || {};
+    const {data:created} = await supa.from('members').insert({
+      id: data.user.id,
+      name: meta.name || data.user.email,
+      email: data.user.email,
+      grade: meta.grade || '',
+      dues: 20,
+      dues_status: 'unpaid',
+      date_paid: '',
+      role: 'member',
+      partnership_id: '',
+    });
+    profile = Array.isArray(created) ? created[0] : created;
+  }
   const isAdmin = ADMIN_EMAILS.includes((data.user.email||'').toLowerCase());
   currentUser = {
     id: data.user.id,
@@ -1777,11 +1801,23 @@ async function doSignup(){
   if(pass.length<6){ msgEl.style.display='block'; msgEl.style.color='#f87171'; msgEl.textContent='Password must be at least 6 characters.'; return; }
 
   const {data, error} = await supa.auth.signUp({email, password:pass, options:{data:{name,grade}}});
-  if(error){ msgEl.style.display='block'; msgEl.style.color='#f87171'; msgEl.textContent=error.message; return; }
+  if(error){
+    msgEl.style.display='block'; msgEl.style.color='#f87171';
+    msgEl.textContent = error.msg || error.message || error.error_description || 'Could not create the account. Please try again.';
+    return;
+  }
 
-  // Insert member profile row
-  if(data.user){
-    await supa.from('members').insert({
+  // Supabase returns a user with no identities when the email is already registered
+  if(data.user && Array.isArray(data.user.identities) && data.user.identities.length===0){
+    msgEl.style.display='block'; msgEl.style.color='#f87171';
+    msgEl.textContent='An account with this email already exists. Try signing in instead.';
+    return;
+  }
+
+  // Insert member profile row — only succeeds when we already have a session
+  // (i.e. email confirmation is off); otherwise it's created on first sign-in
+  if(data.user && data.user.id){
+    const {error:insErr} = await supa.from('members').insert({
       id: data.user.id,
       name, email, grade,
       dues: 20,
@@ -1790,9 +1826,27 @@ async function doSignup(){
       role: 'member',
       partnership_id: '',
     });
-    // Also add to local DB for immediate display
-    DB.members.push({id:data.user.id, name, email, grade, dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:'', username:email});
-    saveDB();
+    if(!insErr){
+      // Also add to local DB for immediate display
+      DB.members.push({id:data.user.id, name, email, grade, dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:'', username:email});
+      saveDB();
+    }
+  }
+
+  // If email confirmation is off, signup returns a session — sign them straight in
+  const {data:sess} = await supa.auth.getSession();
+  if(sess?.session && data.user && data.user.id){
+    currentUser = {
+      id: data.user.id,
+      email,
+      name,
+      role: ADMIN_EMAILS.includes(email.toLowerCase()) ? 'admin' : 'member',
+      initials: name.split(' ').map(n=>n[0]).join(''),
+      memberId: data.user.id,
+      supabase: true,
+    };
+    launchApp();
+    return;
   }
 
   msgEl.style.display='block'; msgEl.style.color='#34d399';
