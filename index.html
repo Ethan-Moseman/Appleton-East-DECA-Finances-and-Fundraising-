@@ -982,12 +982,13 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
           <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email"/>
         </div>
         <div class="field">
-          <label>Grade</label>
+          <label>I am a…</label>
           <select id="signup-grade" style="padding:12px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:.95rem;width:100%;">
             <option value="9">Grade 9</option>
             <option value="10">Grade 10</option>
             <option value="11">Grade 11</option>
             <option value="12" selected>Grade 12</option>
+            <option value="Advisor">Advisor</option>
           </select>
         </div>
         <div class="field">
@@ -1750,6 +1751,8 @@ async function doLogin(){
   if(email==='ethan' || email==='ethanmoseman770@gmail.com'){
     if(pass==='deca2025'){
       currentUser={name:'Ethan Moseman',email:'ethanmoseman770@gmail.com',role:'admin',initials:'EM'};
+      // Try to get a real Supabase session too so member data syncs
+      try{ await supa.auth.signInWithPassword({email:'ethanmoseman770@gmail.com', password:pass}); }catch(e){}
       launchApp(); return;
     }
   }
@@ -1772,13 +1775,14 @@ async function doLogin(){
     // (signups with email confirmation have no session yet, so the insert is blocked then)
     if(!profile){
       const meta = data.user.user_metadata || {};
+      const metaAdvisor = meta.grade === 'Advisor';
       const {data:created} = await supa.from('members').insert({
         id: data.user.id,
         name: meta.name || data.user.email,
         email: data.user.email,
         grade: meta.grade || '',
-        dues: 20,
-        dues_status: 'unpaid',
+        dues: metaAdvisor ? 0 : 20,
+        dues_status: metaAdvisor ? 'paid' : 'unpaid',
         date_paid: '',
         role: 'member',
         partnership_id: '',
@@ -1840,19 +1844,20 @@ async function doSignup(){
 
   // Insert member profile row — only succeeds when we already have a session
   // (i.e. email confirmation is off); otherwise it's created on first sign-in
+  const isAdvisor = grade === 'Advisor';
   if(data.user && data.user.id){
     const {error:insErr} = await supa.from('members').insert({
       id: data.user.id,
       name, email, grade,
-      dues: 20,
-      dues_status: 'unpaid',
+      dues: isAdvisor ? 0 : 20,
+      dues_status: isAdvisor ? 'paid' : 'unpaid',
       date_paid: '',
       role: 'member',
       partnership_id: '',
     });
     if(!insErr){
       // Also add to local DB for immediate display
-      DB.members.push({id:data.user.id, name, email, grade, dues:20, duesStatus:'unpaid', datePaid:'', partnershipId:'', username:email});
+      DB.members.push({id:data.user.id, name, email, grade, dues:isAdvisor?0:20, duesStatus:isAdvisor?'paid':'unpaid', datePaid:'', partnershipId:'', username:email});
       saveDB();
     }
   }
@@ -2016,6 +2021,8 @@ function showSection(id){
   const nav = document.getElementById('nav-'+id);
   if(nav) nav.classList.add('active');
   showSkeleton(id);
+  // Pull fresh member signups from Supabase whenever the admin views them
+  if(currentUser?.role==='admin' && (id==='s-members' || id==='s-dashboard')) syncMembersFromSupabase();
   setTimeout(() => render(), 150);
 }
 
@@ -3009,7 +3016,7 @@ function renderMemberHome(){
   document.getElementById('member-hero-area').innerHTML = `
     <div class="member-hero">
       <h2>Welcome back, ${memberData.name.split(' ')[0]}! </h2>
-      <p>Appleton East DECA · Grade ${memberData.grade} · 2026–2027 Chapter Year</p>
+      <p>Appleton East DECA · ${memberData.grade==='Advisor' ? 'Advisor' : 'Grade '+memberData.grade} · 2026–2027 Chapter Year</p>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hs-val">${memberData.duesStatus==='paid'?'Paid':'Unpaid'}</div>
