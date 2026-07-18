@@ -3566,7 +3566,10 @@ async function removePartnershipRemote(id){
 }
 async function loadPartnershipsFromSupabase(){
   try{
-    const {data,error} = await supa.from('partnerships').select('*').order('created_at');
+    const {data,error} = await supa.from('partnerships').select('*');
+    if(data&&data.length&&data[0].created_at!==undefined){
+      data.sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
+    }
     if(error||!data){
       _pSyncDown = true;
       try{ _pSyncErrorDetail = error ? (error.message||JSON.stringify(error)) : 'no data returned'; }catch(e){ _pSyncErrorDetail='unknown'; }
