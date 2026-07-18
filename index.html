@@ -62,7 +62,7 @@ const supabase = (()=>{
 
     function from(table){
       let _url = `${url}/rest/v1/${table}`;
-      let _method = 'GET'; let _body = null;
+      let _method = 'GET'; let _body = null; let _upsert = false;
       let _filters = []; let _select = '*'; let _single = false;
       const q = {
         select(cols){ _select=cols; return q; },
@@ -71,7 +71,9 @@ const supabase = (()=>{
         order(col){ _filters.push(`order=${col}`); return q; },
         single(){ _single=true; return q; },
         insert(data){ _method='POST'; _body=JSON.stringify(Array.isArray(data)?data:[data]); return q; },
+        upsert(data){ _method='POST'; _upsert=true; _body=JSON.stringify(Array.isArray(data)?data:[data]); return q; },
         update(data){ _method='PATCH'; _body=JSON.stringify(data); return q; },
+        delete(){ _method='DELETE'; return q; },
         async then(resolve,reject){
           try{
             const params=[`select=${_select}`,..._filters];
@@ -80,7 +82,7 @@ const supabase = (()=>{
             const h = {...headers};
             if(tok) h['Authorization']='Bearer '+tok;
             if(_single) h['Accept']='application/vnd.pgrst.object+json';
-            if(_method!=='GET') h['Prefer']='return=representation';
+            if(_method!=='GET') h['Prefer']='return=representation'+(_upsert?',resolution=merge-duplicates':'');
             const r = await fetch(fullUrl,{method:_method,headers:h,body:_body});
             const text = await r.text();
             const data = text ? JSON.parse(text) : null;
@@ -1269,7 +1271,11 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
 
       <!--  PARTNERSHIPS (admin)  -->
       <div class="section" id="s-partnerships">
-        <div class="page-header"><h2>Company Outreach</h2><p>Assign companies to students. Dollar amounts are recorded only after a company says Yes.</p></div>
+        <div class="page-header"><h2>Company Outreach</h2><p>Students log the businesses they visit themselves — they appear here automatically. You can also add a company by typing its name, then use Edit to assign it. Dollar amounts are recorded only after a company says Yes.</p></div>
+
+        <div id="p-sync-warning" style="display:none;margin-bottom:20px;padding:14px 18px;border:1px solid rgba(248,113,113,.35);border-left:4px solid #f87171;border-radius:10px;background:rgba(248,113,113,.06);font-size:.87rem;color:#f8b4b4;">
+          <strong style="color:#f87171;">Cross-device sync is not set up yet.</strong> Companies logged by students on their own devices will NOT show up here until it is. Open <strong>SUPABASE_SETUP.md</strong> in the project and paste the SQL into your Supabase SQL Editor (takes about a minute).
+        </div>
 
         <!-- Fundraising Teams -->
         <div class="card" style="margin-bottom:20px;">
@@ -1288,17 +1294,11 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header"><h3>Add Company</h3></div>
           <div class="card-body">
-            <div class="form-row">
-              <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip"/></div>
-              <div class="fg"><label>Contact Person</label><input type="text" id="p-contact" placeholder="e.g. Sarah M."/></div>
-              <div class="fg"><label>Assign to Team</label><select id="p-team"><option value="">— No Team —</option></select></div>
-              <div class="fg"><label>Or Individual Student</label><select id="p-member"><option value="">— Unassigned —</option></select></div>
-              <div class="fg"><label>Visit Deadline</label><input type="date" id="p-next-date"/></div>
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg" style="flex:2"><label>Company Name</label><input type="text" id="p-company" placeholder="e.g. Kwik Trip" onkeydown="if(event.key==='Enter')addPartnership()"/></div>
+              <div><button class="btn btn-primary" onclick="addPartnership()">Add Company</button></div>
             </div>
-            <div class="form-row">
-              <div class="fg" style="flex:3"><label>Notes for student</label><input type="text" id="p-desc" placeholder="e.g. Drop off letter, ask for manager"/></div>
-            </div>
-            <button class="btn btn-primary" onclick="addPartnership()">Assign Company</button>
+            <p style="font-size:.8rem;color:rgba(255,255,255,.35);margin-top:8px;">Just type the company name and hit Add. Contact, team/student assignment, and deadline can be filled in later with Edit.</p>
           </div>
         </div>
 
@@ -1317,6 +1317,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
         <div class="card">
           <div class="card-header"><h3>All Companies</h3>
             <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="loadPartnershipsFromSupabase()">Refresh</button>
               <select id="p-filter" onchange="renderPartnerships()" style="font-size:.82rem;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;">
                 <option value="">All</option>
                 <option value="yes">Said Yes</option>
@@ -1475,7 +1476,20 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
 
       <!--  MY PARTNERSHIP (member only)  -->
       <div class="section" id="s-my-partnership">
-        <div class="page-header"><h2>My Company Partnership</h2><p>You've been assigned to manage the following company relationship.</p></div>
+        <div class="page-header"><h2>My Company Partnerships</h2><p>Log every business you stop at and what they said — you don't need to wait for it to be assigned to you.</p></div>
+
+        <!-- Log a business visit -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><h3>Log a Business Visit</h3></div>
+          <div class="card-body">
+            <div class="form-row" style="align-items:flex-end;">
+              <div class="fg" style="flex:2"><label>Business Name</label><input type="text" id="my-company" placeholder="e.g. Kwik Trip" onkeydown="if(event.key==='Enter')addMyBusiness()"/></div>
+              <div><button class="btn btn-primary" onclick="addMyBusiness()">Log Visit</button></div>
+            </div>
+            <p style="font-size:.8rem;color:rgba(255,255,255,.35);margin-top:8px;">Type the business you just stopped at, then pick their response — Yes, No, or Maybe. If it's a Maybe, leave a note and Ethan will call them back.</p>
+          </div>
+        </div>
+
         <div id="my-partnership-detail"></div>
       </div>
 
@@ -1594,10 +1608,15 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
     </div>
     <div class="form-row">
       <div class="fg"><label>Value ($)</label><input type="number" id="p-edit-value" min="0" step="0.01"/></div>
-      <div class="fg"><label>Assigned Member</label><select id="p-edit-member"><option value="">— Unassigned —</option></select></div>
-      <div class="fg"><label>Visit Deadline</label><input type="date" id="p-edit-next"/></div>
+      <div class="fg"><label>Assign to Team</label><select id="p-edit-team"><option value="">— No Team —</option></select></div>
+      <div class="fg"><label>Or Individual Student</label><select id="p-edit-member"><option value="">— Unassigned —</option></select></div>
     </div>
-    <div class="fg"><label>What we're asking for</label><input type="text" id="p-edit-desc" style="padding:9px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;width:100%;background:rgba(255,255,255,.05);color:#fff;"/></div>
+    <div class="form-row">
+      <div class="fg"><label>Visit Deadline</label><input type="date" id="p-edit-next"/></div>
+      <div class="fg"><label>Status</label><select id="p-edit-status"><option value="pending">Pending</option><option value="active">Active</option></select></div>
+    </div>
+    <div class="fg" style="margin-bottom:12px;"><label>What we're asking for</label><input type="text" id="p-edit-desc" style="padding:9px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;width:100%;background:rgba(255,255,255,.05);color:#fff;"/></div>
+    <div class="fg"><label>Notes</label><input type="text" id="p-edit-notes" style="padding:9px 12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:.9rem;width:100%;background:rgba(255,255,255,.05);color:#fff;"/></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('p-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="savePartnershipEdit()">Save</button>
@@ -2019,6 +2038,8 @@ function launchApp(){
   buildSidebar();
   applyTheme();
   if(currentUser?.role === 'admin') syncMembersFromSupabase();
+  loadPartnershipsFromSupabase();
+  if(!window._pSyncTimer) window._pSyncTimer = setInterval(loadPartnershipsFromSupabase, 30000);
   showSection(currentUser.role === 'admin' ? 's-dashboard' : 's-my-home');
   render();
   // Notification button visibility
@@ -2476,13 +2497,13 @@ function renderFundraisers(){
 //  Partnerships 
 function populateMemberDropdowns(){
   const opts = `<option value="">— Unassigned —</option>` + DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  ['p-member','p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+  ['p-edit-member'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
 }
 
 function populateTeamDropdown(){
-  const sel = document.getElementById('p-team'); if(!sel) return;
-  sel.innerHTML = '<option value="">— No Team —</option>' +
+  const opts = '<option value="">— No Team —</option>' +
     DB.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  ['p-edit-team'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
 }
 
 function addTeam(){
@@ -2530,33 +2551,54 @@ function renderTeams(){
 
 function addPartnership(){
   const company=document.getElementById('p-company').value.trim();
-  const contact=document.getElementById('p-contact').value.trim();
-  const desc=document.getElementById('p-desc').value.trim();
-  const teamId=document.getElementById('p-team')?.value||'';
-  const assignedTo=teamId?'':document.getElementById('p-member').value;
-  const nextDate=document.getElementById('p-next-date').value;
   if(!company){alert('Enter a company name.');return;}
   const id=uid();
-  DB.partnerships.push({id,company,contact,value:0,desc,assignedTo,teamId,nextDate,response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'});
-  if(assignedTo){ const m=getMember(assignedTo); if(m) m.partnershipId=id; }
+  const p={id,company,contact:'',value:0,desc:'',assignedTo:'',teamId:'',nextDate:'',response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'};
+  DB.partnerships.push(p);
   logActivity('Added company', company);
   saveDB();
+  pushPartnership(p);
   document.getElementById('p-company').value='';
-  document.getElementById('p-contact').value='';
-  document.getElementById('p-desc').value='';
   render();
+}
+
+// Student logs a business they visited themselves
+function addMyBusiness(){
+  const inp=document.getElementById('my-company');
+  const company=inp.value.trim();
+  if(!company){alert('Enter the business name.');return;}
+  const m=DB.members.find(x=>x.id===currentUser.memberId);
+  if(!m){alert('Could not find your member record. Try signing out and back in.');return;}
+  // If this company is already on their list, just open the response form for it
+  let p=DB.partnerships.find(x=>x.assignedTo===m.id && x.company.toLowerCase()===company.toLowerCase());
+  if(!p){
+    const id=uid();
+    p={id,company,contact:'',value:0,desc:'',assignedTo:m.id,teamId:'',nextDate:'',response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'};
+    DB.partnerships.push(p);
+    if(!m.partnershipId) m.partnershipId=p.id;
+    logActivity('Logged business visit', company);
+    saveDB();
+    pushPartnership(p);
+  }
+  inp.value='';
+  render();
+  openResponseModal(p.id);
 }
 
 function deletePartnership(id){
   if(!confirm('Delete this partnership?'))return;
   DB.members.forEach(m=>{ if(m.partnershipId===id) m.partnershipId=''; });
   DB.partnerships=DB.partnerships.filter(p=>p.id!==id);
-  saveDB();render();
+  saveDB();
+  removePartnershipRemote(id);
+  render();
 }
 
 function openPartnershipEdit(id){
   const p=getPartnership(id); if(!p)return;
   populateMemberDropdowns();
+  populateTeamDropdown();
+  document.getElementById('p-edit-team').value=p.teamId||'';
   document.getElementById('p-edit-id').value=p.id;
   document.getElementById('p-edit-company').value=p.company;
   document.getElementById('p-edit-contact').value=p.contact;
@@ -2579,11 +2621,14 @@ function savePartnershipEdit(){
   p.value=parseFloat(document.getElementById('p-edit-value').value)||0;
   p.status=document.getElementById('p-edit-status').value;
   p.desc=document.getElementById('p-edit-desc').value.trim();
-  p.assignedTo=document.getElementById('p-edit-member').value;
+  p.teamId=document.getElementById('p-edit-team').value;
+  p.assignedTo=p.teamId?'':document.getElementById('p-edit-member').value;
   p.nextDate=document.getElementById('p-edit-next').value;
   p.notes=document.getElementById('p-edit-notes').value;
   if(p.assignedTo){ const m=getMember(p.assignedTo); if(m) m.partnershipId=id; }
-  saveDB();closeModal('p-modal');render();
+  saveDB();
+  pushPartnership(p);
+  closeModal('p-modal');render();
 }
 
 /* ── Maybe Flag overlay ── */
@@ -2675,7 +2720,9 @@ function saveResponse(){
   p.response = _currentRespVal;
   p.comments = comments;
   p.visitDate = new Date().toISOString().split('T')[0];
-  saveDB(); closeModal('response-modal'); render();
+  saveDB();
+  pushPartnership(p);
+  closeModal('response-modal'); render();
 }
 
 function renderPartnerships(){
@@ -3264,7 +3311,7 @@ function renderMyPartnership(){
   const assigned = DB.partnerships.filter(p=>p.assignedTo===m.id);
 
   if(!assigned.length){
-    detail.innerHTML=`<div class="empty-state"><div class="icon" style="font-size:2rem;opacity:.3;margin-bottom:10px;">—</div><p>You haven't been assigned any companies yet.<br/>Check back or ask Ethan or Mrs. Fude.</p></div>`;
+    detail.innerHTML=`<div class="empty-state"><div class="icon" style="font-size:2rem;opacity:.3;margin-bottom:10px;">—</div><p>No businesses logged yet.<br/>Stop at a business, then type its name above and log their response.</p></div>`;
     return;
   }
 
@@ -3273,7 +3320,7 @@ function renderMyPartnership(){
 
   detail.innerHTML = `
     <div class="alert alert-blue" style="margin-bottom:20px;">
-      You have <strong>${assigned.length}</strong> company assignment${assigned.length>1?'s':''}. Visit each one, drop off the letter, and log their response below.
+      You have <strong>${assigned.length}</strong> compan${assigned.length>1?'ies':'y'} on your list. Log each business you stop at and update its response below.
     </div>` +
     assigned.map(p => {
       const overdue = p.nextDate && !p.response && new Date(p.nextDate) < new Date();
@@ -3462,6 +3509,57 @@ function applyTheme(){
 }
 
 // Sync real members from Supabase into local DB (admin only)
+// ── Partnership cloud sync (shared across all devices) ──
+function partnershipToRow(p){
+  return {id:p.id, company:p.company, contact:p.contact||'', value:+p.value||0,
+    description:p.desc||'', assigned_to:p.assignedTo||'', team_id:p.teamId||'',
+    next_date:p.nextDate||'', response:p.response||null, comments:p.comments||'',
+    visit_date:p.visitDate||'', callback_notes:p.callbackNotes||'',
+    status:p.status||'pending', tier:p.tier||null, notes:p.notes||''};
+}
+function rowToPartnership(r){
+  const p={id:r.id, company:r.company, contact:r.contact||'', value:+r.value||0,
+    desc:r.description||'', assignedTo:r.assigned_to||'', teamId:r.team_id||'',
+    nextDate:r.next_date||'', response:r.response||null, comments:r.comments||'',
+    visitDate:r.visit_date||'', callbackNotes:r.callback_notes||'',
+    status:r.status||'pending'};
+  if(r.tier) p.tier=r.tier;
+  if(r.notes) p.notes=r.notes;
+  return p;
+}
+async function pushPartnership(p){
+  const {error} = await supa.from('partnerships').upsert(partnershipToRow(p));
+  if(error) console.log('Partnership sync error:', error);
+}
+async function removePartnershipRemote(id){
+  const {error} = await supa.from('partnerships').delete().eq('id',id);
+  if(error) console.log('Partnership sync error:', error);
+}
+async function loadPartnershipsFromSupabase(){
+  try{
+    const {data,error} = await supa.from('partnerships').select('*').order('created_at');
+    const banner = document.getElementById('p-sync-warning');
+    if(error||!data){
+      if(banner) banner.style.display='';
+      console.log('Partnership sync unavailable (is the partnerships table set up?):', error);
+      return;
+    }
+    if(banner) banner.style.display='none';
+    // One-time: push up anything this device logged before sync existed
+    if(!localStorage.getItem('deca_p_migrated')){
+      const remoteIds = new Set(data.map(r=>r.id));
+      const localOnly = DB.partnerships.filter(p=>!remoteIds.has(p.id));
+      for(const p of localOnly){ await pushPartnership(p); data.push(partnershipToRow(p)); }
+      localStorage.setItem('deca_p_migrated','1');
+    }
+    const merged = data.map(rowToPartnership);
+    if(JSON.stringify(merged)!==JSON.stringify(DB.partnerships)){
+      DB.partnerships = merged;
+      saveDB(); render();
+    }
+  }catch(e){ console.log('Partnership sync error:', e); }
+}
+
 async function syncMembersFromSupabase(){
   try{
     const {data} = await supa.from('members').select('*').order('created_at');
@@ -3538,7 +3636,7 @@ loadDB();
 
 document.addEventListener('DOMContentLoaded', ()=>{
   const today = new Date().toISOString().split('T')[0];
-  ['tx-date','fr-date','p-next-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
+  ['tx-date','fr-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
   // Restore Supabase session
   supa.auth.getSession().then(({data:{session}})=>{
     if(session){
