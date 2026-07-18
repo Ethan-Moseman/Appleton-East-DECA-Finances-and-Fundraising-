@@ -3527,8 +3527,35 @@ function rowToPartnership(r){
   if(r.notes) p.notes=r.notes;
   return p;
 }
+let _pSyncDown = false;      // partnerships table unreachable/missing
+let _pNeedsSqlUpdate = false; // table exists but is missing newer columns
+function updateSyncBanner(){
+  const banner = document.getElementById('p-sync-warning');
+  if(!banner) return;
+  if(_pSyncDown){
+    banner.innerHTML = '<strong style="color:#f87171;">Cross-device sync is not set up yet.</strong> Companies logged by students on their own devices will NOT show up here until it is. Open <strong>SUPABASE_SETUP.md</strong> in the project and paste the SQL into your Supabase SQL Editor (takes about a minute).';
+    banner.style.display='';
+  } else if(_pNeedsSqlUpdate){
+    banner.innerHTML = '<strong style="color:#f87171;">Your database needs a quick update.</strong> Entries are still coming through, but some details (like partnership tier) can\'t be saved. Run the SQL in <strong>SUPABASE_SETUP.md</strong> again in your Supabase SQL Editor — it\'s safe to re-run and only adds what\'s missing.';
+    banner.style.display='';
+  } else {
+    banner.style.display='none';
+  }
+}
+function _isColumnError(error){
+  const msg = ((error&&(error.message||error.code))||JSON.stringify(error||''))+'';
+  return /column|PGRST204/i.test(msg);
+}
 async function pushPartnership(p){
-  const {error} = await supa.from('partnerships').upsert(partnershipToRow(p));
+  const row = partnershipToRow(p);
+  let {error} = await supa.from('partnerships').upsert(row);
+  if(error && _isColumnError(error)){
+    // Table was created with the older setup SQL (no tier/team_id/notes columns).
+    // Send just the original columns so the entry still reaches the admin.
+    const {tier, team_id, notes, ...base} = row;
+    error = (await supa.from('partnerships').upsert(base)).error;
+    if(!error){ _pNeedsSqlUpdate = true; updateSyncBanner(); }
+  }
   if(error) console.log('Partnership sync error:', error);
 }
 async function removePartnershipRemote(id){
@@ -3538,13 +3565,12 @@ async function removePartnershipRemote(id){
 async function loadPartnershipsFromSupabase(){
   try{
     const {data,error} = await supa.from('partnerships').select('*').order('created_at');
-    const banner = document.getElementById('p-sync-warning');
     if(error||!data){
-      if(banner) banner.style.display='';
+      _pSyncDown = true; updateSyncBanner();
       console.log('Partnership sync unavailable (is the partnerships table set up?):', error);
       return;
     }
-    if(banner) banner.style.display='none';
+    _pSyncDown = false; updateSyncBanner();
     // One-time: push up anything this device logged before sync existed
     if(!localStorage.getItem('deca_p_migrated')){
       const remoteIds = new Set(data.map(r=>r.id));
