@@ -18,6 +18,26 @@ const supabase = (()=>{
     function _load(){ try{ const s=localStorage.getItem(_storageKey); if(s){_session=JSON.parse(s);} }catch(e){} }
     _load();
 
+    // Try to renew an expired login token; if that fails, drop it so requests
+    // fall back to the app key instead of being rejected with "JWT expired".
+    async function _refreshSession(){
+      try{
+        if(_session?.refresh_token){
+          const r = await fetch(`${url}/auth/v1/token?grant_type=refresh_token`,{
+            method:'POST', headers:{...headers},
+            body:JSON.stringify({refresh_token:_session.refresh_token})
+          });
+          const d = await r.json();
+          if(r.ok && d.access_token){
+            _save({access_token:d.access_token,refresh_token:d.refresh_token,user:d.user||_session.user});
+            return true;
+          }
+        }
+      }catch(e){}
+      _session=null; try{localStorage.removeItem(_storageKey);}catch(e){}
+      return false;
+    }
+
     const auth = {
       async signInWithPassword({email,password}){
         try{
@@ -78,14 +98,23 @@ const supabase = (()=>{
           try{
             const params=[`select=${_select}`,..._filters];
             const fullUrl = _url + '?' + params.join('&');
-            const tok = _session?.access_token;
-            const h = {...headers};
-            if(tok) h['Authorization']='Bearer '+tok;
-            if(_single) h['Accept']='application/vnd.pgrst.object+json';
-            if(_method!=='GET') h['Prefer']='return=representation'+(_upsert?',resolution=merge-duplicates':'');
-            const r = await fetch(fullUrl,{method:_method,headers:h,body:_body});
-            const text = await r.text();
-            const data = text ? JSON.parse(text) : null;
+            const doFetch = async () => {
+              const tok = _session?.access_token;
+              const h = {...headers};
+              if(tok) h['Authorization']='Bearer '+tok;
+              if(_single) h['Accept']='application/vnd.pgrst.object+json';
+              if(_method!=='GET') h['Prefer']='return=representation'+(_upsert?',resolution=merge-duplicates':'');
+              const r = await fetch(fullUrl,{method:_method,headers:h,body:_body});
+              const text = await r.text();
+              const data = text ? JSON.parse(text) : null;
+              return {r,data};
+            };
+            let {r,data} = await doFetch();
+            // Stale login token (e.g. "JWT expired") — renew or drop it, then retry once
+            if(!r.ok && _session && (r.status===401 || /JWT/i.test((data&&data.message)||''))){
+              await _refreshSession();
+              ({r,data} = await doFetch());
+            }
             if(!r.ok) resolve({data:null,error:data});
             else resolve({data,error:null});
           }catch(e){ resolve({data:null,error:e}); }
