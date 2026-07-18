@@ -1486,7 +1486,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
               <div class="fg" style="flex:2"><label>Business Name</label><input type="text" id="my-company" placeholder="e.g. Kwik Trip" onkeydown="if(event.key==='Enter')addMyBusiness()"/></div>
               <div><button class="btn btn-primary" onclick="addMyBusiness()">Log Visit</button></div>
             </div>
-            <p style="font-size:.8rem;color:rgba(255,255,255,.35);margin-top:8px;">Type the business you just stopped at, then pick their response — Yes, No, or Maybe. If it's a Maybe, leave a note and Ethan will call them back.</p>
+            <p style="font-size:.8rem;color:rgba(255,255,255,.35);margin-top:8px;">Type the business you just stopped at, then pick their response — Yes, No, or Maybe. If it's a Maybe, leave a note and an officer will call them back.</p>
           </div>
         </div>
 
@@ -2637,7 +2637,7 @@ function showMaybeFlag(){
   if(existing) existing.remove();
   const el = document.createElement('div');
   el.id = 'maybe-flag-overlay';
-  el.innerHTML = `<div id="maybe-flag-inner"><span id="maybe-flag-icon">&#9873;</span><span id="maybe-flag-text">Flagged for Callback</span><span id="maybe-flag-sub">Ethan will follow up with a call to the company</span></div>`;
+  el.innerHTML = `<div id="maybe-flag-inner"><span id="maybe-flag-icon">&#9873;</span><span id="maybe-flag-text">Flagged for Callback</span><span id="maybe-flag-sub">An officer will follow up with a call to the company</span></div>`;
   document.body.appendChild(el);
   setTimeout(()=>{ el.classList.add('show'); },10);
   setTimeout(()=>{ el.classList.remove('show'); el.classList.add('hide'); setTimeout(()=>el.remove(),600); },2800);
@@ -3348,7 +3348,7 @@ function renderMyPartnership(){
       </div>`;
     }).join('') +
     `<div style="padding:14px 16px;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.12);border-radius:10px;font-size:.83rem;color:rgba(255,255,255,.45);margin-top:4px;">
-      If a company says <strong style="color:#fbbf24;">Maybe</strong>, add a comment explaining what they said so Ethan can follow up with a call.
+      If a company says <strong style="color:#fbbf24;">Maybe</strong>, add a comment explaining what they said so an officer can follow up with a call.
     </div>`;
 }
 
@@ -3428,7 +3428,7 @@ function genPartnerReminders(){
     const member=p.assignedTo?getMember(p.assignedTo):null;
     const studentName=member?member.name.split(' ')[0]:'[Student]';
     const deadline=p.nextDate||'soon';
-    const action=p.response==='maybe'?`(They said maybe — Ethan will call back, but please add any additional notes in the app.)`:`Please visit ${p.company}, drop off the letter, and log their response in the DECA app.`;
+    const action=p.response==='maybe'?`(They said maybe — an officer will call back, but please add any additional notes in the app.)`:`Please visit ${p.company}, drop off the letter, and log their response in the DECA app.`;
     return `<div style="margin-bottom:14px;">
       <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:4px;">${studentName} → ${p.company}</div>
       <textarea rows="5" readonly style="width:100%;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e8eef8;font-size:.83rem;resize:none;" onclick="this.select()">Hi ${studentName}, just a reminder about your company assignment — ${p.company}. ${action} Deadline: ${deadline}. Thanks, Ethan</textarea>
