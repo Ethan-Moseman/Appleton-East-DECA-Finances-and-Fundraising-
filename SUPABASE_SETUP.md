@@ -35,6 +35,7 @@ alter table public.partnerships add column if not exists callback_notes text not
 alter table public.partnerships add column if not exists status text not null default 'pending';
 alter table public.partnerships add column if not exists tier text;
 alter table public.partnerships add column if not exists notes text not null default '';
+alter table public.partnerships add column if not exists submitted_by text not null default '';
 
 alter table public.partnerships enable row level security;
 

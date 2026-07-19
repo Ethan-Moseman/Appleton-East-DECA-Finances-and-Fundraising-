@@ -2602,7 +2602,7 @@ function addMyBusiness(){
   let p=DB.partnerships.find(x=>x.assignedTo===m.id && x.company.toLowerCase()===company.toLowerCase());
   if(!p){
     const id=uid();
-    p={id,company,contact:'',value:0,desc:'',assignedTo:m.id,teamId:'',nextDate:'',response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending'};
+    p={id,company,contact:'',value:0,desc:'',assignedTo:m.id,teamId:'',nextDate:'',response:null,comments:'',visitDate:'',callbackNotes:'',status:'pending',submittedBy:m.name};
     DB.partnerships.push(p);
     if(!m.partnershipId) m.partnershipId=p.id;
     logActivity('Logged business visit', company);
@@ -2771,7 +2771,7 @@ function renderPartnerships(){
       cbEl.innerHTML = maybes.map(p=>{
         const member = p.assignedTo?getMember(p.assignedTo):null;
         const team = p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
-        const whoLabel = team?'Team: '+team.name : member?'Assigned to: '+member.name:'';
+        const whoLabel = team?'Team: '+team.name : member?'Assigned to: '+member.name : p.submittedBy?'Submitted by '+p.submittedBy:'';
         return `<div style="border:1px solid rgba(251,191,36,.25);border-left:3px solid #fbbf24;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:rgba(251,191,36,.04);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
             <div>
@@ -2797,9 +2797,11 @@ function renderPartnerships(){
     const team=p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
     const assignLabel = team
       ? `<span style="color:#60a5fa;">&#128101; ${team.name}</span>`
-      : member ? member.name : '<span style="color:var(--gray);">Unassigned</span>';
+      : member ? member.name
+      : p.submittedBy ? p.submittedBy
+      : '<span style="color:var(--gray);">Unassigned</span>';
     return `<tr>
-      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc||''}</div></td>
+      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.submittedBy?`Submitted by ${p.submittedBy}`:''}${p.submittedBy&&p.desc?' · ':''}${p.desc||''}</div></td>
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
       <td style="font-size:.83rem;">${assignLabel}</td>
       <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
@@ -3544,7 +3546,8 @@ function partnershipToRow(p){
     description:p.desc||'', assigned_to:p.assignedTo||'', team_id:p.teamId||'',
     next_date:p.nextDate||'', response:p.response||null, comments:p.comments||'',
     visit_date:p.visitDate||'', callback_notes:p.callbackNotes||'',
-    status:p.status||'pending', tier:p.tier||null, notes:p.notes||''};
+    status:p.status||'pending', tier:p.tier||null, notes:p.notes||'',
+    submitted_by:p.submittedBy||''};
 }
 function rowToPartnership(r){
   const p={id:r.id, company:r.company, contact:r.contact||'', value:+r.value||0,
@@ -3554,6 +3557,7 @@ function rowToPartnership(r){
     status:r.status||'pending'};
   if(r.tier) p.tier=r.tier;
   if(r.notes) p.notes=r.notes;
+  if(r.submitted_by) p.submittedBy=r.submitted_by;
   return p;
 }
 let _pSyncDown = false;      // partnerships table unreachable/missing
@@ -3583,7 +3587,7 @@ async function pushPartnership(p){
   if(error && _isColumnError(error)){
     // Table was created with the older setup SQL (no tier/team_id/notes columns).
     // Send just the original columns so the entry still reaches the admin.
-    const {tier, team_id, notes, ...base} = row;
+    const {tier, team_id, notes, submitted_by, ...base} = row;
     error = (await supa.from('partnerships').upsert(base)).error;
     if(!error){ _pNeedsSqlUpdate = true; updateSyncBanner(); }
   }
