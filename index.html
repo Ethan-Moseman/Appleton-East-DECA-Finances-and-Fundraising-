@@ -1358,7 +1358,7 @@ body.light-mode .skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(
           </div>
           <div class="tbl-wrap">
             <table style="margin:0;">
-              <thead><tr><th>Company</th><th>Contact</th><th>Assigned To</th><th>Response</th><th>Amount</th><th>Deadline</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Company</th><th>Contact</th><th>Submitted By</th><th>Response</th><th>Amount</th><th>Deadline</th><th>Actions</th></tr></thead>
               <tbody id="p-tbody"></tbody>
             </table>
           </div>
@@ -2771,7 +2771,7 @@ function renderPartnerships(){
       cbEl.innerHTML = maybes.map(p=>{
         const member = p.assignedTo?getMember(p.assignedTo):null;
         const team = p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
-        const whoLabel = team?'Team: '+team.name : member?'Assigned to: '+member.name : p.submittedBy?'Submitted by '+p.submittedBy:'';
+        const whoLabel = p.submittedBy?'Submitted by '+p.submittedBy : member?'Submitted by '+member.name : team?'Team: '+team.name:'';
         return `<div style="border:1px solid rgba(251,191,36,.25);border-left:3px solid #fbbf24;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:rgba(251,191,36,.04);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
             <div>
@@ -2795,13 +2795,12 @@ function renderPartnerships(){
   document.getElementById('p-tbody').innerHTML = list.map(p=>{
     const member=p.assignedTo?getMember(p.assignedTo):null;
     const team=p.teamId?DB.teams.find(t=>t.id===p.teamId):null;
-    const assignLabel = team
-      ? `<span style="color:#60a5fa;">&#128101; ${team.name}</span>`
+    const assignLabel = p.submittedBy ? p.submittedBy
       : member ? member.name
-      : p.submittedBy ? p.submittedBy
-      : '<span style="color:var(--gray);">Unassigned</span>';
+      : team ? `<span style="color:#60a5fa;">&#128101; ${team.name}</span>`
+      : '<span style="color:var(--gray);">—</span>';
     return `<tr>
-      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.submittedBy?`Submitted by ${p.submittedBy}`:''}${p.submittedBy&&p.desc?' · ':''}${p.desc||''}</div></td>
+      <td><strong>${p.company}</strong><div style="font-size:.75rem;color:var(--gray);">${p.desc||''}</div></td>
       <td style="font-size:.83rem;">${p.contact||'—'}</td>
       <td style="font-size:.83rem;">${assignLabel}</td>
       <td><span style="font-size:.78rem;font-weight:700;color:${respColor(p.response)};">${respLabel(p.response)}</span></td>
