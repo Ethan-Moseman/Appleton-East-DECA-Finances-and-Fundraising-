@@ -3624,6 +3624,15 @@ async function loadPartnershipsFromSupabase(){
       localStorage.setItem('deca_p_migrated','1');
     }
     const merged = data.map(rowToPartnership);
+    // Backfill: stamp this student's name on their older entries from before
+    // names were tracked, so they show up on the admin's Submitted By column
+    if(currentUser && currentUser.role!=='admin' && currentUser.memberId){
+      const me = DB.members.find(x=>x.id===currentUser.memberId);
+      const nm = (me&&me.name)||currentUser.name;
+      if(nm) merged.forEach(p=>{
+        if(p.assignedTo===currentUser.memberId && !p.submittedBy){ p.submittedBy=nm; pushPartnership(p); }
+      });
+    }
     if(JSON.stringify(merged)!==JSON.stringify(DB.partnerships)){
       DB.partnerships = merged;
       saveDB(); render();
