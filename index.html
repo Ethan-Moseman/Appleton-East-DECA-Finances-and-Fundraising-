@@ -2749,6 +2749,12 @@ function saveResponse(){
   p.response = _currentRespVal;
   p.comments = comments;
   p.visitDate = new Date().toISOString().split('T')[0];
+  // Record who logged this response (students only, so an admin recording
+  // an amount later doesn't overwrite the student's name)
+  if(currentUser && currentUser.role !== 'admin'){
+    const m = DB.members.find(x=>x.id===currentUser.memberId);
+    p.submittedBy = (m && m.name) || currentUser.name || p.submittedBy;
+  }
   saveDB();
   pushPartnership(p);
   closeModal('response-modal'); render();
